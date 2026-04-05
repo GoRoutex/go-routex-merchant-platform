@@ -1,0 +1,53 @@
+package vn.com.routex.merchant.platform.infrastructure.persistence.utils;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.experimental.UtilityClass;
+import vn.com.routex.merchant.platform.application.command.common.RequestContext;
+import vn.com.routex.merchant.platform.infrastructure.persistence.config.RequestAttributes;
+import vn.com.routex.merchant.platform.interfaces.model.base.BaseRequest;
+
+@UtilityClass
+public class ApiRequestUtils {
+    public BaseRequest getBaseRequestOrDefault(HttpServletRequest request) {
+
+        String requestId =
+                (String) request.getAttribute(RequestAttributes.REQUEST_ID);
+
+        String requestDateTime =
+                (String) request.getAttribute(RequestAttributes.REQUEST_DATE_TIME);
+
+        String requestChannel =
+                (String) request.getAttribute(RequestAttributes.CHANNEL);
+
+        return BaseRequest.builder()
+                .requestId(requestId)
+                .requestDateTime(requestDateTime)
+                .channel(requestChannel)
+                .build();
+    }
+
+    public BaseRequest getHeader(RequestContext context) {
+        return BaseRequest.builder()
+                .requestId(context.requestId())
+                .requestDateTime(context.requestDateTime())
+                .channel(context.channel())
+                .build();
+    }
+
+    public int parseIntOrDefault(
+            String v,
+            int defaultValue,
+            String field,
+            String requestId,
+            String requestDateTime,
+            String channel
+    ) {
+        if (v == null || v.isBlank()) return defaultValue;
+        return DateTimeUtils.parseIntOrThrow(v, field, requestId, requestDateTime, channel);
+    }
+
+
+    public String firstNonBlank(String value, String fallback) {
+        return (value == null || value.isBlank()) ? fallback : value.trim();
+    }
+}
