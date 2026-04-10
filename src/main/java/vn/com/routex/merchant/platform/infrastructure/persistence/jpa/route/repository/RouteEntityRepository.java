@@ -8,9 +8,12 @@ import org.springframework.stereotype.Repository;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RouteEntityRepository extends JpaRepository<RouteEntity, String>, JpaSpecificationExecutor<RouteEntity> {
+
+    Optional<RouteEntity> findByIdAndMerchantId(String id, String merchantId);
 
     List<RouteEntity> findByMerchantId(String merchantId);
 

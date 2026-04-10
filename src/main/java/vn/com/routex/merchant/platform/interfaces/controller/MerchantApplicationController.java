@@ -14,7 +14,7 @@ import vn.com.routex.merchant.platform.application.command.merchant.RejectMercha
 import vn.com.routex.merchant.platform.application.command.merchant.RejectMerchantApplicationResult;
 import vn.com.routex.merchant.platform.application.command.merchant.SubmitMerchantApplicationCommand;
 import vn.com.routex.merchant.platform.application.command.merchant.SubmitMerchantApplicationResult;
-import vn.com.routex.merchant.platform.application.service.merchant.MerchantApplicationFormService;
+import vn.com.routex.merchant.platform.application.service.MerchantApplicationFormService;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.HttpUtils;
 import vn.com.routex.merchant.platform.interfaces.model.merchant.AcceptMerchantApplicationRequest;

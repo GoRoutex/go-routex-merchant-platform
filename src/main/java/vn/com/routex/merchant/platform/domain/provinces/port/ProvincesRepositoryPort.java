@@ -6,14 +6,16 @@ import vn.com.routex.merchant.platform.domain.provinces.model.Province;
 import java.util.Optional;
 
 public interface ProvincesRepositoryPort {
+    // Master data
     Optional<Province> findById(Integer id);
 
-    boolean existsByCode(String code);
+    Optional<Province> findByCode(String code);
 
-    boolean existsByName(String name);
+    // Mapping
+    boolean isAssigned(Integer provinceId, String merchantId);
 
-    Province save(Province province);
+    void assign(Integer provinceId, String merchantId);
 
-    void deleteById(Integer id);
+    void unassign(Integer provinceId, String merchantId);
 }
 

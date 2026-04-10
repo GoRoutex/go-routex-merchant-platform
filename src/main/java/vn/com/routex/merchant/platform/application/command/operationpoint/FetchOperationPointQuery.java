@@ -7,7 +7,7 @@ import vn.com.routex.merchant.platform.application.command.common.RequestContext
 public record FetchOperationPointQuery(
         String pageSize,
         String pageNumber,
+        String merchantId,
         RequestContext context
 ) {
 }
-

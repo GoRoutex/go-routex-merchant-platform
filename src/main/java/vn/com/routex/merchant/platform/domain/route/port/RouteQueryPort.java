@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface RouteQueryPort {
     List<RouteSearchView> searchAssignedRoutes(
+            String merchantId,
             String origin,
             String destination,
             OffsetDateTime startTime,
@@ -18,5 +19,6 @@ public interface RouteQueryPort {
             int pageSize
     );
 
-    PagedResult<RouteFetchView> fetchRoutes(int pageNumber, int pageSize);
+    PagedResult<RouteFetchView> fetchRoutes(String merchantId, String merchantName, int pageNumber, int pageSize);
+
 }

@@ -10,5 +10,9 @@ import java.util.Optional;
 public interface RouteVehicleRepositoryPort {
     Optional<VehicleSnapshot> findById(String vehicleId);
 
+    Optional<VehicleSnapshot> findById(String vehicleId, String merchantId);
+
     Map<String, VehicleSnapshot> findByIds(List<String> vehicleIds);
+
+    Map<String, VehicleSnapshot> findByIds(List<String> vehicleIds, String merchantId);
 }

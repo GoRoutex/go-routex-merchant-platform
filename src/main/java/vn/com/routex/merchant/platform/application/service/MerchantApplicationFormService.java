@@ -1,4 +1,4 @@
-package vn.com.routex.merchant.platform.application.service.merchant;
+package vn.com.routex.merchant.platform.application.service;
 
 import vn.com.routex.merchant.platform.application.command.merchant.AcceptMerchantApplicationCommand;
 import vn.com.routex.merchant.platform.application.command.merchant.AcceptMerchantApplicationResult;

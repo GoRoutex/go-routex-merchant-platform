@@ -6,7 +6,8 @@ import vn.com.routex.merchant.platform.application.command.common.RequestContext
 @Builder
 public record UpdateProvinceCommand(
         RequestContext context,
-        Integer id,
+        String id,
+
         String name,
         String code
 ) {

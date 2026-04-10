@@ -6,7 +6,8 @@ import vn.com.routex.merchant.platform.application.command.common.RequestContext
 @Builder
 public record DeleteProvinceCommand(
         RequestContext context,
-        Integer id
+        int id
+
 ) {
 }
 

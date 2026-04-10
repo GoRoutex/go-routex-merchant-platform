@@ -1,0 +1,80 @@
+package vn.com.routex.merchant.platform.infrastructure.persistence.adapter.vehicle;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Component;
+import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
+import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleProfileRepositoryPort;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.entity.VehicleEntity;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.repository.VehicleEntityRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Component
+@RequiredArgsConstructor
+public class VehicleProfileRepositoryAdapter implements VehicleProfileRepositoryPort {
+
+    private final VehicleEntityRepository VehicleEntityRepository;
+
+    @Override
+    public boolean existsByVehiclePlate(String vehiclePlate) {
+        return VehicleEntityRepository.existsByVehiclePlate(vehiclePlate);
+    }
+
+    @Override
+    public boolean existsByVehiclePlate(String vehiclePlate, String merchantId) {
+        return VehicleEntityRepository.existsByVehiclePlateAndMerchantId(vehiclePlate, merchantId);
+    }
+
+    @Override
+    public Optional<VehicleProfile> findById(String id) {
+        return VehicleEntityRepository.findById(id).map(VehiclePersistenceMapper::toDomain);
+    }
+
+    @Override
+    public Optional<VehicleProfile> findById(String id, String merchantId) {
+        return VehicleEntityRepository.findByIdAndMerchantId(id, merchantId)
+                .map(VehiclePersistenceMapper::toDomain);
+    }
+
+    @Override
+    public List<VehicleProfile> findByMerchantId(String merchantId) {
+        return VehicleEntityRepository.findByMerchantId(merchantId).stream()
+                .map(VehiclePersistenceMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void save(VehicleProfile vehicleProfile) {
+        VehicleEntityRepository.save(VehiclePersistenceMapper.toEntity(vehicleProfile));
+    }
+
+    @Override
+    public PagedResult<VehicleProfile> fetch(int pageNumber, int pageSize) {
+        Page<VehicleEntity> page = VehicleEntityRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        return toPagedResult(page);
+    }
+
+    @Override
+    public PagedResult<VehicleProfile> fetch(String merchantId, int pageNumber, int pageSize) {
+        Page<VehicleEntity> page = VehicleEntityRepository.findByMerchantId(merchantId, PageRequest.of(pageNumber, pageSize));
+        return toPagedResult(page);
+    }
+
+    private PagedResult<VehicleProfile> toPagedResult(Page<VehicleEntity> page) {
+        List<VehicleProfile> items = page.getContent().stream()
+                .map(VehiclePersistenceMapper::toDomain)
+                .toList();
+
+        return PagedResult.<VehicleProfile>builder()
+                .items(items)
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
+    }
+}

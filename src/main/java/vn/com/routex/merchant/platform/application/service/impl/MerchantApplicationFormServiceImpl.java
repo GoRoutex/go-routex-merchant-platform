@@ -1,4 +1,4 @@
-package vn.com.routex.merchant.platform.application.service.merchant;
+package vn.com.routex.merchant.platform.application.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,6 +10,7 @@ import vn.com.routex.merchant.platform.application.command.merchant.RejectMercha
 import vn.com.routex.merchant.platform.application.command.merchant.RejectMerchantApplicationResult;
 import vn.com.routex.merchant.platform.application.command.merchant.SubmitMerchantApplicationCommand;
 import vn.com.routex.merchant.platform.application.command.merchant.SubmitMerchantApplicationResult;
+import vn.com.routex.merchant.platform.application.service.MerchantApplicationFormService;
 import vn.com.routex.merchant.platform.domain.authorities.model.RoleAggregate;
 import vn.com.routex.merchant.platform.domain.authorities.model.UserAccountReference;
 import vn.com.routex.merchant.platform.domain.authorities.model.UserRoleAssignment;

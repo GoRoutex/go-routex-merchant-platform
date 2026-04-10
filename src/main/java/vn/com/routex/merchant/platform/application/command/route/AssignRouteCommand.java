@@ -5,6 +5,7 @@ import vn.com.routex.merchant.platform.application.command.common.RequestContext
 
 @Builder
 public record AssignRouteCommand(
+        String merchantId,
         String creator,
         String routeId,
         String vehicleId,
