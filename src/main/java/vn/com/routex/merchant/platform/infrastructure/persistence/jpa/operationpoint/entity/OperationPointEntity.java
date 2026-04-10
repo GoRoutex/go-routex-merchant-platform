@@ -33,6 +33,9 @@ public class OperationPointEntity extends AbstractAuditingEntity {
     @Column(name = "NAME")
     private String name;
 
+    @Column(name = "MERCHANT_ID")
+    private String merchantId;
+
     @Column(name = "TYPE")
     @Enumerated(EnumType.STRING)
     private OperationPointType type;

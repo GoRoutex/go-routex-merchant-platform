@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface RouteAssignmentRepositoryPort {
     boolean existsActiveByRouteId(String routeId);
 
+    List<RouteAssignmentRecord> findByMerchantId(String merchantId);
+
     Optional<RouteAssignmentRecord> findActiveByRouteId(String routeId);
 
     Map<String, RouteAssignmentRecord> findLatestActiveByRouteIds(List<String> routeIds);

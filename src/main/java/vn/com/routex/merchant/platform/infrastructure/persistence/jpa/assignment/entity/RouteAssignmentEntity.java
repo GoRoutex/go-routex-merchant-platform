@@ -35,6 +35,9 @@ public class RouteAssignmentEntity extends AbstractAuditingEntity {
     @Column(name = "CREATOR")
     private String creator;
 
+    @Column(name = "MERCHANT_ID")
+    private String merchantId;
+
     @Column(name = "DRIVER_ID")
     private String driverId;
 

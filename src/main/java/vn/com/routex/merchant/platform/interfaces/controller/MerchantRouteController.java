@@ -12,7 +12,4 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 @RequestMapping(API_PATH + API_VERSION + MERCHANT_SERVICE)
 public class MerchantRouteController {
 
-
-    @PostMapping
-
 }

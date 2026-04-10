@@ -1,0 +1,127 @@
+package vn.com.routex.merchant.platform.interfaces.model.merchant;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import vn.com.routex.merchant.platform.interfaces.model.base.BaseRequest;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@SuperBuilder
+public class SubmitMerchantApplicationRequest extends BaseRequest {
+
+    @Valid
+    @NotNull
+    private SubmitMerchantApplicationRequestData data;
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class SubmitMerchantApplicationRequestData {
+        @NotBlank
+        private String displayName;
+
+        @NotBlank
+        private String legalName;
+
+        @NotBlank
+        private String taxCode;
+
+        @NotBlank
+        private String businessLicense;
+
+        private String businessLicenseUrl;
+
+        @NotBlank
+        private String country;
+
+        @NotBlank
+        private String province;
+
+        @NotBlank
+        private String district;
+
+        private String city;
+        private String postalCode;
+        private String description;
+        private String slug;
+
+        @Valid
+        @NotNull
+        private Contact contact;
+
+        @Valid
+        @NotNull
+        private BankInfo bankInfo;
+
+        @Valid
+        @NotNull
+        private OwnerInfo ownerInfo;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class Contact {
+        @NotBlank
+        private String contactName;
+
+        @NotBlank
+        private String contactPhone;
+
+        @Email
+        @NotBlank
+        private String contactEmail;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class BankInfo {
+        @NotBlank
+        private String bankName;
+
+        @NotBlank
+        private String bankBranch;
+
+        @NotBlank
+        private String bankAccountName;
+
+        @NotBlank
+        private String bankAccountNumber;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class OwnerInfo {
+        @NotBlank
+        private String ownerName;
+
+        @NotBlank
+        private String ownerFullName;
+
+        @NotBlank
+        private String ownerPhone;
+
+        @Email
+        @NotBlank
+        private String ownerEmail;
+    }
+}

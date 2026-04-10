@@ -3,6 +3,8 @@ package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -30,6 +32,7 @@ public class MerchantDocumentEntity extends AbstractAuditingEntity {
     private String merchantId;
 
     @Column(name = "DOCUMENT_TYPE")
+    @Enumerated(EnumType.STRING)
     private MerchantDocumentType documentType;
 
     @Column(name = "FILE_URL")
@@ -39,6 +42,7 @@ public class MerchantDocumentEntity extends AbstractAuditingEntity {
     private String fileName;
 
     @Column(name = "VERIFIED_STATUS")
+    @Enumerated(EnumType.STRING)
     private MerchantVerifiedStatus verifiedStatus;
 
     @Column(name = "VERIFIED_NOTE")

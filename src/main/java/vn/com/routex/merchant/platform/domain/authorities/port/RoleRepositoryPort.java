@@ -10,5 +10,7 @@ public interface RoleRepositoryPort {
 
     Optional<RoleAggregate> findById(String roleId);
 
+    Optional<RoleAggregate> findByCode(String code);
+
     void save(RoleAggregate roleAggregate);
 }

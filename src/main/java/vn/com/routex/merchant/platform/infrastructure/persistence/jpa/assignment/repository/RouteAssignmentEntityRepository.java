@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface RouteAssignmentEntityRepository extends JpaRepository<RouteAssignmentEntity, String> {
     boolean existsByRouteId(String routeId);
 
+    List<RouteAssignmentEntity> findByMerchantId(String merchantId);
+
     Optional<RouteAssignmentEntity> findFirstByRouteIdAndStatusAndUnAssignedAtIsNullOrderByAssignedAtDesc(String routeId, RouteAssignmentStatus status);
 
     @Query(value = """

@@ -23,7 +23,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @Entity
 @AllArgsConstructor
-@SuperBuilder(toBuilder = true)
+@SuperBuilder
 @Table(name = "DRIVER_PROFILE")
 public class DriverProfileEntity extends AbstractAuditingEntity {
 
@@ -32,6 +32,9 @@ public class DriverProfileEntity extends AbstractAuditingEntity {
 
     @Column(name = "USER_ID")
     private String userId;
+
+    @Column(name = "MERCHANT_ID")
+    private String merchantId;
 
     @Column(name = "EMPLOYEE_CODE")
     private String employeeCode;

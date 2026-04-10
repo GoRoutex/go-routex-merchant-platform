@@ -7,8 +7,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteEntity;
 
+import java.util.List;
+
 @Repository
 public interface RouteEntityRepository extends JpaRepository<RouteEntity, String>, JpaSpecificationExecutor<RouteEntity> {
+
+    List<RouteEntity> findByMerchantId(String merchantId);
 
     @Query(value = """
             SELECT generate_route_code(:origin, :destination)

@@ -18,6 +18,7 @@ public class RouteAssignmentRecord {
     private String id;
     private String routeId;
     private String creator;
+    private String merchantId;
     private String vehicleId;
     private String driverId;
     private OffsetDateTime assignedAt;
@@ -30,6 +31,7 @@ public class RouteAssignmentRecord {
             String id,
             String routeId,
             String creator,
+            String merchantId,
             String vehicleId,
             String driverId,
             OffsetDateTime assignedAt
@@ -38,6 +40,7 @@ public class RouteAssignmentRecord {
                 .id(id)
                 .routeId(routeId)
                 .creator(creator)
+                .merchantId(merchantId)
                 .driverId(driverId)
                 .vehicleId(vehicleId)
                 .assignedAt(assignedAt)

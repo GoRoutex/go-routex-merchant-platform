@@ -18,6 +18,7 @@ public class OperationPoint extends AbstractAuditingEntity {
     private String id;
     private String code;
     private String name;
+    private String merchantId;
     private OperationPointType type;
     private String address;
     private String city;

@@ -21,6 +21,7 @@ public class RouteAggregate extends AbstractAuditingEntity {
     private String id;
     private String routeCode;
     private String creator;
+    private String merchantId;
     private String pickupBranch;
     private String origin;
     private String destination;
@@ -35,6 +36,7 @@ public class RouteAggregate extends AbstractAuditingEntity {
             String id,
             String routeCode,
             String creator,
+            String merchantId,
             String pickupBranch,
             String origin,
             String destination,
@@ -47,6 +49,7 @@ public class RouteAggregate extends AbstractAuditingEntity {
                 .id(id)
                 .routeCode(routeCode)
                 .creator(creator)
+                .merchantId(merchantId)
                 .pickupBranch(pickupBranch)
                 .origin(origin)
                 .destination(destination)
