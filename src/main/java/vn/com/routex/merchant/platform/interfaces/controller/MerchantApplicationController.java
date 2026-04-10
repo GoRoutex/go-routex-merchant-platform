@@ -24,10 +24,10 @@ import vn.com.routex.merchant.platform.interfaces.model.merchant.RejectMerchantA
 import vn.com.routex.merchant.platform.interfaces.model.merchant.SubmitMerchantApplicationRequest;
 import vn.com.routex.merchant.platform.interfaces.model.merchant.SubmitMerchantApplicationResponse;
 
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_PATH;
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_VERSION;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.ACCEPT_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.ADMIN_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_VERSION;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.APPLICATIONS_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.MERCHANT_SERVICE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.REJECT_PATH;

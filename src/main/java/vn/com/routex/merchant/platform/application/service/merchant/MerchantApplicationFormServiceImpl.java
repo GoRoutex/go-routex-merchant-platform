@@ -16,7 +16,6 @@ import vn.com.routex.merchant.platform.domain.authorities.model.UserRoleAssignme
 import vn.com.routex.merchant.platform.domain.authorities.port.RoleRepositoryPort;
 import vn.com.routex.merchant.platform.domain.authorities.port.UserAccountLookupPort;
 import vn.com.routex.merchant.platform.domain.authorities.port.UserRoleAssignmentRepositoryPort;
-import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormStatus;
 import vn.com.routex.merchant.platform.domain.merchant.model.Merchant;
 import vn.com.routex.merchant.platform.domain.merchant.model.MerchantApplicationForm;
