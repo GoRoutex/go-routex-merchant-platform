@@ -49,7 +49,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 @RestController
 @RequestMapping(API_PATH + API_VERSION + MERCHANT_SERVICE)
 @RequiredArgsConstructor
-public class OperationPointManagementController {
+public class MerchantOperationPointController {
 
     private final OperationPointManagementService operationPointManagementService;
     private final ApiResultFactory apiResultFactory;

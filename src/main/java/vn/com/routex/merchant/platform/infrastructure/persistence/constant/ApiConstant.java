@@ -11,6 +11,7 @@ public class ApiConstant {
     public static final String ADMIN_PATH = "/admin";
     public static final String OPERATION_POINT = "/operation-point";
     public static final String FETCH_PATH = "/fetch";
+    public static final String REVIEWS_PATH = "/reviews";
     public static final String DELETE_PATH = "/delete";
     public static final String UPDATE_PATH = "/update";
     public static final String CREATE_PATH = "/create";

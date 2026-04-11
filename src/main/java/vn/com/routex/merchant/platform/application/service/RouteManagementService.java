@@ -22,9 +22,5 @@ public interface RouteManagementService {
 
     UpdateRouteResult updateRoute(UpdateRouteCommand command);
 
-    SearchRouteResult searchRoute(SearchRouteQuery query);
-
-    FetchRoutesResult fetchRoutes(FetchRoutesQuery query);
-
     DeleteRouteResult deleteRoute(DeleteRouteCommand command);
 }

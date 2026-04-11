@@ -56,7 +56,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(API_PATH + API_VERSION + MERCHANT_SERVICE)
-public class ProvincesManagementController {
+public class MerchantProvincesController {
 
     private final ApiResultFactory apiResultFactory;
     private final ProvincesManagementService provincesManagementService;

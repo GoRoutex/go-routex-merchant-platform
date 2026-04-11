@@ -1,4 +1,4 @@
-package vn.com.routex.merchant.platform.domain.booking;
+package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.booking.entity;
 
 
 import jakarta.persistence.Column;
@@ -12,7 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import vn.com.routex.merchant.platform.domain.auditing.AbstractAuditingEntity;
+import vn.com.routex.merchant.platform.domain.booking.BookingStatus;
+import vn.com.routex.merchant.platform.domain.booking.PaymentStatus;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.AbstractAuditingEntity;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -24,7 +26,7 @@ import java.time.OffsetDateTime;
 @SuperBuilder
 @Entity
 @Table(name = "BOOKING")
-public class Booking extends AbstractAuditingEntity {
+public class BookingEntity extends AbstractAuditingEntity {
     @Id
     private String id;
 
@@ -33,6 +35,9 @@ public class Booking extends AbstractAuditingEntity {
 
     @Column(name = "ROUTE_ID", nullable = false)
     private String routeId;
+
+    @Column(name = "MERCHANT_ID", nullable = false)
+    private String merchantId;
 
     @Column(name = "VEHICLE_ID", nullable = false)
     private String vehicleId;

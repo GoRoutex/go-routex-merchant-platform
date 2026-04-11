@@ -7,6 +7,8 @@ import vn.com.routex.merchant.platform.domain.merchant.port.MerchantRepositoryPo
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.entity.MerchantEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.repository.MerchantEntityRepository;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class MerchantRepositoryRepositoryAdapter implements MerchantRepositoryPort {
@@ -17,6 +19,12 @@ public class MerchantRepositoryRepositoryAdapter implements MerchantRepositoryPo
     public Merchant save(Merchant merchant) {
         MerchantEntity savedEntity = merchantEntityRepository.save(toEntity(merchant));
         return toDomain(savedEntity);
+    }
+
+    @Override
+    public Optional<Merchant> findById(String merchantId) {
+        return merchantEntityRepository.findById(merchantId)
+                .map(this::toDomain);
     }
 
     @Override

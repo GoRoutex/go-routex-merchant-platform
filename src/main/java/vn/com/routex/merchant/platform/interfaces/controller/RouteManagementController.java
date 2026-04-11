@@ -271,58 +271,5 @@ public class RouteManagementController {
         sLog.info("[DELETE-ROUTE] Delete Route Response: {}", response);
         return HttpUtils.buildResponse(request, response);
     }
-
-    @GetMapping(FETCH_PATH)
-    public ResponseEntity<FetchRouteResponse> fetchRoutes(
-            HttpServletRequest servletRequest,
-            @RequestParam(required = false) String merchantId,
-            @RequestParam(required = false) String merchantName,
-            @RequestParam(defaultValue = "1") int pageNumber,
-            @RequestParam(defaultValue = "10") int pageSize
-    ) {
-        BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
-        String tokenMerchantId = ApiRequestUtils.getMerchantId(servletRequest);
-        String finalMerchantId = tokenMerchantId;
-        String finalMerchantName = merchantName;
-
-        boolean isAdmin = servletRequest.isUserInRole("ADMIN") || servletRequest.isUserInRole("STAFF");
-
-        if (isAdmin) {
-            if (merchantId != null) finalMerchantId = merchantId;
-        } else {
-            // Non-admin MUST have a merchantId in token
-            if (tokenMerchantId == null) {
-                return ResponseEntity.status(403).build();
-            }
-            finalMerchantId = tokenMerchantId;
-            finalMerchantName = null;
-        }
-
-        FetchRoutesResult result = routeManagementService.fetchRoutes(FetchRoutesQuery.builder()
-                .context(HttpUtils.toContext(baseRequest, finalMerchantId))
-                .pageSize(String.valueOf(pageSize))
-                .pageNumber(String.valueOf(pageNumber))
-                .merchantId(finalMerchantId)
-                .merchantName(finalMerchantName)
-                .build());
-
-
-        FetchRouteResponse response = FetchRouteResponse.builder()
-                .result(apiResultFactory.buildSuccess())
-                .data(FetchRouteResponse.FetchRouteResponsePage.builder()
-                        .items(result.items().stream()
-                                .map(routeResponseMapper::toFetchRouteResponseData)
-                                .toList())
-                        .pagination(FetchRouteResponse.Pagination.builder()
-                                .pageNumber(result.pageNumber())
-                                .pageSize(result.pageSize())
-                                .totalElements(result.totalElements())
-                                .totalPages(result.totalPages())
-                                .build())
-                        .build())
-                .build();
-
-        return HttpUtils.buildResponse(baseRequest, response);
-    }
 }
 
