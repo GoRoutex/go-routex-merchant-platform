@@ -11,17 +11,25 @@ public record SubmitMerchantApplicationCommand(
         String taxCode,
         String businessLicense,
         String businessLicenseUrl,
-        String country,
-        String province,
-        String district,
-        String city,
-        String postalCode,
         String description,
         String slug,
+        Address address,
         Contact contact,
         BankInfo bankInfo,
         OwnerInfo ownerInfo
 ) {
+
+    @Builder
+    public record Address(
+            String country,
+            String province,
+            String address,
+            String city,
+            String ward,
+            String postalCode
+    ) {
+
+    }
     @Builder
     public record Contact(
             String contactName,

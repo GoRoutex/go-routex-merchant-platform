@@ -26,14 +26,15 @@ public class MerchantApplicationForm extends AbstractAuditingEntity {
     private ApplicationFormContact contact;
     private ApplicationFormBankInfo bankInfo;
     private ApplicationFormOwner ownerInfo;
+    private String logoUrl;
     private String approvedBy;
     private OffsetDateTime approvedAt;
     private String businessLicenseUrl;
     private String businessLicense;
-    private String city;
     private String country;
     private String description;
-    private String district;
+    private String ward;
+    private String address;
     private String formCode;
     private String merchantId;
     private String merchantName;
@@ -78,8 +79,8 @@ public class MerchantApplicationForm extends AbstractAuditingEntity {
             String businessLicenseUrl,
             String country,
             String province,
-            String district,
-            String city,
+            String ward,
+            String address,
             String postalCode,
             String description,
             String slug,
@@ -106,8 +107,8 @@ public class MerchantApplicationForm extends AbstractAuditingEntity {
                 .businessLicenseUrl(businessLicenseUrl)
                 .country(country)
                 .province(province)
-                .district(district)
-                .city(city)
+                .ward(ward)
+                .address(address)
                 .postalCode(postalCode)
                 .description(description)
                 .slug(slug)

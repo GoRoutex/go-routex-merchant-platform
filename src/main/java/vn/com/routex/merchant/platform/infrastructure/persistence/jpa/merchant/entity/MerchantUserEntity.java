@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,14 +21,19 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.Abs
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-@Table(name = "MERCHANT_USERS")
+@Table(
+        name = "MERCHANT_USERS",
+        indexes = {
+                @Index(name = "idx_merchant_users_merchant_id", columnList = "MERCHANT_ID")
+        }
+)
 @Entity
 public class MerchantUserEntity extends AbstractAuditingEntity {
 
     @Id
     private String id;
 
-    @Column(name = "MERCHANT_ID", nullable = false, unique = true)
+    @Column(name = "MERCHANT_ID", nullable = false)
     private String merchantId;
 
     @Column(name = "USER_ID", nullable = false, unique = true)

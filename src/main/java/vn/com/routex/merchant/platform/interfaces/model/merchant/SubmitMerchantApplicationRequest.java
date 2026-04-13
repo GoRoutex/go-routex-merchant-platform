@@ -30,32 +30,19 @@ public class SubmitMerchantApplicationRequest extends BaseRequest {
     public static class SubmitMerchantApplicationRequestData {
         @NotBlank
         private String displayName;
-
         @NotBlank
         private String legalName;
-
         @NotBlank
         private String taxCode;
-
         @NotBlank
         private String businessLicense;
-
         private String businessLicenseUrl;
-
-        @NotBlank
-        private String country;
-
-        @NotBlank
-        private String province;
-
-        @NotBlank
-        private String district;
-
-        private String city;
-        private String postalCode;
         private String description;
         private String slug;
 
+        @Valid
+        @NotNull
+        private AddressInfo addressInfo;
         @Valid
         @NotNull
         private Contact contact;
@@ -67,6 +54,30 @@ public class SubmitMerchantApplicationRequest extends BaseRequest {
         @Valid
         @NotNull
         private OwnerInfo ownerInfo;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class AddressInfo {
+        @NotBlank
+        @NotNull
+        private String address;
+        @NotBlank
+        @NotNull
+        private String country;
+        @NotBlank
+        @NotNull
+        private String province;
+        @NotBlank
+        @NotNull
+        private String ward;
+        @NotBlank
+        @NotNull
+        private String city;
+        private String postalCode;
     }
 
     @Getter

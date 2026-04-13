@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.application.command.merchant.AcceptMerchantApplicationCommand;
 import vn.com.routex.merchant.platform.application.command.merchant.AcceptMerchantApplicationResult;
 import vn.com.routex.merchant.platform.application.command.merchant.RejectMerchantApplicationCommand;
@@ -23,6 +24,8 @@ import vn.com.routex.merchant.platform.interfaces.model.merchant.RejectMerchantA
 import vn.com.routex.merchant.platform.interfaces.model.merchant.RejectMerchantApplicationResponse;
 import vn.com.routex.merchant.platform.interfaces.model.merchant.SubmitMerchantApplicationRequest;
 import vn.com.routex.merchant.platform.interfaces.model.merchant.SubmitMerchantApplicationResponse;
+
+import java.math.BigDecimal;
 
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.ACCEPT_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.ADMIN_PATH;
@@ -41,7 +44,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 public class MerchantApplicationController {
 
     private final MerchantApplicationFormService merchantApplicationFormService;
-
+    private final SystemLog sLog = SystemLog.getLogger(this.getClass());
 
     /*
     * Submit application form for Merchant Registration
@@ -50,6 +53,8 @@ public class MerchantApplicationController {
     public ResponseEntity<SubmitMerchantApplicationResponse> submitApplication(
             @Valid @RequestBody SubmitMerchantApplicationRequest request
     ) {
+
+        sLog.info("[SUBMIT-FORM] Merchant application form request: {}", request);
         SubmitMerchantApplicationResult result = merchantApplicationFormService.submit(toCommand(request));
 
         SubmitMerchantApplicationResponse response = SubmitMerchantApplicationResponse.builder()
@@ -119,11 +124,15 @@ public class MerchantApplicationController {
                 .taxCode(data.getTaxCode())
                 .businessLicense(data.getBusinessLicense())
                 .businessLicenseUrl(data.getBusinessLicenseUrl())
-                .country(data.getCountry())
-                .province(data.getProvince())
-                .district(data.getDistrict())
-                .city(data.getCity())
-                .postalCode(data.getPostalCode())
+                .address(SubmitMerchantApplicationCommand.Address.builder()
+                        .country(data.getAddressInfo().getCountry())
+                        .province(data.getAddressInfo().getProvince())
+                        .city(data.getAddressInfo().getCity())
+                        .postalCode(data.getAddressInfo().getPostalCode())
+                        .ward(data.getAddressInfo().getWard())
+                        .address(data.getAddressInfo().getAddress())
+                        .build()
+                )
                 .description(data.getDescription())
                 .slug(data.getSlug())
                 .contact(SubmitMerchantApplicationCommand.Contact.builder()
@@ -151,6 +160,7 @@ public class MerchantApplicationController {
                 .context(HttpUtils.toContext(request))
                 .applicationFormId(request.getData().getApplicationFormId())
                 .approvedBy(request.getData().getApprovedBy())
+                .commission(new BigDecimal(request.getData().getCommission()))
                 .build();
     }
 

@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.domain.auditing.AbstractAuditingEntity;
+import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormBankInfo;
+import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormContact;
+import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormOwner;
 import vn.com.routex.merchant.platform.domain.merchant.MerchantStatus;
 
 import java.math.BigDecimal;
@@ -27,39 +30,15 @@ public class Merchant extends AbstractAuditingEntity {
     private String taxCode;
     private String phone;
     private String email;
+    private String logoUrl;
+    private String businessLicenseNumber;
+    private ApplicationFormContact contact;
+    private ApplicationFormBankInfo bankInfo;
+    private ApplicationFormOwner ownerInfo;
     private String address;
     private String representativeName;
     private BigDecimal commissionRate;
     private MerchantStatus status;
-
-    public static Merchant create(
-            String id,
-            String code,
-            String name,
-            String taxCode,
-            String phone,
-            String email,
-            String address,
-            String representativeName,
-            BigDecimal commissionRate,
-            String createdBy
-    ) {
-        OffsetDateTime now = OffsetDateTime.now();
-        return Merchant.builder()
-                .id(id)
-                .code(code)
-                .name(name)
-                .taxCode(taxCode)
-                .phone(phone)
-                .email(email)
-                .address(address)
-                .representativeName(representativeName)
-                .commissionRate(commissionRate)
-                .status(MerchantStatus.ACTIVE)
-                .createdAt(now)
-                .createdBy(createdBy)
-                .build();
-    }
 
     public void updateCommissionRate(BigDecimal commissionRate, String actor, OffsetDateTime updatedAt) {
         this.commissionRate = commissionRate;

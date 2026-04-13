@@ -14,17 +14,18 @@ import java.util.Optional;
 public class MerchantRepositoryRepositoryAdapter implements MerchantRepositoryPort {
 
     private final MerchantEntityRepository merchantEntityRepository;
+    private final MerchantPersistenceMapper merchantPersistenceMapper;
 
     @Override
     public Merchant save(Merchant merchant) {
-        MerchantEntity savedEntity = merchantEntityRepository.save(toEntity(merchant));
-        return toDomain(savedEntity);
+        MerchantEntity savedEntity = merchantEntityRepository.save(merchantPersistenceMapper.toEntity(merchant));
+        return merchantPersistenceMapper.toDomain(savedEntity);
     }
 
     @Override
     public Optional<Merchant> findById(String merchantId) {
         return merchantEntityRepository.findById(merchantId)
-                .map(this::toDomain);
+                .map(merchantPersistenceMapper::toDomain);
     }
 
     @Override
@@ -37,41 +38,4 @@ public class MerchantRepositoryRepositoryAdapter implements MerchantRepositoryPo
         return merchantEntityRepository.generateMerchantcode();
     }
 
-    private MerchantEntity toEntity(Merchant merchant) {
-        return MerchantEntity.builder()
-                .id(merchant.getId())
-                .code(merchant.getCode())
-                .name(merchant.getName())
-                .taxCode(merchant.getTaxCode())
-                .phone(merchant.getPhone())
-                .email(merchant.getEmail())
-                .address(merchant.getAddress())
-                .representativeName(merchant.getRepresentativeName())
-                .commissionRate(merchant.getCommissionRate())
-                .status(merchant.getStatus())
-                .createdAt(merchant.getCreatedAt())
-                .createdBy(merchant.getCreatedBy())
-                .updatedAt(merchant.getUpdatedAt())
-                .updatedBy(merchant.getUpdatedBy())
-                .build();
-    }
-
-    private Merchant toDomain(MerchantEntity entity) {
-        return Merchant.builder()
-                .id(entity.getId())
-                .code(entity.getCode())
-                .name(entity.getName())
-                .taxCode(entity.getTaxCode())
-                .phone(entity.getPhone())
-                .email(entity.getEmail())
-                .address(entity.getAddress())
-                .representativeName(entity.getRepresentativeName())
-                .commissionRate(entity.getCommissionRate())
-                .status(entity.getStatus())
-                .createdAt(entity.getCreatedAt())
-                .createdBy(entity.getCreatedBy())
-                .updatedAt(entity.getUpdatedAt())
-                .updatedBy(entity.getUpdatedBy())
-                .build();
-    }
 }

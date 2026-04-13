@@ -19,15 +19,13 @@ public class MerchantApplicationFormPersistenceMapper {
         entity.setApprovedAt(merchantApplicationForm.getApprovedAt());
         entity.setBusinessLicenseUrl(merchantApplicationForm.getBusinessLicenseUrl());
         entity.setBusinessLicense(merchantApplicationForm.getBusinessLicense());
-        entity.setCity(merchantApplicationForm.getCity());
-        entity.setCountry(merchantApplicationForm.getCountry());
         entity.setDescription(merchantApplicationForm.getDescription());
-        entity.setDistrict(merchantApplicationForm.getDistrict());
         entity.setFormCode(merchantApplicationForm.getFormCode());
-        entity.setMerchantId(merchantApplicationForm.getMerchantId());
-        entity.setMerchantName(merchantApplicationForm.getMerchantName());
         entity.setPostalCode(merchantApplicationForm.getPostalCode());
         entity.setProvince(merchantApplicationForm.getProvince());
+        entity.setCountry(merchantApplicationForm.getCountry());
+        entity.setWard(merchantApplicationForm.getWard());
+        entity.setAddress(merchantApplicationForm.getAddress());
         entity.setRejectedBy(merchantApplicationForm.getRejectedBy());
         entity.setRejectionReason(merchantApplicationForm.getRejectionReason());
         entity.setStatus(merchantApplicationForm.getStatus());
@@ -45,6 +43,7 @@ public class MerchantApplicationFormPersistenceMapper {
     public MerchantApplicationForm toDomain(MerchantApplicationFormEntity entity) {
         return MerchantApplicationForm.builder()
                 .id(entity.getId())
+                .formCode(entity.getFormCode())
                 .displayName(entity.getDisplayName())
                 .legalName(entity.getLegalName())
                 .contact(entity.getContact())
@@ -54,15 +53,12 @@ public class MerchantApplicationFormPersistenceMapper {
                 .approvedAt(entity.getApprovedAt())
                 .businessLicenseUrl(entity.getBusinessLicenseUrl())
                 .businessLicense(entity.getBusinessLicense())
-                .city(entity.getCity())
                 .country(entity.getCountry())
-                .description(entity.getDescription())
-                .district(entity.getDistrict())
-                .formCode(entity.getFormCode())
-                .merchantId(entity.getMerchantId())
-                .merchantName(entity.getMerchantName())
                 .postalCode(entity.getPostalCode())
                 .province(entity.getProvince())
+                .description(entity.getDescription())
+                .ward(entity.getWard())
+                .address(entity.getAddress())
                 .rejectedBy(entity.getRejectedBy())
                 .rejectionReason(entity.getRejectionReason())
                 .status(entity.getStatus())

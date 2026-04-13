@@ -7,10 +7,6 @@ import vn.com.routex.merchant.platform.application.command.route.CreateRouteComm
 import vn.com.routex.merchant.platform.application.command.route.CreateRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteResult;
-import vn.com.routex.merchant.platform.application.command.route.FetchRoutesQuery;
-import vn.com.routex.merchant.platform.application.command.route.FetchRoutesResult;
-import vn.com.routex.merchant.platform.application.command.route.SearchRouteQuery;
-import vn.com.routex.merchant.platform.application.command.route.SearchRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteResult;
 

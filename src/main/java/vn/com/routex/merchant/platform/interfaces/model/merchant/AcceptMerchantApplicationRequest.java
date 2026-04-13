@@ -30,6 +30,8 @@ public class AcceptMerchantApplicationRequest extends BaseRequest {
         @NotBlank
         private String applicationFormId;
 
+        private String commission;
+
         @NotBlank
         private String approvedBy;
     }

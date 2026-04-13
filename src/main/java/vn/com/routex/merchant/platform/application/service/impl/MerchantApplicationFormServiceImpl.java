@@ -17,6 +17,9 @@ import vn.com.routex.merchant.platform.domain.authorities.model.UserRoleAssignme
 import vn.com.routex.merchant.platform.domain.authorities.port.RoleRepositoryPort;
 import vn.com.routex.merchant.platform.domain.authorities.port.UserAccountLookupPort;
 import vn.com.routex.merchant.platform.domain.authorities.port.UserRoleAssignmentRepositoryPort;
+import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormBankInfo;
+import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormContact;
+import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormOwner;
 import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormStatus;
 import vn.com.routex.merchant.platform.domain.merchant.model.Merchant;
 import vn.com.routex.merchant.platform.domain.merchant.model.MerchantApplicationForm;
@@ -61,11 +64,11 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
                 command.taxCode(),
                 command.businessLicense(),
                 command.businessLicenseUrl(),
-                command.country(),
-                command.province(),
-                command.district(),
-                command.city(),
-                command.postalCode(),
+                command.address().country(),
+                command.address().province(),
+                command.address().ward(),
+                command.address().address(),
+                command.address().postalCode(),
                 command.description(),
                 resolveSlug(command),
                 command.contact().contactName(),
@@ -101,18 +104,35 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
 
         validatePendingApplication(applicationForm, command.context());
 
-        Merchant merchant = Merchant.create(
-                UUID.randomUUID().toString(),
-                merchantRepositoryPort.generateMerchantCode(),
-                applicationForm.getDisplayName(),
-                applicationForm.getTaxCode(),
-                applicationForm.getContact().getContactPhone(),
-                applicationForm.getContact().getContactEmail(),
-                buildMerchantAddress(applicationForm),
-                applicationForm.getOwnerInfo().getOwnerFullName(),
-                DEFAULT_MERCHANT_COMMISSION_RATE,
-                command.approvedBy()
-        );
+        Merchant merchant = Merchant.builder()
+                .id(UUID.randomUUID().toString())
+                .code(merchantRepositoryPort.generateMerchantCode())
+                .name(applicationForm.getDisplayName())
+                .taxCode(applicationForm.getTaxCode())
+                .logoUrl(applicationForm.getLogoUrl())
+                .businessLicenseNumber(applicationForm.getBusinessLicense())
+                .contact(ApplicationFormContact.builder()
+                        .contactEmail(applicationForm.getContact().getContactEmail())
+                        .contactPhone(applicationForm.getContact().getContactPhone())
+                        .contactName(applicationForm.getContact().getContactName())
+                        .build())
+                .bankInfo(ApplicationFormBankInfo.builder()
+                        .bankAccountName(applicationForm.getBankInfo().getBankAccountName())
+                        .bankAccountNumber(applicationForm.getBankInfo().getBankAccountNumber())
+                        .bankBranch(applicationForm.getBankInfo().getBankBranch())
+                        .bankName(applicationForm.getBankInfo().getBankName())
+                        .build())
+                .ownerInfo(ApplicationFormOwner.builder()
+                        .ownerPhone(applicationForm.getOwnerInfo().getOwnerPhone())
+                        .ownerEmail(applicationForm.getOwnerInfo().getOwnerEmail())
+                        .ownerFullName(applicationForm.getOwnerInfo().getOwnerFullName())
+                        .ownerName(applicationForm.getOwnerInfo().getOwnerName())
+                        .build())
+                .address(applicationForm.getAddress())
+                .representativeName(applicationForm.getOwnerInfo().getOwnerFullName())
+                .commissionRate(command.commission() != null ? command.commission() : DEFAULT_MERCHANT_COMMISSION_RATE)
+                .build();
+
         Merchant savedMerchant = merchantRepositoryPort.save(merchant);
 
         assignMerchantOwnerRole(
@@ -187,7 +207,6 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
 
     private String buildMerchantAddress(MerchantApplicationForm applicationForm) {
         return String.join(", ",
-                applicationForm.getDistrict(),
                 applicationForm.getProvince(),
                 applicationForm.getCountry()
         );
