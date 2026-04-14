@@ -36,8 +36,6 @@ public class MerchantApplicationForm extends AbstractAuditingEntity {
     private String ward;
     private String address;
     private String formCode;
-    private String merchantId;
-    private String merchantName;
     private String postalCode;
     private String province;
     private String rejectedBy;
@@ -48,8 +46,7 @@ public class MerchantApplicationForm extends AbstractAuditingEntity {
     private String taxCode;
     private String slug;
 
-    public void approve(String merchantId, String approvedBy, OffsetDateTime approvedAt) {
-        this.merchantId = merchantId;
+    public void approve(String approvedBy, OffsetDateTime approvedAt) {
         this.approvedBy = approvedBy;
         this.approvedAt = approvedAt;
         this.rejectedBy = null;
@@ -77,6 +74,7 @@ public class MerchantApplicationForm extends AbstractAuditingEntity {
             String taxCode,
             String businessLicense,
             String businessLicenseUrl,
+            String logoUrl,
             String country,
             String province,
             String ward,
@@ -105,6 +103,7 @@ public class MerchantApplicationForm extends AbstractAuditingEntity {
                 .taxCode(taxCode)
                 .businessLicense(businessLicense)
                 .businessLicenseUrl(businessLicenseUrl)
+                .logoUrl(logoUrl)
                 .country(country)
                 .province(province)
                 .ward(ward)
@@ -112,7 +111,6 @@ public class MerchantApplicationForm extends AbstractAuditingEntity {
                 .postalCode(postalCode)
                 .description(description)
                 .slug(slug)
-                .merchantName(displayName)
                 .contact(new ApplicationFormContact(contactEmail, contactName, contactPhone))
                 .bankInfo(new ApplicationFormBankInfo(bankAccountName, bankAccountNumber, bankBranch, bankName))
                 .ownerInfo(new ApplicationFormOwner(ownerEmail, ownerFullName, ownerName, ownerPhone))

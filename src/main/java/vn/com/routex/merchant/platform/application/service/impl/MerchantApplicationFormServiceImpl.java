@@ -21,10 +21,12 @@ import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormBankInfo;
 import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormContact;
 import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormOwner;
 import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormStatus;
+import vn.com.routex.merchant.platform.domain.merchant.model.MerchantUser;
 import vn.com.routex.merchant.platform.domain.merchant.model.Merchant;
 import vn.com.routex.merchant.platform.domain.merchant.model.MerchantApplicationForm;
 import vn.com.routex.merchant.platform.domain.merchant.port.MerchantApplicationFormRepositoryPort;
 import vn.com.routex.merchant.platform.domain.merchant.port.MerchantRepositoryPort;
+import vn.com.routex.merchant.platform.domain.merchant.port.MerchantUserRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
 
@@ -49,6 +51,7 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
 
     private final MerchantApplicationFormRepositoryPort merchantApplicationFormRepositoryPort;
     private final MerchantRepositoryPort merchantRepositoryPort;
+    private final MerchantUserRepositoryPort merchantUserRepositoryPort;
     private final UserAccountLookupPort userAccountLookupPort;
     private final RoleRepositoryPort roleRepositoryPort;
     private final UserRoleAssignmentRepositoryPort userRoleAssignmentRepositoryPort;
@@ -64,6 +67,7 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
                 command.taxCode(),
                 command.businessLicense(),
                 command.businessLicenseUrl(),
+                command.logoUrl(),
                 command.address().country(),
                 command.address().province(),
                 command.address().ward(),
@@ -135,12 +139,15 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
 
         Merchant savedMerchant = merchantRepositoryPort.save(merchant);
 
-        assignMerchantOwnerRole(
+        UserAccountReference submittedUser = findSubmittedUserAccount(
                 applicationForm.getSubmittedBy(),
                 command.context()
         );
 
-        applicationForm.approve(savedMerchant.getId(), command.approvedBy(), OffsetDateTime.now());
+        createMerchantMembership(savedMerchant.getId(), submittedUser.id(), command.approvedBy(), command.context());
+        assignMerchantOwnerRole(submittedUser, command.context());
+
+        applicationForm.approve(command.approvedBy(), OffsetDateTime.now());
         MerchantApplicationForm savedApplicationForm = merchantApplicationFormRepositoryPort.save(applicationForm);
 
         return AcceptMerchantApplicationResult.builder()
@@ -221,14 +228,40 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
         );
     }
 
-    private void assignMerchantOwnerRole(String submittedBy, RequestContext context) {
-        UserAccountReference userAccount = userAccountLookupPort.findByEmail(submittedBy)
+    private UserAccountReference findSubmittedUserAccount(String submittedBy, RequestContext context) {
+        return userAccountLookupPort.findByEmail(submittedBy)
                 .orElseThrow(() -> new BusinessException(
                         context.requestId(),
                         context.requestDateTime(),
                         context.channel(),
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, "Submitted user account not found")
                 ));
+    }
+
+    private void createMerchantMembership(String merchantId, String userId, String actor, RequestContext context) {
+        merchantUserRepositoryPort.findByUserId(userId)
+                .ifPresent(existing -> {
+                    throw new BusinessException(
+                            context.requestId(),
+                            context.requestDateTime(),
+                            context.channel(),
+                            ExceptionUtils.buildResultResponse(DUPLICATE_ERROR, "User already belongs to a merchant")
+                    );
+                });
+
+        merchantUserRepositoryPort.save(
+                MerchantUser.assign(
+                        UUID.randomUUID().toString(),
+                        merchantId,
+                        userId,
+                        MERCHANT_OWNER_ROLE_CODE,
+                        actor,
+                        OffsetDateTime.now()
+                )
+        );
+    }
+
+    private void assignMerchantOwnerRole(UserAccountReference userAccount, RequestContext context) {
 
         RoleAggregate merchantOwnerRole = roleRepositoryPort.findByCode(MERCHANT_OWNER_ROLE_CODE)
                 .orElseThrow(() -> new BusinessException(

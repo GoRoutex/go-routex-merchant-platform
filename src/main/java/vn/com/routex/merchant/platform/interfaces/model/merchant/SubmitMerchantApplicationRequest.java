@@ -37,6 +37,7 @@ public class SubmitMerchantApplicationRequest extends BaseRequest {
         @NotBlank
         private String businessLicense;
         private String businessLicenseUrl;
+        private String logoUrl;
         private String description;
         private String slug;
 

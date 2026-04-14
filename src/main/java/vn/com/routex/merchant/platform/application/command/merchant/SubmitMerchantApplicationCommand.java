@@ -11,6 +11,7 @@ public record SubmitMerchantApplicationCommand(
         String taxCode,
         String businessLicense,
         String businessLicenseUrl,
+        String logoUrl,
         String description,
         String slug,
         Address address,

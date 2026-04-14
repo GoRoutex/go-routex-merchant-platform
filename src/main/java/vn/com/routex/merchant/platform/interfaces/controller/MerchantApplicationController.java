@@ -124,6 +124,7 @@ public class MerchantApplicationController {
                 .taxCode(data.getTaxCode())
                 .businessLicense(data.getBusinessLicense())
                 .businessLicenseUrl(data.getBusinessLicenseUrl())
+                .logoUrl(data.getLogoUrl())
                 .address(SubmitMerchantApplicationCommand.Address.builder()
                         .country(data.getAddressInfo().getCountry())
                         .province(data.getAddressInfo().getProvince())
