@@ -17,13 +17,11 @@ import vn.com.routex.merchant.platform.domain.authorities.model.UserRoleAssignme
 import vn.com.routex.merchant.platform.domain.authorities.port.RoleRepositoryPort;
 import vn.com.routex.merchant.platform.domain.authorities.port.UserAccountLookupPort;
 import vn.com.routex.merchant.platform.domain.authorities.port.UserRoleAssignmentRepositoryPort;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormBankInfo;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormContact;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormOwner;
 import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormStatus;
-import vn.com.routex.merchant.platform.domain.merchant.model.MerchantUser;
+import vn.com.routex.merchant.platform.domain.merchant.MerchantStatus;
 import vn.com.routex.merchant.platform.domain.merchant.model.Merchant;
 import vn.com.routex.merchant.platform.domain.merchant.model.MerchantApplicationForm;
+import vn.com.routex.merchant.platform.domain.merchant.model.MerchantUser;
 import vn.com.routex.merchant.platform.domain.merchant.port.MerchantApplicationFormRepositoryPort;
 import vn.com.routex.merchant.platform.domain.merchant.port.MerchantRepositoryPort;
 import vn.com.routex.merchant.platform.domain.merchant.port.MerchantUserRepositoryPort;
@@ -33,6 +31,8 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.utils.Exceptio
 import java.time.OffsetDateTime;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_MERCHANT_COMMISSION_RATE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_PAGE_NUMBER;
@@ -107,34 +107,45 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
                 .orElseThrow(() -> notFound(command.context()));
 
         validatePendingApplication(applicationForm, command.context());
+        OffsetDateTime approvedAt = OffsetDateTime.now();
 
         Merchant merchant = Merchant.builder()
                 .id(UUID.randomUUID().toString())
                 .code(merchantRepositoryPort.generateMerchantCode())
-                .name(applicationForm.getDisplayName())
-                .taxCode(applicationForm.getTaxCode())
-                .logoUrl(applicationForm.getLogoUrl())
+                .displayName(applicationForm.getDisplayName())
+                .legalName(applicationForm.getLegalName())
+                .slug(applicationForm.getSlug())
+                .businessLicenseUrl(applicationForm.getBusinessLicenseUrl())
                 .businessLicenseNumber(applicationForm.getBusinessLicense())
-                .contact(ApplicationFormContact.builder()
-                        .contactEmail(applicationForm.getContact().getContactEmail())
-                        .contactPhone(applicationForm.getContact().getContactPhone())
-                        .contactName(applicationForm.getContact().getContactName())
-                        .build())
-                .bankInfo(ApplicationFormBankInfo.builder()
-                        .bankAccountName(applicationForm.getBankInfo().getBankAccountName())
-                        .bankAccountNumber(applicationForm.getBankInfo().getBankAccountNumber())
-                        .bankBranch(applicationForm.getBankInfo().getBankBranch())
-                        .bankName(applicationForm.getBankInfo().getBankName())
-                        .build())
-                .ownerInfo(ApplicationFormOwner.builder()
-                        .ownerPhone(applicationForm.getOwnerInfo().getOwnerPhone())
-                        .ownerEmail(applicationForm.getOwnerInfo().getOwnerEmail())
-                        .ownerFullName(applicationForm.getOwnerInfo().getOwnerFullName())
-                        .ownerName(applicationForm.getOwnerInfo().getOwnerName())
-                        .build())
-                .address(applicationForm.getAddress())
+                .taxCode(applicationForm.getTaxCode())
+                .phone(applicationForm.getContact() == null ? null : applicationForm.getContact().getContactPhone())
+                .email(applicationForm.getContact() == null ? null : applicationForm.getContact().getContactEmail())
+                .logoUrl(applicationForm.getLogoUrl())
+                .description(applicationForm.getDescription())
+                .address(buildMerchantAddress(applicationForm))
+                .ward(applicationForm.getWard())
+                .province(applicationForm.getProvince())
+                .country(applicationForm.getCountry())
+                .postalCode(applicationForm.getPostalCode())
+                .contactName(applicationForm.getContact().getContactName())
+                .contactPhone(applicationForm.getContact().getContactPhone())
+                .contactEmail(applicationForm.getContact().getContactEmail())
+                .ownerEmail(applicationForm.getOwnerInfo().getOwnerEmail())
+                .ownerFullName(applicationForm.getOwnerInfo().getOwnerFullName())
+                .ownerPhone(applicationForm.getOwnerInfo().getOwnerPhone())
+                .bankAccountName(applicationForm.getBankInfo().getBankAccountName())
+                .bankName(applicationForm.getBankInfo().getBankName())
+                .bankBranch(applicationForm.getBankInfo().getBankBranch())
+                .bankAccountNumber(applicationForm.getBankInfo().getBankAccountNumber())
                 .representativeName(applicationForm.getOwnerInfo().getOwnerFullName())
                 .commissionRate(command.commission() != null ? command.commission() : DEFAULT_MERCHANT_COMMISSION_RATE)
+                .status(MerchantStatus.ACTIVE)
+                .approvedAt(approvedAt)
+                .createdAt(approvedAt)
+                .approvedBy(command.approvedBy())
+                .createdBy(command.approvedBy())
+                .updatedAt(approvedAt)
+                .updatedBy(command.approvedBy())
                 .build();
 
         Merchant savedMerchant = merchantRepositoryPort.save(merchant);
@@ -147,7 +158,7 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
         createMerchantMembership(savedMerchant.getId(), submittedUser.id(), command.approvedBy(), command.context());
         assignMerchantOwnerRole(submittedUser, command.context());
 
-        applicationForm.approve(command.approvedBy(), OffsetDateTime.now());
+        applicationForm.approve(command.approvedBy(), approvedAt);
         MerchantApplicationForm savedApplicationForm = merchantApplicationFormRepositoryPort.save(applicationForm);
 
         return AcceptMerchantApplicationResult.builder()
@@ -155,7 +166,7 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
                 .formCode(savedApplicationForm.getFormCode())
                 .merchantId(savedMerchant.getId())
                 .merchantCode(savedMerchant.getCode())
-                .merchantName(savedMerchant.getName())
+                .merchantName(savedMerchant.getDisplayName())
                 .status(savedApplicationForm.getStatus().name())
                 .approvedBy(savedApplicationForm.getApprovedBy())
                 .approvedAt(savedApplicationForm.getApprovedAt())
@@ -213,10 +224,16 @@ public class MerchantApplicationFormServiceImpl implements MerchantApplicationFo
     }
 
     private String buildMerchantAddress(MerchantApplicationForm applicationForm) {
-        return String.join(", ",
-                applicationForm.getProvince(),
-                applicationForm.getCountry()
-        );
+        return Stream.of(
+                        applicationForm.getAddress(),
+                        applicationForm.getWard(),
+                        applicationForm.getProvince(),
+                        applicationForm.getCountry(),
+                        applicationForm.getPostalCode()
+                )
+                .filter(value -> value != null && !value.isBlank())
+                .map(String::trim)
+                .collect(Collectors.joining(", "));
     }
 
     private BusinessException notFound(RequestContext context) {

@@ -14,7 +14,7 @@ import java.time.OffsetDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder(toBuilder = true)
+@SuperBuilder
 public class MerchantUser extends AbstractAuditingEntity {
 
     private String id;

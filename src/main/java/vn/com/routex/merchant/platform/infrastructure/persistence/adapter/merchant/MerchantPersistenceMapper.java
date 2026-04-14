@@ -13,23 +13,55 @@ public class MerchantPersistenceMapper {
         return MerchantEntity.builder()
                 .id(merchant.getId())
                 .code(merchant.getCode())
-                .name(merchant.getName())
+                .slug(merchant.getSlug())
+
+                .displayName(merchant.getDisplayName())
+                .legalName(merchant.getLegalName())
+
                 .taxCode(merchant.getTaxCode())
+                .businessLicenseNumber(merchant.getBusinessLicenseNumber())
+                .businessLicenseUrl(merchant.getBusinessLicenseUrl())
+
                 .phone(merchant.getPhone())
                 .email(merchant.getEmail())
                 .logoUrl(merchant.getLogoUrl())
-                .businessLicenseNumber(merchant.getBusinessLicenseNumber())
+                .description(merchant.getDescription())
+
                 .address(merchant.getAddress())
+                .ward(merchant.getWard())
+                .province(merchant.getProvince())
+                .country(merchant.getCountry())
+                .postalCode(merchant.getPostalCode())
+
                 .representativeName(merchant.getRepresentativeName())
+
+                // contact
+                .contactName(merchant.getContactName())
+                .contactPhone(merchant.getContactPhone())
+                .contactEmail(merchant.getContactEmail())
+
+                // owner
+                .ownerFullName(merchant.getOwnerFullName())
+                .ownerPhone(merchant.getOwnerPhone())
+                .ownerEmail(merchant.getOwnerEmail())
+
+                // bank
+                .bankAccountName(merchant.getBankAccountName())
+                .bankAccountNumber(merchant.getBankAccountNumber())
+                .bankName(merchant.getBankName())
+                .bankBranch(merchant.getBankBranch())
+
                 .commissionRate(merchant.getCommissionRate())
                 .status(merchant.getStatus())
-                .contact(merchant.getContact())
-                .bankInfo(merchant.getBankInfo())
-                .owner(merchant.getOwnerInfo())
+
+                .approvedAt(merchant.getApprovedAt())
+                .approvedBy(merchant.getApprovedBy())
+
                 .createdAt(merchant.getCreatedAt())
                 .createdBy(merchant.getCreatedBy())
                 .updatedAt(merchant.getUpdatedAt())
                 .updatedBy(merchant.getUpdatedBy())
+
                 .build();
     }
 
@@ -37,23 +69,55 @@ public class MerchantPersistenceMapper {
         return Merchant.builder()
                 .id(entity.getId())
                 .code(entity.getCode())
-                .name(entity.getName())
+                .slug(entity.getSlug())
+
+                .displayName(entity.getDisplayName())
+                .legalName(entity.getLegalName())
+
                 .taxCode(entity.getTaxCode())
+                .businessLicenseNumber(entity.getBusinessLicenseNumber())
+                .businessLicenseUrl(entity.getBusinessLicenseUrl())
+
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
                 .logoUrl(entity.getLogoUrl())
-                .businessLicenseNumber(entity.getBusinessLicenseNumber())
+                .description(entity.getDescription())
+
                 .address(entity.getAddress())
+                .ward(entity.getWard())
+                .province(entity.getProvince())
+                .country(entity.getCountry())
+                .postalCode(entity.getPostalCode())
+
                 .representativeName(entity.getRepresentativeName())
+
+                // contact
+                .contactName(entity.getContactName())
+                .contactPhone(entity.getContactPhone())
+                .contactEmail(entity.getContactEmail())
+
+                // owner
+                .ownerFullName(entity.getOwnerFullName())
+                .ownerPhone(entity.getOwnerPhone())
+                .ownerEmail(entity.getOwnerEmail())
+
+                // bank
+                .bankAccountName(entity.getBankAccountName())
+                .bankAccountNumber(entity.getBankAccountNumber())
+                .bankName(entity.getBankName())
+                .bankBranch(entity.getBankBranch())
+
                 .commissionRate(entity.getCommissionRate())
                 .status(entity.getStatus())
-                .contact(entity.getContact())
-                .bankInfo(entity.getBankInfo())
-                .ownerInfo(entity.getOwner())
+
+                .approvedAt(entity.getApprovedAt())
+                .approvedBy(entity.getApprovedBy())
+
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .updatedAt(entity.getUpdatedAt())
                 .updatedBy(entity.getUpdatedBy())
+
                 .build();
     }
 

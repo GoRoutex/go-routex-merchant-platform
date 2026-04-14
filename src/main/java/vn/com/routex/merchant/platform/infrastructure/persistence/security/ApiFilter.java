@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingResponseWrapper;
+import vn.com.go.routex.identity.security.jwt.JwtService;
 import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.infrastructure.persistence.config.RequestAttributes;
 import vn.com.routex.merchant.platform.infrastructure.persistence.security.envelope.RequestEnvelopeExtractor;
@@ -22,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 public class ApiFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
+    private final JwtService jwtService;
     private final SystemLog sLog = SystemLog.getLogger(this.getClass());
 
     @Override
@@ -45,6 +47,10 @@ public class ApiFilter extends OncePerRequestFilter {
             request.setAttribute(RequestAttributes.REQUEST_ID, apiRequest.getRequestId());
             request.setAttribute(RequestAttributes.REQUEST_DATE_TIME, apiRequest.getRequestDateTime());
             request.setAttribute(RequestAttributes.CHANNEL, apiRequest.getChannel());
+            String merchantId = extractMerchantIdFromJwt(request);
+            if (merchantId != null && !merchantId.isBlank()) {
+                request.setAttribute(RequestAttributes.MERCHANT_ID, merchantId.trim());
+            }
         } catch (JsonProcessingException | IllegalArgumentException e) {
             // Invalid envelope request (requestId/requestDateTime/channel missing/invalid JSON).
             sLog.warn("Invalid request envelope: {}", e.getMessage());
@@ -61,6 +67,28 @@ public class ApiFilter extends OncePerRequestFilter {
             String responseMessage = new String(contentCachingResponseWrapper.getContentAsByteArray(), StandardCharsets.UTF_8);
             sLog.info("{}", responseMessage);
             contentCachingResponseWrapper.copyBodyToResponse();
+        }
+    }
+
+    private String extractMerchantIdFromJwt(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            return null;
+        }
+
+        try {
+            String token = authorization.substring(7);
+            var claims = jwtService.extractAllClaims(token);
+
+            String merchantId = claims.get("merchantId", String.class);
+            if (merchantId != null && !merchantId.isBlank()) {
+                return merchantId;
+            }
+
+            Object fallback = claims.get("merchant_id");
+            return fallback == null ? null : fallback.toString();
+        } catch (Exception ignored) {
+            return null;
         }
     }
 }

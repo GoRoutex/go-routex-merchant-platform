@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>vn.com.routex.hub</groupId>
-	<artifactId>merchant-platform</artifactId>
+	<artifactId>go-routex-merchant-platform</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>go-routex-merchant-platform</name>
 	<description>Demo project for Spring Boot</description>
@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>io.github.louisphm091</groupId>
 			<artifactId>auth-security-starter</artifactId>
-			<version>0.0.11</version>
+			<version>0.0.12</version>
 		</dependency>
 
 		<dependency>
