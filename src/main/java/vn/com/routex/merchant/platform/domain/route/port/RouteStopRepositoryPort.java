@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public interface RoutePointRepositoryPort {
+public interface RouteStopRepositoryPort {
     void saveAll(List<RouteStopPlan> stopPlans);
 
     void save(RouteStopPlan routeStopPlan);

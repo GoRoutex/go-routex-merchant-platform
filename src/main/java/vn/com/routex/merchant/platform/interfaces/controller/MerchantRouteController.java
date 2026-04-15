@@ -5,12 +5,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.application.command.route.AssignRouteCommand;
@@ -19,6 +21,8 @@ import vn.com.routex.merchant.platform.application.command.route.CreateRouteComm
 import vn.com.routex.merchant.platform.application.command.route.CreateRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteResult;
+import vn.com.routex.merchant.platform.application.command.route.FetchRoutesQuery;
+import vn.com.routex.merchant.platform.application.command.route.FetchRoutesResult;
 import vn.com.routex.merchant.platform.application.command.route.RoutePointCommand;
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteResult;
@@ -29,10 +33,12 @@ import vn.com.routex.merchant.platform.interfaces.factory.ApiResultFactory;
 import vn.com.routex.merchant.platform.interfaces.mapper.RouteResponseMapper;
 import vn.com.routex.merchant.platform.interfaces.model.assignment.AssignRouteRequest;
 import vn.com.routex.merchant.platform.interfaces.model.assignment.AssignRouteResponse;
+import vn.com.routex.merchant.platform.interfaces.model.base.BaseRequest;
 import vn.com.routex.merchant.platform.interfaces.model.route.CreateRouteRequest;
 import vn.com.routex.merchant.platform.interfaces.model.route.CreateRouteResponse;
 import vn.com.routex.merchant.platform.interfaces.model.route.DeleteRouteRequest;
 import vn.com.routex.merchant.platform.interfaces.model.route.DeleteRouteResponse;
+import vn.com.routex.merchant.platform.interfaces.model.route.FetchRouteResponse;
 import vn.com.routex.merchant.platform.interfaces.model.route.UpdateRouteRequest;
 import vn.com.routex.merchant.platform.interfaces.model.route.UpdateRouteResponse;
 
@@ -46,6 +52,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.ASSIGNMENT_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.CREATE_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DELETE_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.FETCH_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.MERCHANT_SERVICE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.ROUTES_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.UPDATE_PATH;
@@ -55,7 +62,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 @RequestMapping(API_PATH + API_VERSION + MERCHANT_SERVICE + ROUTES_PATH)
 @RequiredArgsConstructor
 @PreAuthorize("hasAuthority('route:management') or hasRole('ADMIN')")
-public class RouteManagementController {
+public class MerchantRouteController {
 
 
     private final RouteManagementService routeManagementService;
@@ -67,6 +74,41 @@ public class RouteManagementController {
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder, WebRequest webRequest) {
         webDataBinder.setDisallowedFields("requestId", "requestDateTime", "channel", "data");
+    }
+
+    @GetMapping(FETCH_PATH)
+    public ResponseEntity<FetchRouteResponse> fetchRoutes(@RequestParam(defaultValue = "1") int pageNumber,
+                                                          @RequestParam(defaultValue = "10") int pageSize,
+                                                          HttpServletRequest servletRequest) {
+        BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
+        String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, baseRequest);
+
+        FetchRoutesResult result = routeManagementService.fetchRoutes(FetchRoutesQuery.builder()
+                .context(HttpUtils.toContext(baseRequest, merchantId))
+                .merchantId(merchantId)
+                .pageNumber(String.valueOf(pageNumber))
+                .pageSize(String.valueOf(pageSize))
+                .build());
+
+        FetchRouteResponse response = FetchRouteResponse.builder()
+                .requestId(baseRequest.getRequestId())
+                .requestDateTime(baseRequest.getRequestDateTime())
+                .channel(baseRequest.getChannel())
+                .result(apiResultFactory.buildSuccess())
+                .data(FetchRouteResponse.FetchRouteResponsePage.builder()
+                        .items(result.items().stream()
+                                .map(routeResponseMapper::toFetchRouteResponseData)
+                                .toList())
+                        .pagination(FetchRouteResponse.Pagination.builder()
+                                .pageNumber(result.pageNumber())
+                                .pageSize(result.pageSize())
+                                .totalElements(result.totalElements())
+                                .totalPages(result.totalPages())
+                                .build())
+                        .build())
+                .build();
+
+        return HttpUtils.buildResponse(baseRequest, response);
     }
 
     @PostMapping(UPDATE_PATH)
@@ -265,4 +307,3 @@ public class RouteManagementController {
         return HttpUtils.buildResponse(request, response);
     }
 }
-

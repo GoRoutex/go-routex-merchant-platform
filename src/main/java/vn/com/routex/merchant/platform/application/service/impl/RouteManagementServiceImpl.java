@@ -11,12 +11,16 @@ import vn.com.routex.merchant.platform.application.command.route.CreateRouteComm
 import vn.com.routex.merchant.platform.application.command.route.CreateRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteResult;
+import vn.com.routex.merchant.platform.application.command.route.FetchRouteResult;
+import vn.com.routex.merchant.platform.application.command.route.FetchRoutesQuery;
+import vn.com.routex.merchant.platform.application.command.route.FetchRoutesResult;
 import vn.com.routex.merchant.platform.application.command.route.RoutePointCommand;
 import vn.com.routex.merchant.platform.application.command.route.RoutePointResult;
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteResult;
 import vn.com.routex.merchant.platform.application.service.OutBoxService;
 import vn.com.routex.merchant.platform.application.service.RouteManagementService;
+import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.operationpoint.port.OperationPointRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.domain.route.model.ProvincesCodePair;
@@ -26,11 +30,11 @@ import vn.com.routex.merchant.platform.domain.route.model.RouteStopPlan;
 import vn.com.routex.merchant.platform.domain.route.model.VehicleSnapshot;
 import vn.com.routex.merchant.platform.domain.route.port.RouteAggregateRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteAssignmentRepositoryPort;
-import vn.com.routex.merchant.platform.domain.route.port.RoutePointRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteProvincesLookupPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteQueryPort;
-import vn.com.routex.merchant.platform.domain.route.port.RouteSeatAvailabilityPort;
+import vn.com.routex.merchant.platform.domain.route.port.RouteStopRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteVehicleRepositoryPort;
+import vn.com.routex.merchant.platform.domain.route.readmodel.RouteFetchView;
 import vn.com.routex.merchant.platform.infrastructure.kafka.event.RouteAssignedEvent;
 import vn.com.routex.merchant.platform.infrastructure.kafka.event.RouteSellableEvent;
 import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
@@ -56,23 +60,20 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_POINT_NOT_FOUND;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.STOP_COORDINATES_MUST_BE_PROVIDED_TOGETHER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class RouteManagementServiceImpl implements RouteManagementService {
 
-    private static final String OPERATION_POINT_OR_STOP_NAME_REQUIRED =
-            "Either operationPointId or stopName is required (but not both)";
-    private static final String STOP_COORDINATES_MUST_BE_PROVIDED_TOGETHER =
-            "stopLatitude and stopLongitude must be provided together";
+
 
     private final RouteAggregateRepositoryPort routeAggregateRepositoryPort;
-    private final RoutePointRepositoryPort routePointRepositoryPort;
+    private final RouteStopRepositoryPort routeStopRepositoryPort;
     private final RouteAssignmentRepositoryPort routeAssignmentRepositoryPort;
     private final RouteVehicleRepositoryPort routeVehicleRepositoryPort;
     private final RouteProvincesLookupPort routeProvincesLookupPort;
-    private final RouteSeatAvailabilityPort routeSeatAvailabilityPort;
     private final RouteQueryPort routeQueryPort;
     private final OperationPointRepositoryPort operationPointRepositoryPort;
     private final OutBoxService outBoxService;
@@ -146,9 +147,9 @@ public class RouteManagementServiceImpl implements RouteManagementService {
 
         RouteAggregate newRoute = RouteAggregate.plan(
                 routeId,
-                command.merchantId(),
                 routeCode,
                 command.creator(),
+                command.merchantId(),
                 command.pickupBranch(),
                 origin,
                 destination,
@@ -159,7 +160,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         );
 
         routeAggregateRepositoryPort.save(newRoute);
-        routePointRepositoryPort.saveAll(routeStopPlans);
+        routeStopRepositoryPort.saveAll(routeStopPlans);
 
 
         return CreateRouteResult.builder()
@@ -260,7 +261,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
 
         if(command.routePoints() != null) {
             command.routePoints().forEach(point -> {
-                RouteStopPlan routeStopPlan = routePointRepositoryPort.findByRouteIdAndStopOrder(command.routeId(), point.operationOrder())
+                RouteStopPlan routeStopPlan = routeStopRepositoryPort.findByRouteIdAndStopOrder(command.routeId(), point.operationOrder())
                         .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                                 ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, ROUTE_POINT_NOT_FOUND)));
 
@@ -273,7 +274,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 Optional.ofNullable(point.note())
                         .ifPresent(routeStopPlan::setNote);
 
-                routePointRepositoryPort.save(routeStopPlan);
+                routeStopRepositoryPort.save(routeStopPlan);
             });
         }
         Optional.ofNullable(command.pickupBranch())
@@ -352,13 +353,50 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .build();
     }
 
+    @Override
+    public FetchRoutesResult fetchRoutes(FetchRoutesQuery query) {
+        int pageNumber = ApiRequestUtils.parseIntOrDefault(
+                query.pageNumber(),
+                1,
+                "pageNumber",
+                query.context().requestId(),
+                query.context().requestDateTime(),
+                query.context().channel()
+        );
+        int pageSize = ApiRequestUtils.parseIntOrDefault(
+                query.pageSize(),
+                10,
+                "pageSize",
+                query.context().requestId(),
+                query.context().requestDateTime(),
+                query.context().channel()
+        );
+
+        PagedResult<RouteFetchView> page = routeQueryPort.fetchRoutes(
+                query.merchantId(),
+                query.merchantName(),
+                Math.max(pageNumber - 1, 0),
+                pageSize
+        );
+
+        return FetchRoutesResult.builder()
+                .items(page.getItems().stream()
+                        .map(this::toFetchRouteResult)
+                        .toList())
+                .pageNumber(page.getPageNumber() + 1)
+                .pageSize(page.getPageSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
+    }
+
     private RoutePointResult toRoutePoint(RouteStopPlan s) {
         return RoutePointResult.builder()
                 .id(s.getId())
                 .operationOrder(String.valueOf(s.getStopOrder()))
                 .routeId(s.getRouteId())
-                .plannedArrivalTime(s.getPlannedArrivalTime() == null ? null : s.getPlannedArrivalTime().toString())
-                .plannedDepartureTime(s.getPlannedDepartureTime() == null ? null : s.getPlannedDepartureTime().toString())
+                .plannedArrivalTime(s.getPlannedArrivalTime() == null ? null : s.getPlannedArrivalTime())
+                .plannedDepartureTime(s.getPlannedDepartureTime() == null ? null : s.getPlannedDepartureTime())
                 .note(s.getNote())
                 .operationPointId(s.getOperationPointId())
                 .stopName(s.getStopName())
@@ -366,6 +404,28 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .stopCity(s.getStopCity())
                 .stopLatitude(s.getStopLatitude())
                 .stopLongitude(s.getStopLongitude())
+                .build();
+    }
+
+    private FetchRouteResult toFetchRouteResult(RouteFetchView view) {
+        return FetchRouteResult.builder()
+                .id(view.getId())
+                .creator(view.getCreator())
+                .pickupBranch(view.getPickupBranch())
+                .routeCode(view.getRouteCode())
+                .origin(view.getOrigin())
+                .destination(view.getDestination())
+                .plannedStartTime(view.getPlannedStartTime())
+                .plannedEndTime(view.getPlannedEndTime())
+                .actualStartTime(view.getActualStartTime())
+                .actualEndTime(view.getActualEndTime())
+                .status(view.getStatus())
+                .availableSeats(view.getAvailableSeats())
+                .vehicleId(view.getVehicleId())
+                .vehiclePlate(view.getVehiclePlate())
+                .hasFloor(view.getHasFloor())
+                .assignedAt(view.getAssignedAt())
+                .routePoints(view.getRoutePoints())
                 .build();
     }
 
@@ -391,10 +451,6 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         validatePlannedTime(command, point);
 
         boolean hasOperationPointId = hasText(point.operationPointId());
-        boolean hasStopName = hasText(point.stopName());
-        if (hasOperationPointId == hasStopName) {
-            throwInvalidInput(command, OPERATION_POINT_OR_STOP_NAME_REQUIRED);
-        }
 
         if (hasOperationPointId) {
             validateOperationPoint(command, point.operationPointId().trim());

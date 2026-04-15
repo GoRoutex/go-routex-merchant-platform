@@ -33,6 +33,12 @@ public class OperationPointRepositoryAdapter implements OperationPointRepository
     }
 
     @Override
+    public Optional<OperationPoint> findByName(String name, String merchantId) {
+        return operationPointEntityRepository.findByNameIgnoreCaseAndMerchantId(name, merchantId)
+                .map(operationPointPersistenceMapper::toDomain);
+    }
+
+    @Override
     public Optional<OperationPoint> findById(String id) {
         return operationPointEntityRepository.findById(id).map(operationPointPersistenceMapper::toDomain);
     }

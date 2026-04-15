@@ -9,8 +9,13 @@ public class ErrorConstant {
     public static final String TIMEOUT_ERROR_MESSAGE = "Timeout";
     public static final String RECORD_NOT_FOUND = "1407";
     public static final String ROLE_NOT_FOUND = "Role not found";
+    public static final String OPERATION_POINT_OR_STOP_NAME_REQUIRED =
+            "Either operationPointId or stopName is required (but not both)";
+    public static final String STOP_COORDINATES_MUST_BE_PROVIDED_TOGETHER =
+            "stopLatitude and stopLongitude must be provided together";
     public static final String AUTHORITIES_NOT_FOUND = "Authorities not found";
     public static final String ROUTE_NOT_FOUND = "Route with Id %s not found";
+    public static final String MERCHANT_NOT_FOUND_BY_ID = "Merchant with Id %s not found";
     public static final String OPERATION_POINT_NOT_FOUND = "Operation point with Id %s not found";
     public static final String PROVINCE_NOT_FOUND = "Province with Id %s not found";
     public static final String SEAT_NOT_FOUND = "Seats not found";

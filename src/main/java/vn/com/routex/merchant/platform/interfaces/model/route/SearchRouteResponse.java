@@ -42,8 +42,8 @@ public class SearchRouteResponse extends BaseResponse<List<SearchRouteResponse.S
         private String id;
         private String operationOrder;
         private String routeId;
-        private String plannedArrivalTime;
-        private String plannedDepartureTime;
+        private OffsetDateTime plannedArrivalTime;
+        private OffsetDateTime plannedDepartureTime;
         private String note;
         private String operationPointId;
         private String stopName;

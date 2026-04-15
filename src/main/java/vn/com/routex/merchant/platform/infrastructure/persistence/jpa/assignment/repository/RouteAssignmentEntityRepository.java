@@ -51,4 +51,6 @@ public interface RouteAssignmentEntityRepository extends JpaRepository<RouteAssi
             @Param("merchantId") String merchantId,
             @Param("status") String status
     );
+
+    Optional<RouteAssignmentEntity> findByRouteIdAndMerchantId(String routeId, String merchantId);
 }

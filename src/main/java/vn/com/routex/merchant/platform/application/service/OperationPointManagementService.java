@@ -7,6 +7,8 @@ import vn.com.routex.merchant.platform.application.command.operationpoint.Delete
 import vn.com.routex.merchant.platform.application.command.operationpoint.DeleteOperationPointResult;
 import vn.com.routex.merchant.platform.application.command.operationpoint.FetchOperationPointQuery;
 import vn.com.routex.merchant.platform.application.command.operationpoint.FetchOperationPointResult;
+import vn.com.routex.merchant.platform.application.command.operationpoint.GetOperationPointDetailQuery;
+import vn.com.routex.merchant.platform.application.command.operationpoint.GetOperationPointDetailResult;
 import vn.com.routex.merchant.platform.application.command.operationpoint.UpdateOperationPointCommand;
 import vn.com.routex.merchant.platform.application.command.operationpoint.UpdateOperationPointResult;
 
@@ -18,4 +20,6 @@ public interface OperationPointManagementService {
     DeleteOperationPointResult deleteOperationPoint(DeleteOperationPointCommand command);
 
     FetchOperationPointResult fetchOperationPoint(FetchOperationPointQuery query);
+
+    GetOperationPointDetailResult getOperationPointDetail(GetOperationPointDetailQuery query);
 }

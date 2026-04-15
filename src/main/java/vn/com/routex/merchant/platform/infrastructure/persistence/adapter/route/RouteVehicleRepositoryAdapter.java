@@ -15,31 +15,31 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RouteVehicleRepositoryAdapter implements RouteVehicleRepositoryPort {
 
-    private final VehicleEntityRepository VehicleEntityRepository;
+    private final VehicleEntityRepository vehicleEntityRepository;
     private final RoutePersistenceMapper routePersistenceMapper;
 
     @Override
     public Optional<VehicleSnapshot> findById(String vehicleId) {
-        return VehicleEntityRepository.findById(vehicleId)
+        return vehicleEntityRepository.findById(vehicleId)
                 .map(routePersistenceMapper::toVehicleSnapshot);
     }
 
     @Override
     public Optional<VehicleSnapshot> findById(String vehicleId, String merchantId) {
-        return VehicleEntityRepository.findByIdAndMerchantId(vehicleId, merchantId)
+        return vehicleEntityRepository.findByIdAndMerchantId(vehicleId, merchantId)
                 .map(routePersistenceMapper::toVehicleSnapshot);
     }
 
     @Override
     public Map<String, VehicleSnapshot> findByIds(List<String> vehicleIds) {
-        return VehicleEntityRepository.findByIdIn(vehicleIds).stream()
+        return vehicleEntityRepository.findByIdIn(vehicleIds).stream()
                 .map(routePersistenceMapper::toVehicleSnapshot)
                 .collect(Collectors.toMap(VehicleSnapshot::getId, vehicle -> vehicle));
     }
 
     @Override
     public Map<String, VehicleSnapshot> findByIds(List<String> vehicleIds, String merchantId) {
-        return VehicleEntityRepository.findByIdInAndMerchantId(vehicleIds, merchantId).stream()
+        return vehicleEntityRepository.findByIdInAndMerchantId(vehicleIds, merchantId).stream()
                 .map(routePersistenceMapper::toVehicleSnapshot)
                 .collect(Collectors.toMap(VehicleSnapshot::getId, vehicle -> vehicle));
     }

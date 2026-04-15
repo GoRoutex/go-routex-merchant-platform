@@ -3,8 +3,10 @@ package vn.com.routex.merchant.platform.domain.route.readmodel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.com.routex.merchant.platform.application.command.route.RoutePointResult;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,5 +23,11 @@ public class RouteFetchView {
     private OffsetDateTime actualStartTime;
     private OffsetDateTime actualEndTime;
     private String status;
+    private Long availableSeats;
+    private String vehicleId;
+    private String vehiclePlate;
+    private Boolean hasFloor;
+    private OffsetDateTime assignedAt;
+    private List<RoutePointResult> routePoints;
 }
 

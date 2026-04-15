@@ -3,9 +3,9 @@ package vn.com.routex.merchant.platform.infrastructure.persistence.adapter.route
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.route.model.RouteStopPlan;
-import vn.com.routex.merchant.platform.domain.route.port.RoutePointRepositoryPort;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.entity.RoutePointEntity;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.repository.RoutePointEntityRepository;
+import vn.com.routex.merchant.platform.domain.route.port.RouteStopRepositoryPort;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.entity.RouteStopEntity;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.repository.RouteStopEntityRepository;
 
 import java.util.Comparator;
 import java.util.List;
@@ -15,36 +15,36 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class RoutePointRepositoryAdapter implements RoutePointRepositoryPort {
+public class RouteStopRepositoryAdapter implements RouteStopRepositoryPort {
 
-    private final RoutePointEntityRepository routePointEntityRepository;
+    private final RouteStopEntityRepository routeStopEntityRepository;
     private final RoutePersistenceMapper routePersistenceMapper;
 
     @Override
     public void saveAll(List<RouteStopPlan> stopPlans) {
-        List<RoutePointEntity> entities = stopPlans.stream()
+        List<RouteStopEntity> entities = stopPlans.stream()
                 .map(routePersistenceMapper::toEntity)
                 .toList();
-        routePointEntityRepository.saveAll(entities);
+        routeStopEntityRepository.saveAll(entities);
     }
 
     @Override
     public void save(RouteStopPlan routeStopPlan) {
-        routePointEntityRepository.save(routePersistenceMapper.toEntity(routeStopPlan));
+        routeStopEntityRepository.save(routePersistenceMapper.toEntity(routeStopPlan));
     }
 
     @Override
     public List<RouteStopPlan> findByRouteId(String routeId) {
-        List<RouteStopPlan> stopPlans = routePointEntityRepository.findAllByRouteId(routeId).stream()
+        List<RouteStopPlan> stopPlans = new java.util.ArrayList<>(routeStopEntityRepository.findAllByRouteId(routeId).stream()
                 .map(routePersistenceMapper::toStopPlan)
-                .toList();
+                .toList());
         stopPlans.sort(Comparator.comparingInt(RouteStopPlan::getStopOrder));
         return stopPlans;
     }
 
     @Override
     public Map<String, List<RouteStopPlan>> findByRouteIds(List<String> routeIds) {
-        List<RouteStopPlan> stopPlans = routePointEntityRepository.findByRouteIdIn(routeIds).stream()
+        List<RouteStopPlan> stopPlans = routeStopEntityRepository.findByRouteIdIn(routeIds).stream()
                 .map(routePersistenceMapper::toStopPlan)
                 .toList();
 
@@ -55,7 +55,7 @@ public class RoutePointRepositoryAdapter implements RoutePointRepositoryPort {
 
     @Override
     public Optional<RouteStopPlan> findByRouteIdAndStopOrder(String routeId, String stopOrder) {
-        return routePointEntityRepository.findByRouteIdAndStopOrder(routeId, stopOrder)
+        return routeStopEntityRepository.findByRouteIdAndStopOrder(routeId, stopOrder)
                 .map(routePersistenceMapper::toStopPlan);
     }
 }

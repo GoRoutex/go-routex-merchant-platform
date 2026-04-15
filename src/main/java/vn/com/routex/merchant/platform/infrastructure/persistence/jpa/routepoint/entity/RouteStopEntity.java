@@ -20,7 +20,7 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "ROUTE_STOP")
 @SuperBuilder
-public class RoutePointEntity extends AbstractAuditingEntity {
+public class RouteStopEntity extends AbstractAuditingEntity {
 
     @Id
     private String id;

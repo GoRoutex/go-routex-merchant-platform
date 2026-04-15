@@ -17,6 +17,8 @@ public interface ProvincesManagementService {
 
     FetchProvincesResult fetchProvinces(FetchProvincesQuery query);
 
+    FetchProvincesResult fetchMasterProvinces(FetchProvincesQuery query);
+
     CreateProvinceResult createProvince(CreateProvinceCommand command);
 
     UpdateProvinceResult updateProvince(UpdateProvinceCommand command);

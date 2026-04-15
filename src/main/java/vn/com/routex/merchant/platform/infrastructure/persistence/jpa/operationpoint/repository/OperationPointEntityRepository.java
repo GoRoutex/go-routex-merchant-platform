@@ -18,6 +18,8 @@ public interface OperationPointEntityRepository extends JpaRepository<OperationP
 
     Optional<OperationPointEntity> findByCodeAndMerchantId(String code, String merchantId);
 
+    Optional<OperationPointEntity> findByNameIgnoreCaseAndMerchantId(String name, String merchantId);
+
     boolean existsByCode(String code);
 
     boolean existsByCodeAndMerchantId(String code, String merchantId);

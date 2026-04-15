@@ -33,6 +33,12 @@ public class RouteAssignmentRepositoryAdapter implements RouteAssignmentReposito
         return routeAssignmentJpaRepository.existsByRouteIdAndMerchantId(routeId, merchantId);
     }
 
+
+    @Override
+    public Optional<RouteAssignmentRecord> findByRouteIdAndMerchantId(String routeId, String merchantId) {
+        return routeAssignmentJpaRepository.findByRouteIdAndMerchantId(routeId, merchantId)
+                .map(routePersistenceMapper::toAssignmentRecord);
+    }
     @Override
     public Optional<RouteAssignmentRecord> findActiveByRouteId(String routeId) {
         return routeAssignmentJpaRepository

@@ -19,6 +19,8 @@ import vn.com.routex.merchant.platform.application.command.operationpoint.Delete
 import vn.com.routex.merchant.platform.application.command.operationpoint.DeleteOperationPointResult;
 import vn.com.routex.merchant.platform.application.command.operationpoint.FetchOperationPointQuery;
 import vn.com.routex.merchant.platform.application.command.operationpoint.FetchOperationPointResult;
+import vn.com.routex.merchant.platform.application.command.operationpoint.GetOperationPointDetailQuery;
+import vn.com.routex.merchant.platform.application.command.operationpoint.GetOperationPointDetailResult;
 import vn.com.routex.merchant.platform.application.command.operationpoint.UpdateOperationPointCommand;
 import vn.com.routex.merchant.platform.application.command.operationpoint.UpdateOperationPointResult;
 import vn.com.routex.merchant.platform.application.service.OperationPointManagementService;
@@ -31,6 +33,7 @@ import vn.com.routex.merchant.platform.interfaces.model.operationpoint.CreateOpe
 import vn.com.routex.merchant.platform.interfaces.model.operationpoint.DeleteOperationPointRequest;
 import vn.com.routex.merchant.platform.interfaces.model.operationpoint.DeleteOperationPointResponse;
 import vn.com.routex.merchant.platform.interfaces.model.operationpoint.FetchOperationPointResponse;
+import vn.com.routex.merchant.platform.interfaces.model.operationpoint.GetOperationPointDetailResponse;
 import vn.com.routex.merchant.platform.interfaces.model.operationpoint.UpdateOperationPointRequest;
 import vn.com.routex.merchant.platform.interfaces.model.operationpoint.UpdateOperationPointResponse;
 
@@ -54,6 +57,8 @@ public class MerchantOperationPointController {
     private final OperationPointManagementService operationPointManagementService;
     private final ApiResultFactory apiResultFactory;
     private final SystemLog sLog = SystemLog.getLogger(this.getClass());
+
+    private static final String DETAIL_PATH = "/detail";
 
     @PostMapping(OPERATION_POINT + CREATE_PATH)
     @PreAuthorize("hasAuthority('points:management') or hasRole('ADMIN')")
@@ -215,6 +220,46 @@ public class MerchantOperationPointController {
                                 .totalElements(result.totalElements())
                                 .totalPages(result.totalPages())
                                 .build())
+                        .build())
+                .build();
+
+        return HttpUtils.buildResponse(baseRequest, response);
+    }
+
+    @GetMapping(OPERATION_POINT + DETAIL_PATH)
+    @PreAuthorize("hasAuthority('points:management') or hasRole('ADMIN')")
+    public ResponseEntity<GetOperationPointDetailResponse> getOperationPointDetail(@RequestParam(required = false) String operationPointId,
+                                                                                   @RequestParam(required = false) String code,
+                                                                                   @RequestParam(required = false) String name,
+                                                                                   HttpServletRequest servletRequest) {
+        BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
+        String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, baseRequest);
+
+        GetOperationPointDetailResult result = operationPointManagementService.getOperationPointDetail(
+                GetOperationPointDetailQuery.builder()
+                        .context(HttpUtils.toContext(baseRequest, merchantId))
+                        .merchantId(merchantId)
+                        .operationPointId(operationPointId)
+                        .code(code)
+                        .name(name)
+                        .build()
+        );
+
+        GetOperationPointDetailResponse response = GetOperationPointDetailResponse.builder()
+                .requestId(baseRequest.getRequestId())
+                .requestDateTime(baseRequest.getRequestDateTime())
+                .channel(baseRequest.getChannel())
+                .result(apiResultFactory.buildSuccess())
+                .data(GetOperationPointDetailResponse.GetOperationPointDetailResponseData.builder()
+                        .id(result.id())
+                        .code(result.code())
+                        .name(result.name())
+                        .type(result.type())
+                        .address(result.address())
+                        .city(result.city())
+                        .latitude(result.latitude())
+                        .longitude(result.longitude())
+                        .status(result.status())
                         .build())
                 .build();
 

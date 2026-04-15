@@ -13,35 +13,35 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RouteAggregateRepositoryAdapter implements RouteAggregateRepositoryPort {
 
-    private final RouteEntityRepository RouteEntityRepository;
+    private final RouteEntityRepository routeEntityRepository;
     private final RoutePersistenceMapper routePersistenceMapper;
 
     @Override
     public Optional<RouteAggregate> findById(String routeId) {
-        return RouteEntityRepository.findById(routeId)
+        return routeEntityRepository.findById(routeId)
                 .map(routePersistenceMapper::toAggregate);
     }
 
     @Override
     public Optional<RouteAggregate> findById(String routeId, String merchantId) {
-        return RouteEntityRepository.findByIdAndMerchantId(routeId, merchantId)
+        return routeEntityRepository.findByIdAndMerchantId(routeId, merchantId)
                 .map(routePersistenceMapper::toAggregate);
     }
 
     @Override
     public List<RouteAggregate> findByMerchantId(String merchantId) {
-        return RouteEntityRepository.findByMerchantId(merchantId).stream()
+        return routeEntityRepository.findByMerchantId(merchantId).stream()
                 .map(routePersistenceMapper::toAggregate)
                 .toList();
     }
 
     @Override
     public void save(RouteAggregate aggregate) {
-        RouteEntityRepository.save(routePersistenceMapper.toEntity(aggregate));
+        routeEntityRepository.save(routePersistenceMapper.toEntity(aggregate));
     }
 
     @Override
     public String generateRouteCode(String originCode, String destinationCode) {
-        return RouteEntityRepository.generateRouteCode(originCode, destinationCode);
+        return routeEntityRepository.generateRouteCode(originCode, destinationCode);
     }
 }

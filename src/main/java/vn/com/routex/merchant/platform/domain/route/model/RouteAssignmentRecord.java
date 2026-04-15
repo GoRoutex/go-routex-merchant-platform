@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.domain.assignment.RouteAssignmentStatus;
+import vn.com.routex.merchant.platform.domain.auditing.AbstractAuditingEntity;
 
 import java.time.OffsetDateTime;
 
@@ -13,8 +14,8 @@ import java.time.OffsetDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder(toBuilder = true)
-public class RouteAssignmentRecord {
+@SuperBuilder
+public class RouteAssignmentRecord extends AbstractAuditingEntity {
     private String id;
     private String routeId;
     private String creator;
@@ -24,8 +25,6 @@ public class RouteAssignmentRecord {
     private OffsetDateTime assignedAt;
     private OffsetDateTime unAssignedAt;
     private RouteAssignmentStatus status;
-    private OffsetDateTime updatedAt;
-    private String updatedBy;
 
     public static RouteAssignmentRecord assign(
             String id,
@@ -51,7 +50,7 @@ public class RouteAssignmentRecord {
     public void cancel(String actor, OffsetDateTime at) {
         this.status = RouteAssignmentStatus.CANCELED;
         this.unAssignedAt = at;
-        this.updatedAt = at;
-        this.updatedBy = actor;
+        this.setUpdatedAt(at);
+        this.setUpdatedBy(actor);
     }
 }

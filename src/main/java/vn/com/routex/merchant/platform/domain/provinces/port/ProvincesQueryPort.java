@@ -9,6 +9,7 @@ import java.util.List;
 public interface ProvincesQueryPort {
     List<ProvincesSearchItem> search(String merchantId, String keyword, int page, int size);
 
-
     PagedResult<ProvincesFetchView> fetchRoutes(String merchantId, int pageNumber, int pageSize);
+
+    PagedResult<ProvincesFetchView> fetchMasterProvinces(int pageNumber, int pageSize);
 }

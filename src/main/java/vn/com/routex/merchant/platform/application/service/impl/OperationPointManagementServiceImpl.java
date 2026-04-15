@@ -9,6 +9,8 @@ import vn.com.routex.merchant.platform.application.command.operationpoint.Delete
 import vn.com.routex.merchant.platform.application.command.operationpoint.DeleteOperationPointResult;
 import vn.com.routex.merchant.platform.application.command.operationpoint.FetchOperationPointQuery;
 import vn.com.routex.merchant.platform.application.command.operationpoint.FetchOperationPointResult;
+import vn.com.routex.merchant.platform.application.command.operationpoint.GetOperationPointDetailQuery;
+import vn.com.routex.merchant.platform.application.command.operationpoint.GetOperationPointDetailResult;
 import vn.com.routex.merchant.platform.application.command.operationpoint.UpdateOperationPointCommand;
 import vn.com.routex.merchant.platform.application.command.operationpoint.UpdateOperationPointResult;
 import vn.com.routex.merchant.platform.application.service.OperationPointManagementService;
@@ -21,6 +23,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.utils.DateTime
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DUPLICATE_ERROR;
@@ -202,6 +205,60 @@ public class OperationPointManagementServiceImpl implements OperationPointManage
                 .build();
     }
 
+    @Override
+    public GetOperationPointDetailResult getOperationPointDetail(GetOperationPointDetailQuery query) {
+        OperationPoint operationPoint = resolveOperationPoint(query)
+                .orElseThrow(() -> new BusinessException(
+                        query.context().requestId(),
+                        query.context().requestDateTime(),
+                        query.context().channel(),
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, buildOperationPointLookupMessage(query))
+                ));
+
+        return GetOperationPointDetailResult.builder()
+                .id(operationPoint.getId())
+                .code(operationPoint.getCode())
+                .name(operationPoint.getName())
+                .type(operationPoint.getType())
+                .address(operationPoint.getAddress())
+                .city(operationPoint.getCity())
+                .latitude(operationPoint.getLatitude())
+                .longitude(operationPoint.getLongitude())
+                .status(operationPoint.getStatus())
+                .build();
+    }
+
+    private Optional<OperationPoint> resolveOperationPoint(GetOperationPointDetailQuery query) {
+        if (hasText(query.operationPointId())) {
+            return operationPointRepositoryPort.findById(query.operationPointId().trim(), query.merchantId());
+        }
+        if (hasText(query.code())) {
+            return operationPointRepositoryPort.findByCode(query.code().trim(), query.merchantId());
+        }
+        if (hasText(query.name())) {
+            return operationPointRepositoryPort.findByName(query.name().trim(), query.merchantId());
+        }
+        throw new BusinessException(
+                query.context().requestId(),
+                query.context().requestDateTime(),
+                query.context().channel(),
+                ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, "operationPointId or code or name is required")
+        );
+    }
+
+    private String buildOperationPointLookupMessage(GetOperationPointDetailQuery query) {
+        if (hasText(query.operationPointId())) {
+            return String.format(OPERATION_POINT_NOT_FOUND, query.operationPointId().trim());
+        }
+        if (hasText(query.code())) {
+            return String.format(OPERATION_POINT_NOT_FOUND, query.code().trim());
+        }
+        if (hasText(query.name())) {
+            return String.format(OPERATION_POINT_NOT_FOUND, query.name().trim());
+        }
+        return "Operation point not found";
+    }
+
     private static int parseIntOrDefault(
             String v,
             int defaultValue,
@@ -216,5 +273,9 @@ public class OperationPointManagementServiceImpl implements OperationPointManage
 
     private static String firstNonBlank(String value, String fallback) {
         return (value == null || value.isBlank()) ? fallback : value;
+    }
+
+    private static boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 }

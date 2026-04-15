@@ -217,4 +217,48 @@ public class MerchantProvincesController {
 
         return HttpUtils.buildResponse(baseRequest, response);
     }
+
+    @GetMapping(PROVINCES + "/master" + FETCH_PATH)
+    @PreAuthorize("hasAuthority('provinces:management') or hasRole('ADMIN')")
+    public ResponseEntity<FetchProvincesResponse> fetchMasterProvinces(
+            HttpServletRequest servletRequest,
+            @RequestParam(defaultValue = "1") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
+
+        FetchProvincesResult result = provincesManagementService.fetchMasterProvinces(
+                FetchProvincesQuery.builder()
+                        .context(HttpUtils.toContext(baseRequest))
+                        .pageSize(String.valueOf(pageSize))
+                        .pageNumber(String.valueOf(pageNumber))
+                        .build()
+        );
+
+        List<FetchProvincesResponse.FetchProvincesResponseData> dataList = result.items().stream()
+                .map(p -> FetchProvincesResponse.FetchProvincesResponseData.builder()
+                        .id(p.id())
+                        .name(p.name())
+                        .code(p.code())
+                        .build())
+                .collect(Collectors.toList());
+
+        FetchProvincesResponse response = FetchProvincesResponse.builder()
+                .requestId(baseRequest.getRequestId())
+                .requestDateTime(baseRequest.getRequestDateTime())
+                .channel(baseRequest.getChannel())
+                .result(apiResultFactory.buildSuccess())
+                .data(FetchProvincesResponse.FetchProvincesResponsePage.builder()
+                        .items(dataList)
+                        .pagination(FetchProvincesResponse.Pagination.builder()
+                                .pageNumber(result.pageNumber())
+                                .pageSize(result.pageSize())
+                                .totalElements(result.totalElements())
+                                .totalPages(result.totalPages())
+                                .build())
+                        .build())
+                .build();
+
+        return HttpUtils.buildResponse(baseRequest, response);
+    }
 }

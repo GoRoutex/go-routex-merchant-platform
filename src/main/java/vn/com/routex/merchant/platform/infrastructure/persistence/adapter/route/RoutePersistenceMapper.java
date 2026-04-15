@@ -7,7 +7,7 @@ import vn.com.routex.merchant.platform.domain.route.model.RouteStopPlan;
 import vn.com.routex.merchant.platform.domain.route.model.VehicleSnapshot;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.assignment.entity.RouteAssignmentEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteEntity;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.entity.RoutePointEntity;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.entity.RouteStopEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.entity.VehicleEntity;
 
 @Component
@@ -55,7 +55,7 @@ final class RoutePersistenceMapper {
                 .build();
     }
 
-    public RouteStopPlan toStopPlan(RoutePointEntity routeStop) {
+    public RouteStopPlan toStopPlan(RouteStopEntity routeStop) {
         return RouteStopPlan.builder()
                 .id(routeStop.getId())
                 .routeId(routeStop.getRouteId())
@@ -75,8 +75,8 @@ final class RoutePersistenceMapper {
                 .build();
     }
 
-    public RoutePointEntity toEntity(RouteStopPlan stopPlan) {
-        return RoutePointEntity.builder()
+    public RouteStopEntity toEntity(RouteStopPlan stopPlan) {
+        return RouteStopEntity.builder()
                 .id(stopPlan.getId())
                 .routeId(stopPlan.getRouteId())
                 .creator(stopPlan.getCreator())

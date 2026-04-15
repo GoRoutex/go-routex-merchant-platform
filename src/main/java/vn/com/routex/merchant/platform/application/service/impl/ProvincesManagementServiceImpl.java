@@ -61,6 +61,17 @@ public class ProvincesManagementServiceImpl implements ProvincesManagementServic
 
     @Override
     public FetchProvincesResult fetchProvinces(FetchProvincesQuery query) {
+        PagedResult<ProvincesFetchView> page = fetchProvincePage(query, true);
+        return toFetchProvincesResult(page);
+    }
+
+    @Override
+    public FetchProvincesResult fetchMasterProvinces(FetchProvincesQuery query) {
+        PagedResult<ProvincesFetchView> page = fetchProvincePage(query, false);
+        return toFetchProvincesResult(page);
+    }
+
+    private PagedResult<ProvincesFetchView> fetchProvincePage(FetchProvincesQuery query, boolean merchantOnly) {
         int pageSize = ApiRequestUtils.parseIntOrDefault(query.pageSize(), DEFAULT_PAGE_SIZE, "pageSize",
                 query.context().requestId(), query.context().requestDateTime(), query.context().channel());
 
@@ -76,7 +87,13 @@ public class ProvincesManagementServiceImpl implements ProvincesManagementServic
                     ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_NUMBER));
         }
 
-        PagedResult<ProvincesFetchView> page = provincesQueryPort.fetchRoutes(query.context().merchantId(), pageNumber - 1, pageSize);
+        if (merchantOnly) {
+            return provincesQueryPort.fetchRoutes(query.context().merchantId(), pageNumber - 1, pageSize);
+        }
+        return provincesQueryPort.fetchMasterProvinces(pageNumber - 1, pageSize);
+    }
+
+    private FetchProvincesResult toFetchProvincesResult(PagedResult<ProvincesFetchView> page) {
         List<ProvincesFetchView> provinces = page.getItems();
 
         List<FetchProvincesResult.FetchProvinceResult> resultList = provinces.stream()
@@ -88,12 +105,12 @@ public class ProvincesManagementServiceImpl implements ProvincesManagementServic
                 .toList();
 
         return FetchProvincesResult.builder()
-                            .items(resultList)
-                            .pageNumber(page.getPageNumber() + 1)
-                            .pageSize(page.getPageSize())
-                            .totalElements(page.getTotalElements())
-                            .totalPages(page.getTotalPages())
-                            .build();
+                .items(resultList)
+                .pageNumber(page.getPageNumber() + 1)
+                .pageSize(page.getPageSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
     }
 
     @Override

@@ -12,6 +12,8 @@ public interface OperationPointRepositoryPort {
 
     Optional<OperationPoint> findByCode(String code, String merchantId);
 
+    Optional<OperationPoint> findByName(String name, String merchantId);
+
     Optional<OperationPoint> findById(String id);
 
     Optional<OperationPoint> findById(String id, String merchantId);
