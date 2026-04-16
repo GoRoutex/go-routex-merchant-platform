@@ -21,6 +21,8 @@ import vn.com.routex.merchant.platform.application.command.route.CreateRouteComm
 import vn.com.routex.merchant.platform.application.command.route.CreateRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteResult;
+import vn.com.routex.merchant.platform.application.command.route.FetchDetailRouteQuery;
+import vn.com.routex.merchant.platform.application.command.route.FetchDetailRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.FetchRoutesQuery;
 import vn.com.routex.merchant.platform.application.command.route.FetchRoutesResult;
 import vn.com.routex.merchant.platform.application.command.route.RoutePointCommand;
@@ -38,7 +40,9 @@ import vn.com.routex.merchant.platform.interfaces.model.route.CreateRouteRequest
 import vn.com.routex.merchant.platform.interfaces.model.route.CreateRouteResponse;
 import vn.com.routex.merchant.platform.interfaces.model.route.DeleteRouteRequest;
 import vn.com.routex.merchant.platform.interfaces.model.route.DeleteRouteResponse;
+import vn.com.routex.merchant.platform.interfaces.model.route.FetchDetailRouteResponse;
 import vn.com.routex.merchant.platform.interfaces.model.route.FetchRouteResponse;
+import vn.com.routex.merchant.platform.interfaces.model.route.SearchRouteResponse;
 import vn.com.routex.merchant.platform.interfaces.model.route.UpdateRouteRequest;
 import vn.com.routex.merchant.platform.interfaces.model.route.UpdateRouteResponse;
 
@@ -52,6 +56,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.ASSIGNMENT_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.CREATE_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DELETE_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DETAIL_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.FETCH_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.MERCHANT_SERVICE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.ROUTES_PATH;
@@ -74,6 +79,76 @@ public class MerchantRouteController {
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder, WebRequest webRequest) {
         webDataBinder.setDisallowedFields("requestId", "requestDateTime", "channel", "data");
+    }
+
+
+    @GetMapping(FETCH_PATH + DETAIL_PATH)
+    public ResponseEntity<FetchDetailRouteResponse> fetchDetailRoute(
+            HttpServletRequest servletRequest,
+            @RequestParam String routeId,
+            @RequestParam String merchantId
+    ) {
+
+        BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
+
+        FetchDetailRouteResult result =
+                routeManagementService.fetchDetailRoute(
+                        FetchDetailRouteQuery.builder()
+                                .context(HttpUtils.toContext(baseRequest))
+                                .routeId(routeId)
+                                .merchantId(merchantId)
+                                .build()
+                );
+
+
+        List<SearchRouteResponse.SearchRoutePoints> routePoints = result.routePoints().stream()
+                .map(point -> SearchRouteResponse.SearchRoutePoints.builder()
+                        .id(point.id())
+                        .operationOrder(point.operationOrder())
+                        .routeId(point.routeId())
+                        .plannedArrivalTime(point.plannedArrivalTime())
+                        .plannedDepartureTime(point.plannedDepartureTime())
+                        .note(point.note())
+                        .operationPointId(point.operationPointId())
+                        .stopName(point.stopName())
+                        .stopAddress(point.stopAddress())
+                        .stopCity(point.stopCity())
+                        .stopLatitude(point.stopLatitude())
+                        .stopLongitude(point.stopLongitude())
+                        .build())
+                .collect(Collectors.toList());
+
+        FetchDetailRouteResponse response = FetchDetailRouteResponse.builder()
+                .requestId(baseRequest.getRequestId())
+                .requestDateTime(baseRequest.getRequestDateTime())
+                .channel(baseRequest.getChannel())
+                .data(FetchDetailRouteResponse.FetchDetailRouteResponseData
+                        .builder()
+                        .id(result.id())
+                        .creator(result.creator())
+                        .pickupBranch(result.pickupBranch())
+                        .routeCode(result.routeCode())
+                        .origin(result.origin())
+                        .destination(result.destination())
+                        .plannedStartTime(result.plannedStartTime())
+                        .plannedEndTime(result.plannedEndTime())
+                        .actualStartTime(result.actualStartTime())
+                        .actualEndTime(result.actualEndTime())
+                        .status(result.status())
+                        .availableSeats(result.availableSeats())
+                        .vehicleId(result.vehicleId())
+                        .vehiclePlate(result.vehiclePlate())
+                        .hasFloor(result.hasFloor())
+                        .assignedAt(result.assignedAt())
+                        .routePoints(routePoints)
+                        .build())
+                .build();
+
+
+
+        sLog.info("[ROUTE-DETAIL] Fetch Route Detail Response: {}", response);
+
+        return HttpUtils.buildResponse(baseRequest, response);
     }
 
     @GetMapping(FETCH_PATH)

@@ -48,6 +48,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.CREATE_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DELETE_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.FETCH_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.MASTER_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.MERCHANT_SERVICE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.PROVINCES;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.SEARCH_PATH;
@@ -56,6 +57,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(API_PATH + API_VERSION + MERCHANT_SERVICE)
+@PreAuthorize("hasAuthority('provinces:management') or hasRole('ADMIN')")
 public class MerchantProvincesController {
 
     private final ApiResultFactory apiResultFactory;
@@ -68,7 +70,6 @@ public class MerchantProvincesController {
     }
 
     @GetMapping(PROVINCES + SEARCH_PATH)
-    @PreAuthorize("hasAuthority('provinces:management') or hasRole('ADMIN')")
     public ResponseEntity<SearchProvincesResponse> searchProvinces(
             HttpServletRequest servletRequest,
             @RequestParam String keyword,
@@ -97,7 +98,6 @@ public class MerchantProvincesController {
     }
 
     @PostMapping(PROVINCES + CREATE_PATH)
-    @PreAuthorize("hasAuthority('provinces:management') or hasRole('ADMIN')")
     public ResponseEntity<CreateProvinceResponse> createProvince(@Valid @RequestBody CreateProvinceRequest request,
                                                                  HttpServletRequest servletRequest) {
         sLog.info("[PROVINCE-MANAGEMENT] Create Province Request: {}", request);
@@ -122,7 +122,6 @@ public class MerchantProvincesController {
     }
 
     @PostMapping(PROVINCES + UPDATE_PATH)
-    @PreAuthorize("hasAuthority('provinces:management') or hasRole('ADMIN')")
     public ResponseEntity<UpdateProvinceResponse> updateProvince(@Valid @RequestBody UpdateProvinceRequest request,
                                                                  HttpServletRequest servletRequest) {
         sLog.info("[PROVINCE-MANAGEMENT] Update Province Request: {}", request);
@@ -149,7 +148,6 @@ public class MerchantProvincesController {
     }
 
     @PostMapping(PROVINCES + DELETE_PATH)
-    @PreAuthorize("hasAuthority('provinces:management') or hasRole('ADMIN')")
     public ResponseEntity<DeleteProvinceResponse> deleteProvince(@Valid @RequestBody DeleteProvinceRequest request,
                                                                  HttpServletRequest servletRequest) {
         sLog.info("[PROVINCE-MANAGEMENT] Delete Province: {}", request);
@@ -173,7 +171,6 @@ public class MerchantProvincesController {
 
 
     @GetMapping(PROVINCES + FETCH_PATH)
-    @PreAuthorize("hasAuthority('provinces:management') or hasRole('ADMIN')")
     public ResponseEntity<FetchProvincesResponse> fetchProvinces(
             HttpServletRequest servletRequest,
             @RequestParam(defaultValue = "1") int pageNumber,
@@ -218,7 +215,7 @@ public class MerchantProvincesController {
         return HttpUtils.buildResponse(baseRequest, response);
     }
 
-    @GetMapping(PROVINCES + "/master" + FETCH_PATH)
+    @GetMapping(PROVINCES + MASTER_PATH + FETCH_PATH)
     @PreAuthorize("hasAuthority('provinces:management') or hasRole('ADMIN')")
     public ResponseEntity<FetchProvincesResponse> fetchMasterProvinces(
             HttpServletRequest servletRequest,

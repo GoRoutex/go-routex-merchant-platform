@@ -12,6 +12,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.review.ent
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.review.repository.MerchantReviewEntityRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +25,12 @@ public class MerchantReviewRepositoryAdapter implements MerchantReviewRepository
     public MerchantReview save(MerchantReview merchantReview) {
         MerchantReviewEntity entity = merchantReviewEntityRepository.save(merchantReviewPersistenceMapper.toEntity(merchantReview));
         return merchantReviewPersistenceMapper.toDomain(entity);
+    }
+
+    @Override
+    public Optional<MerchantReview> findById(String reviewId, String merchantId) {
+        return merchantReviewEntityRepository.findByIdAndMerchantId(reviewId, merchantId)
+                .map(merchantReviewPersistenceMapper::toDomain);
     }
 
     @Override

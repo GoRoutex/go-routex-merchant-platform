@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.application.command.review.CreateMerchantReviewCommand;
 import vn.com.routex.merchant.platform.application.command.review.CreateMerchantReviewResult;
+import vn.com.routex.merchant.platform.application.command.review.FetchMerchantReviewDetailQuery;
+import vn.com.routex.merchant.platform.application.command.review.FetchMerchantReviewDetailResult;
 import vn.com.routex.merchant.platform.application.command.review.FetchMerchantReviewsQuery;
 import vn.com.routex.merchant.platform.application.command.review.FetchMerchantReviewsResult;
 import vn.com.routex.merchant.platform.application.service.MerchantReviewService;
@@ -23,6 +25,7 @@ import vn.com.routex.merchant.platform.interfaces.factory.ApiResultFactory;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseRequest;
 import vn.com.routex.merchant.platform.interfaces.model.review.CreateMerchantReviewRequest;
 import vn.com.routex.merchant.platform.interfaces.model.review.CreateMerchantReviewResponse;
+import vn.com.routex.merchant.platform.interfaces.model.review.FetchMerchantReviewDetailResponse;
 import vn.com.routex.merchant.platform.interfaces.model.review.FetchMerchantReviewsResponse;
 
 import java.util.List;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_VERSION;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.CREATE_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DETAIL_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.FETCH_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.MERCHANT_SERVICE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.REVIEWS_PATH;
@@ -168,6 +172,54 @@ public class MerchantReviewController {
                                 .totalElements(result.totalElements())
                                 .totalPages(result.totalPages())
                                 .build())
+                        .build())
+                .build();
+
+        return HttpUtils.buildResponse(baseRequest, response);
+    }
+
+    @GetMapping(REVIEWS_PATH + DETAIL_PATH)
+    @PreAuthorize("hasAuthority('reviews:management') or hasRole('ADMIN')")
+    public ResponseEntity<FetchMerchantReviewDetailResponse> fetchReviewDetail(
+            @RequestParam String reviewId,
+            HttpServletRequest servletRequest
+    ) {
+        BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
+        String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, baseRequest);
+
+        FetchMerchantReviewDetailResult result = merchantReviewService.fetchReviewDetail(FetchMerchantReviewDetailQuery.builder()
+                .context(HttpUtils.toContext(baseRequest, merchantId))
+                .merchantId(merchantId)
+                .reviewId(reviewId)
+                .build());
+
+        FetchMerchantReviewDetailResponse response = FetchMerchantReviewDetailResponse.builder()
+                .requestId(baseRequest.getRequestId())
+                .requestDateTime(baseRequest.getRequestDateTime())
+                .channel(baseRequest.getChannel())
+                .result(apiResultFactory.buildSuccess())
+                .data(FetchMerchantReviewDetailResponse.FetchMerchantReviewDetailResponseData.builder()
+                        .id(result.id())
+                        .merchantId(result.merchantId())
+                        .reviewType(result.reviewType())
+                        .bookingId(result.bookingId())
+                        .routeId(result.routeId())
+                        .routeCode(result.routeCode())
+                        .driverId(result.driverId())
+                        .vehicleId(result.vehicleId())
+                        .customerId(result.customerId())
+                        .customerName(result.customerName())
+                        .overallRating(result.overallRating())
+                        .driverRating(result.driverRating())
+                        .vehicleRating(result.vehicleRating())
+                        .punctualityRating(result.punctualityRating())
+                        .tripExperienceRating(result.tripExperienceRating())
+                        .safetyRating(result.safetyRating())
+                        .merchantServiceRating(result.merchantServiceRating())
+                        .staffSupportRating(result.staffSupportRating())
+                        .valueForMoneyRating(result.valueForMoneyRating())
+                        .comment(result.comment())
+                        .reviewedAt(result.reviewedAt())
                         .build())
                 .build();
 

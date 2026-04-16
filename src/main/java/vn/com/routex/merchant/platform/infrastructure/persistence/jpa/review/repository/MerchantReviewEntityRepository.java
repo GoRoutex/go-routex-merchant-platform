@@ -12,6 +12,8 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.review.ent
 @Repository
 public interface MerchantReviewEntityRepository extends JpaRepository<MerchantReviewEntity, String> {
 
+    java.util.Optional<MerchantReviewEntity> findByIdAndMerchantId(String id, String merchantId);
+
     Page<MerchantReviewEntity> findByMerchantIdOrderByReviewedAtDesc(String merchantId, Pageable pageable);
 
     long countByMerchantId(String merchantId);

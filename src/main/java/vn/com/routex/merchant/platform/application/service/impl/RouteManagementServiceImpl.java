@@ -11,6 +11,8 @@ import vn.com.routex.merchant.platform.application.command.route.CreateRouteComm
 import vn.com.routex.merchant.platform.application.command.route.CreateRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteResult;
+import vn.com.routex.merchant.platform.application.command.route.FetchDetailRouteQuery;
+import vn.com.routex.merchant.platform.application.command.route.FetchDetailRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.FetchRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.FetchRoutesQuery;
 import vn.com.routex.merchant.platform.application.command.route.FetchRoutesResult;
@@ -62,12 +64,11 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_POINT_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.STOP_COORDINATES_MUST_BE_PROVIDED_TOGETHER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_NOT_FOUND;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_NOT_FOUND_BY_ID;
 
 @Service
 @RequiredArgsConstructor
 public class RouteManagementServiceImpl implements RouteManagementService {
-
-
 
     private final RouteAggregateRepositoryPort routeAggregateRepositoryPort;
     private final RouteStopRepositoryPort routeStopRepositoryPort;
@@ -105,7 +106,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
 
         String routeCode = routeAggregateRepositoryPort.generateRouteCode(originCode, destinationCode);
 
-        if(!plannedStartTime.isBefore(plannedEndTime)) {
+        if (!plannedStartTime.isBefore(plannedEndTime)) {
             throw new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                     ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_START_TIME));
         }
@@ -181,7 +182,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
     @Override
     @Transactional
     public AssignRouteResult assignRoute(AssignRouteCommand command) {
-        if(routeAssignmentRepositoryPort.existsActiveByRouteId(command.routeId(), command.merchantId())) {
+        if (routeAssignmentRepositoryPort.existsActiveByRouteId(command.routeId(), command.merchantId())) {
             throw new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                     ExceptionUtils.buildResultResponse(DUPLICATE_ERROR, String.format(DUPLICATE_ROUTE_ASSIGNMENT, command.routeId())));
         }
@@ -191,8 +192,8 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, VEHICLE_NOT_FOUND)));
 
         RouteAggregate route = routeAggregateRepositoryPort.findById(command.routeId(), command.merchantId())
-                        .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
-                                ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(ROUTE_NOT_FOUND, command.routeId()))));
+                .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(ROUTE_NOT_FOUND, command.routeId()))));
 
         OffsetDateTime assignedAt = OffsetDateTime.now();
         RouteAssignmentRecord routeAssignment = RouteAssignmentRecord.assign(
@@ -259,7 +260,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(ROUTE_NOT_FOUND, command.routeId()))));
 
-        if(command.routePoints() != null) {
+        if (command.routePoints() != null) {
             command.routePoints().forEach(point -> {
                 RouteStopPlan routeStopPlan = routeStopRepositoryPort.findByRouteIdAndStopOrder(command.routeId(), point.operationOrder())
                         .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
@@ -302,14 +303,14 @@ public class RouteManagementServiceImpl implements RouteManagementService {
 
         List<UpdateRouteResult.UpdateRoutePointResult> routePointResults = command.routePoints() != null ?
                 command.routePoints().stream()
-                .map(point -> UpdateRouteResult.UpdateRoutePointResult.builder()
-                        .id(point.id())
-                        .operationOrder(point.id())
-                        .plannedArrivalTime(point.plannedArrivalTime())
-                        .plannedDepartureTime(point.plannedDepartureTime())
-                        .note(point.note())
-                        .build())
-                .toList() : null;
+                        .map(point -> UpdateRouteResult.UpdateRoutePointResult.builder()
+                                .id(point.id())
+                                .operationOrder(point.id())
+                                .plannedArrivalTime(point.plannedArrivalTime())
+                                .plannedDepartureTime(point.plannedDepartureTime())
+                                .note(point.note())
+                                .build())
+                        .toList() : null;
 
         return UpdateRouteResult.builder()
                 .routeId(command.routeId())
@@ -325,6 +326,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .routePoints(routePointResults)
                 .build();
     }
+
     @Override
     @Transactional
     public DeleteRouteResult deleteRoute(DeleteRouteCommand command) {
@@ -388,6 +390,66 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
                 .build();
+    }
+
+    @Override
+    public FetchDetailRouteResult fetchDetailRoute(FetchDetailRouteQuery query) {
+
+        sLog.info("[ROUTE-DETAIL] Fetch Detail Query: {}", query);
+
+        RouteAggregate routeAggregate = routeAggregateRepositoryPort.findById(query.routeId(), query.merchantId())
+                .orElseThrow(() -> new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(ROUTE_NOT_FOUND, query.routeId()))));
+
+        RouteAssignmentRecord routeAssignmentRecord = routeAssignmentRepositoryPort.findByRouteIdAndMerchantId(query.routeId(), query.merchantId())
+                .orElse(null);
+
+        VehicleSnapshot vehicleSnapshot = null;
+
+        if(routeAssignmentRecord != null) {
+            vehicleSnapshot = routeVehicleRepositoryPort.findById(routeAssignmentRecord.getVehicleId()).orElse(null);
+        }
+
+        List<RouteStopPlan> routeStopPlans = routeStopRepositoryPort.findByRouteId(query.routeId());
+
+        List<RoutePointResult> routePointResults = routeStopPlans.isEmpty() ? null :
+                routeStopPlans.stream()
+                        .map(stop -> RoutePointResult.builder()
+                                .id(stop.getId())
+                                .routeId(stop.getRouteId())
+                                .operationOrder(String.valueOf(stop.getStopOrder()))
+                                .operationPointId(stop.getOperationPointId())
+                                .stopAddress(stop.getStopAddress())
+                                .stopName(stop.getStopName())
+                                .stopCity(stop.getStopCity())
+                                .stopLatitude(stop.getStopLatitude())
+                                .stopLongitude(stop.getStopLongitude())
+                                .note(stop.getNote())
+                                .plannedArrivalTime(stop.getPlannedArrivalTime())
+                                .plannedDepartureTime(stop.getPlannedDepartureTime())
+                                .build())
+                        .toList();
+
+        return FetchDetailRouteResult.builder()
+                .id(routeAggregate.getId())
+                .creator(routeAggregate.getCreator())
+                .pickupBranch(routeAggregate.getPickupBranch())
+                .routeCode(routeAggregate.getRouteCode())
+                .origin(routeAggregate.getOrigin())
+                .destination(routeAggregate.getDestination())
+                .plannedStartTime(routeAggregate.getPlannedStartTime())
+                .plannedEndTime(routeAggregate.getPlannedEndTime())
+                .actualStartTime(routeAggregate.getActualStartTime())
+                .actualEndTime(routeAggregate.getActualEndTime())
+                .status(routeAggregate.getStatus())
+                .availableSeats(vehicleSnapshot != null ? vehicleSnapshot.getSeatCapacity().longValue() : null)
+                .vehicleId(routeAssignmentRecord != null ? routeAssignmentRecord.getVehicleId() : null)
+                .vehiclePlate(vehicleSnapshot != null ? vehicleSnapshot.getVehiclePlate() : null)
+                .hasFloor(vehicleSnapshot != null ? vehicleSnapshot.isHasFloor() : null)
+                .assignedAt(routeAssignmentRecord != null ? routeAssignmentRecord.getAssignedAt() : null)
+                .routePoints(routePointResults)
+                .build();
+
     }
 
     private RoutePointResult toRoutePoint(RouteStopPlan s) {

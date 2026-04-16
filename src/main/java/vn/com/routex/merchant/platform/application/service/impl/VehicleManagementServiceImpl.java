@@ -7,6 +7,8 @@ import vn.com.routex.merchant.platform.application.command.vehicle.AddVehicleCom
 import vn.com.routex.merchant.platform.application.command.vehicle.AddVehicleResult;
 import vn.com.routex.merchant.platform.application.command.vehicle.DeleteVehicleCommand;
 import vn.com.routex.merchant.platform.application.command.vehicle.DeleteVehicleResult;
+import vn.com.routex.merchant.platform.application.command.vehicle.FetchVehicleDetailQuery;
+import vn.com.routex.merchant.platform.application.command.vehicle.FetchVehicleDetailResult;
 import vn.com.routex.merchant.platform.application.command.vehicle.FetchVehiclesQuery;
 import vn.com.routex.merchant.platform.application.command.vehicle.FetchVehiclesResult;
 import vn.com.routex.merchant.platform.application.command.vehicle.UpdateVehicleCommand;
@@ -174,6 +176,25 @@ public class VehicleManagementServiceImpl implements VehicleManagementService {
                 .pageSize(page.getPageSize())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public FetchVehicleDetailResult fetchVehicleDetail(FetchVehicleDetailQuery query) {
+        VehicleProfile vehicle = vehicleProfileRepositoryPort.findById(query.vehicleId(), query.merchantId())
+                .orElseThrow(() -> new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_NOT_FOUND_BY_ID, query.vehicleId()))));
+
+        return FetchVehicleDetailResult.builder()
+                .id(vehicle.getId())
+                .merchantId(vehicle.getMerchantId())
+                .creator(vehicle.getCreator())
+                .status(vehicle.getStatus())
+                .type(vehicle.getType())
+                .vehiclePlate(vehicle.getVehiclePlate())
+                .seatCapacity(vehicle.getSeatCapacity())
+                .hasFloor(vehicle.isHasFloor())
+                .manufacturer(vehicle.getManufacturer())
                 .build();
     }
 }

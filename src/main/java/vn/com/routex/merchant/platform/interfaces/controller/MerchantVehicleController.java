@@ -20,6 +20,8 @@ import vn.com.routex.merchant.platform.application.command.vehicle.AddVehicleCom
 import vn.com.routex.merchant.platform.application.command.vehicle.AddVehicleResult;
 import vn.com.routex.merchant.platform.application.command.vehicle.DeleteVehicleCommand;
 import vn.com.routex.merchant.platform.application.command.vehicle.DeleteVehicleResult;
+import vn.com.routex.merchant.platform.application.command.vehicle.FetchVehicleDetailQuery;
+import vn.com.routex.merchant.platform.application.command.vehicle.FetchVehicleDetailResult;
 import vn.com.routex.merchant.platform.application.command.vehicle.FetchVehiclesQuery;
 import vn.com.routex.merchant.platform.application.command.vehicle.FetchVehiclesResult;
 import vn.com.routex.merchant.platform.application.command.vehicle.UpdateVehicleCommand;
@@ -34,6 +36,7 @@ import vn.com.routex.merchant.platform.interfaces.model.vehicle.AddVehicleReques
 import vn.com.routex.merchant.platform.interfaces.model.vehicle.AddVehicleResponse;
 import vn.com.routex.merchant.platform.interfaces.model.vehicle.DeleteVehicleRequest;
 import vn.com.routex.merchant.platform.interfaces.model.vehicle.DeleteVehicleResponse;
+import vn.com.routex.merchant.platform.interfaces.model.vehicle.FetchVehicleDetailResponse;
 import vn.com.routex.merchant.platform.interfaces.model.vehicle.FetchVehicleResponse;
 import vn.com.routex.merchant.platform.interfaces.model.vehicle.UpdateVehicleRequest;
 import vn.com.routex.merchant.platform.interfaces.model.vehicle.UpdateVehicleResponse;
@@ -45,6 +48,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_VERSION;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.CREATE_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DELETE_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DETAIL_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.FETCH_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.MERCHANT_SERVICE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.UPDATE_PATH;
@@ -209,6 +213,41 @@ public class MerchantVehicleController {
                                 .totalElements(result.totalElements())
                                 .totalPages(result.totalPages())
                                 .build())
+                        .build())
+                .build();
+
+        return HttpUtils.buildResponse(baseRequest, response);
+    }
+
+    @GetMapping(VEHICLE_PATH + DETAIL_PATH)
+    public ResponseEntity<FetchVehicleDetailResponse> fetchVehicleDetail(
+            HttpServletRequest servletRequest,
+            @RequestParam String vehicleId
+    ) {
+        BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
+        String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, baseRequest);
+
+        FetchVehicleDetailResult result = vehicleManagementService.fetchVehicleDetail(FetchVehicleDetailQuery.builder()
+                .context(HttpUtils.toContext(baseRequest, merchantId))
+                .merchantId(merchantId)
+                .vehicleId(vehicleId)
+                .build());
+
+        FetchVehicleDetailResponse response = FetchVehicleDetailResponse.builder()
+                .requestId(baseRequest.getRequestId())
+                .requestDateTime(baseRequest.getRequestDateTime())
+                .channel(baseRequest.getChannel())
+                .result(apiResultFactory.buildSuccess())
+                .data(FetchVehicleDetailResponse.FetchVehicleDetailResponseData.builder()
+                        .id(result.id())
+                        .merchantId(result.merchantId())
+                        .creator(result.creator())
+                        .status(result.status())
+                        .type(result.type())
+                        .vehiclePlate(result.vehiclePlate())
+                        .seatCapacity(result.seatCapacity())
+                        .hasFloor(result.hasFloor())
+                        .manufacturer(result.manufacturer())
                         .build())
                 .build();
 

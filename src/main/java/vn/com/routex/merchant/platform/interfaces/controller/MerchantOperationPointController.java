@@ -44,6 +44,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_VERSION;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.CREATE_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DELETE_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DETAIL_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.FETCH_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.MERCHANT_SERVICE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.OPERATION_POINT;
@@ -51,6 +52,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 
 @RestController
 @RequestMapping(API_PATH + API_VERSION + MERCHANT_SERVICE)
+@PreAuthorize("hasAuthority('points:management') or hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class MerchantOperationPointController {
 
@@ -58,10 +60,7 @@ public class MerchantOperationPointController {
     private final ApiResultFactory apiResultFactory;
     private final SystemLog sLog = SystemLog.getLogger(this.getClass());
 
-    private static final String DETAIL_PATH = "/detail";
-
     @PostMapping(OPERATION_POINT + CREATE_PATH)
-    @PreAuthorize("hasAuthority('points:management') or hasRole('ADMIN')")
     public ResponseEntity<CreateOperationPointResponse> createOperationPoint(@Valid @RequestBody CreateOperationPointRequest request,
                                                                              HttpServletRequest servletRequest) {
 
@@ -104,7 +103,6 @@ public class MerchantOperationPointController {
     }
 
     @PostMapping(OPERATION_POINT + UPDATE_PATH)
-    @PreAuthorize("hasAuthority('points:management') or hasRole('ADMIN')")
     public ResponseEntity<UpdateOperationPointResponse> updateOperationPoint(@Valid @RequestBody UpdateOperationPointRequest request,
                                                                              HttpServletRequest servletRequest) {
 
@@ -148,7 +146,6 @@ public class MerchantOperationPointController {
     }
 
     @PostMapping(OPERATION_POINT + DELETE_PATH)
-    @PreAuthorize("hasAuthority('points:management') or hasRole('ADMIN')")
     public ResponseEntity<DeleteOperationPointResponse> deleteOperationPoint(@Valid @RequestBody DeleteOperationPointRequest request,
                                                                              HttpServletRequest servletRequest) {
 
@@ -178,7 +175,6 @@ public class MerchantOperationPointController {
     }
 
     @GetMapping(OPERATION_POINT + FETCH_PATH)
-    @PreAuthorize("hasAuthority('points:management') or hasRole('ADMIN')")
     public ResponseEntity<FetchOperationPointResponse> fetchOperationPoint(@RequestParam int pageNumber,
                                                                            @RequestParam int pageSize,
                                                                            HttpServletRequest servletRequest) {
@@ -227,7 +223,6 @@ public class MerchantOperationPointController {
     }
 
     @GetMapping(OPERATION_POINT + DETAIL_PATH)
-    @PreAuthorize("hasAuthority('points:management') or hasRole('ADMIN')")
     public ResponseEntity<GetOperationPointDetailResponse> getOperationPointDetail(@RequestParam(required = false) String operationPointId,
                                                                                    @RequestParam(required = false) String code,
                                                                                    @RequestParam(required = false) String name,

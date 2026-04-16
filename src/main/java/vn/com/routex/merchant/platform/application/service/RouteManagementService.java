@@ -7,6 +7,8 @@ import vn.com.routex.merchant.platform.application.command.route.CreateRouteComm
 import vn.com.routex.merchant.platform.application.command.route.CreateRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteResult;
+import vn.com.routex.merchant.platform.application.command.route.FetchDetailRouteQuery;
+import vn.com.routex.merchant.platform.application.command.route.FetchDetailRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.FetchRoutesQuery;
 import vn.com.routex.merchant.platform.application.command.route.FetchRoutesResult;
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteCommand;
@@ -23,4 +25,6 @@ public interface RouteManagementService {
     DeleteRouteResult deleteRoute(DeleteRouteCommand command);
 
     FetchRoutesResult fetchRoutes(FetchRoutesQuery query);
+
+    FetchDetailRouteResult fetchDetailRoute(FetchDetailRouteQuery build);
 }

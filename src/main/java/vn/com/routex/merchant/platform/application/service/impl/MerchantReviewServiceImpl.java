@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import vn.com.routex.merchant.platform.application.command.review.CreateMerchantReviewCommand;
 import vn.com.routex.merchant.platform.application.command.review.CreateMerchantReviewResult;
+import vn.com.routex.merchant.platform.application.command.review.FetchMerchantReviewDetailQuery;
+import vn.com.routex.merchant.platform.application.command.review.FetchMerchantReviewDetailResult;
 import vn.com.routex.merchant.platform.application.command.review.FetchMerchantReviewsQuery;
 import vn.com.routex.merchant.platform.application.command.review.FetchMerchantReviewsResult;
 import vn.com.routex.merchant.platform.application.service.MerchantReviewService;
@@ -28,6 +30,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_INPUT_ERROR;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_NUMBER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_SIZE;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.MERCHANT_REVIEW_NOT_FOUND_BY_ID;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
 
 @Service
@@ -168,6 +171,41 @@ public class MerchantReviewServiceImpl implements MerchantReviewService {
                 .totalPages(page.getTotalPages())
                 .totalReviews(merchantReviewRepositoryPort.countByMerchantId(query.merchantId()))
                 .averageOverallRating(merchantReviewRepositoryPort.findAverageOverallRatingByMerchantId(query.merchantId()))
+                .build();
+    }
+
+    @Override
+    public FetchMerchantReviewDetailResult fetchReviewDetail(FetchMerchantReviewDetailQuery query) {
+        MerchantReview review = merchantReviewRepositoryPort.findById(query.reviewId(), query.merchantId())
+                .orElseThrow(() -> new BusinessException(
+                        query.context().requestId(),
+                        query.context().requestDateTime(),
+                        query.context().channel(),
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(MERCHANT_REVIEW_NOT_FOUND_BY_ID, query.reviewId()))
+                ));
+
+        return FetchMerchantReviewDetailResult.builder()
+                .id(review.getId())
+                .merchantId(review.getMerchantId())
+                .reviewType(review.getReviewType())
+                .bookingId(review.getBookingId())
+                .routeId(review.getRouteId())
+                .routeCode(review.getRouteCode())
+                .driverId(review.getDriverId())
+                .vehicleId(review.getVehicleId())
+                .customerId(review.getCustomerId())
+                .customerName(review.getCustomerName())
+                .overallRating(review.getOverallRating())
+                .driverRating(review.getDriverRating())
+                .vehicleRating(review.getVehicleRating())
+                .punctualityRating(review.getPunctualityRating())
+                .tripExperienceRating(review.getTripExperienceRating())
+                .safetyRating(review.getSafetyRating())
+                .merchantServiceRating(review.getMerchantServiceRating())
+                .staffSupportRating(review.getStaffSupportRating())
+                .valueForMoneyRating(review.getValueForMoneyRating())
+                .comment(review.getComment())
+                .reviewedAt(review.getReviewedAt() == null ? null : review.getReviewedAt().toString())
                 .build();
     }
 
