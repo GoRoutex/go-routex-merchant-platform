@@ -20,16 +20,11 @@ import vn.com.routex.merchant.platform.domain.route.port.RouteStopRepositoryPort
 import vn.com.routex.merchant.platform.domain.route.port.RouteVehicleRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.readmodel.RouteFetchView;
 import vn.com.routex.merchant.platform.domain.route.readmodel.RouteSearchView;
-import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.repository.RouteEntityRepository;
-import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_NOT_FOUND;
 
 @Component
 @RequiredArgsConstructor

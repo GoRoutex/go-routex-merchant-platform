@@ -2,21 +2,16 @@ package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.
 
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormBankInfo;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormContact;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormOwner;
 import vn.com.routex.merchant.platform.domain.merchant.MerchantStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.AbstractAuditingEntity;
 

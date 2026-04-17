@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.application.command.merchant.GetMyMerchantCommand;
 import vn.com.routex.merchant.platform.application.command.merchant.GetMyMerchantResult;
 import vn.com.routex.merchant.platform.application.service.MerchantAccessService;

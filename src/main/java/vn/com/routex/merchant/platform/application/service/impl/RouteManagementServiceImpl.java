@@ -64,7 +64,6 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_POINT_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.STOP_COORDINATES_MUST_BE_PROVIDED_TOGETHER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_NOT_FOUND;
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_NOT_FOUND_BY_ID;
 
 @Service
 @RequiredArgsConstructor
