@@ -1,0 +1,308 @@
+package vn.com.routex.merchant.platform.application.service.impl;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import vn.com.routex.merchant.platform.application.command.maintenance.CreateMaintenancePlanCommand;
+import vn.com.routex.merchant.platform.application.command.maintenance.CreateMaintenancePlanResult;
+import vn.com.routex.merchant.platform.application.command.maintenance.DeleteMaintenancePlanCommand;
+import vn.com.routex.merchant.platform.application.command.maintenance.DeleteMaintenancePlanResult;
+import vn.com.routex.merchant.platform.application.command.maintenance.FetchMaintenancePlanDetailQuery;
+import vn.com.routex.merchant.platform.application.command.maintenance.FetchMaintenancePlanDetailResult;
+import vn.com.routex.merchant.platform.application.command.maintenance.FetchMaintenancePlansQuery;
+import vn.com.routex.merchant.platform.application.command.maintenance.FetchMaintenancePlansResult;
+import vn.com.routex.merchant.platform.application.command.maintenance.UpdateMaintenancePlanCommand;
+import vn.com.routex.merchant.platform.application.command.maintenance.UpdateMaintenancePlanResult;
+import vn.com.routex.merchant.platform.application.service.MaintenancePlanManagementService;
+import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.maintenance.MaintenancePlanStatus;
+import vn.com.routex.merchant.platform.domain.maintenance.model.MaintenancePlan;
+import vn.com.routex.merchant.platform.domain.maintenance.port.MaintenancePlanRepositoryPort;
+import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleProfileRepositoryPort;
+import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
+import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
+import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
+
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_PAGE_NUMBER;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_PAGE_SIZE;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DUPLICATE_ERROR;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DUPLICATE_MAINTENANCE_PLAN_CODE;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_INPUT_ERROR;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_NUMBER;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_SIZE;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.MAINTENANCE_PLAN_NOT_FOUND_BY_ID;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_NOT_FOUND_BY_ID;
+
+@Service
+@RequiredArgsConstructor
+public class MaintenancePlanManagementServiceImpl implements MaintenancePlanManagementService {
+
+    private final MaintenancePlanRepositoryPort maintenancePlanRepositoryPort;
+    private final VehicleProfileRepositoryPort vehicleProfileRepositoryPort;
+
+    @Override
+    @Transactional
+    public CreateMaintenancePlanResult createMaintenancePlan(CreateMaintenancePlanCommand command) {
+        validateVehicleExists(command.vehicleId(), command.merchantId(), command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+        validateDuplicateCode(command.code(), command.merchantId(), command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+        validateDateRange(command.plannedDate(), command.dueDate(), command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+
+        MaintenancePlan plan = MaintenancePlan.builder()
+                .id(UUID.randomUUID().toString())
+                .merchantId(command.merchantId())
+                .vehicleId(command.vehicleId())
+                .code(command.code())
+                .title(command.title())
+                .description(command.description())
+                .type(command.type())
+                .status(MaintenancePlanStatus.SCHEDULED)
+                .plannedDate(command.plannedDate())
+                .dueDate(command.dueDate())
+                .currentOdometerKm(command.currentOdometerKm())
+                .targetOdometerKm(command.targetOdometerKm())
+                .estimatedCost(command.estimatedCost())
+                .serviceProvider(command.serviceProvider())
+                .note(command.note())
+                .createdAt(OffsetDateTime.now())
+                .createdBy(command.creator())
+                .build();
+
+        maintenancePlanRepositoryPort.save(plan);
+        return toCreateResult(plan);
+    }
+
+    @Override
+    @Transactional
+    public UpdateMaintenancePlanResult updateMaintenancePlan(UpdateMaintenancePlanCommand command) {
+        MaintenancePlan existing = findMaintenancePlan(command.maintenancePlanId(), command.merchantId(),
+                command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+
+        String vehicleId = ApiRequestUtils.firstNonBlank(command.vehicleId(), existing.getVehicleId());
+        if (!vehicleId.equals(existing.getVehicleId())) {
+            validateVehicleExists(vehicleId, command.merchantId(), command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+        }
+
+        validateUpdatedCode(existing, command);
+        validateDateRange(
+                command.plannedDate() == null ? existing.getPlannedDate() : command.plannedDate(),
+                command.dueDate() == null ? existing.getDueDate() : command.dueDate(),
+                command.context().requestId(),
+                command.context().requestDateTime(),
+                command.context().channel());
+
+        MaintenancePlan updated = existing.toBuilder()
+                .vehicleId(vehicleId)
+                .code(ApiRequestUtils.firstNonBlank(command.code(), existing.getCode()))
+                .title(ApiRequestUtils.firstNonBlank(command.title(), existing.getTitle()))
+                .description(ApiRequestUtils.firstNonBlank(command.description(), existing.getDescription()))
+                .type(command.type() == null ? existing.getType() : command.type())
+                .status(command.status() == null ? existing.getStatus() : command.status())
+                .plannedDate(command.plannedDate() == null ? existing.getPlannedDate() : command.plannedDate())
+                .dueDate(command.dueDate() == null ? existing.getDueDate() : command.dueDate())
+                .completedDate(command.completedDate() == null ? existing.getCompletedDate() : command.completedDate())
+                .currentOdometerKm(command.currentOdometerKm() == null ? existing.getCurrentOdometerKm() : command.currentOdometerKm())
+                .targetOdometerKm(command.targetOdometerKm() == null ? existing.getTargetOdometerKm() : command.targetOdometerKm())
+                .estimatedCost(command.estimatedCost() == null ? existing.getEstimatedCost() : command.estimatedCost())
+                .actualCost(command.actualCost() == null ? existing.getActualCost() : command.actualCost())
+                .serviceProvider(ApiRequestUtils.firstNonBlank(command.serviceProvider(), existing.getServiceProvider()))
+                .note(ApiRequestUtils.firstNonBlank(command.note(), existing.getNote()))
+                .updatedAt(OffsetDateTime.now())
+                .updatedBy(command.creator())
+                .build();
+
+        maintenancePlanRepositoryPort.save(updated);
+        return toUpdateResult(updated);
+    }
+
+    @Override
+    @Transactional
+    public DeleteMaintenancePlanResult deleteMaintenancePlan(DeleteMaintenancePlanCommand command) {
+        MaintenancePlan existing = findMaintenancePlan(command.maintenancePlanId(), command.merchantId(),
+                command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+
+        MaintenancePlan cancelled = existing.toBuilder()
+                .status(MaintenancePlanStatus.CANCELLED)
+                .updatedAt(OffsetDateTime.now())
+                .updatedBy(command.creator())
+                .build();
+
+        maintenancePlanRepositoryPort.save(cancelled);
+        return DeleteMaintenancePlanResult.builder()
+                .id(cancelled.getId())
+                .code(cancelled.getCode())
+                .status(cancelled.getStatus())
+                .build();
+    }
+
+    @Override
+    public FetchMaintenancePlansResult fetchMaintenancePlans(FetchMaintenancePlansQuery query) {
+        int pageSize = ApiRequestUtils.parseIntOrDefault(query.pageSize(), DEFAULT_PAGE_SIZE, "pageSize",
+                query.context().requestId(), query.context().requestDateTime(), query.context().channel());
+        int pageNumber = ApiRequestUtils.parseIntOrDefault(query.pageNumber(), DEFAULT_PAGE_NUMBER, "pageNumber",
+                query.context().requestId(), query.context().requestDateTime(), query.context().channel());
+
+        validatePaging(query, pageSize, pageNumber);
+        validateDateRange(query.fromPlannedDate(), query.toPlannedDate(), query.context().requestId(), query.context().requestDateTime(), query.context().channel());
+
+        PagedResult<MaintenancePlan> page = maintenancePlanRepositoryPort.fetch(
+                query.merchantId(),
+                query.vehicleId(),
+                query.status(),
+                query.type(),
+                query.fromPlannedDate(),
+                query.toPlannedDate(),
+                pageNumber - 1,
+                pageSize);
+
+        List<FetchMaintenancePlansResult.FetchMaintenancePlanItemResult> items = page.getItems().stream()
+                .map(this::toFetchItemResult)
+                .toList();
+
+        return FetchMaintenancePlansResult.builder()
+                .items(items)
+                .pageNumber(page.getPageNumber() + 1)
+                .pageSize(page.getPageSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public FetchMaintenancePlanDetailResult fetchMaintenancePlanDetail(FetchMaintenancePlanDetailQuery query) {
+        MaintenancePlan plan = findMaintenancePlan(query.maintenancePlanId(), query.merchantId(),
+                query.context().requestId(), query.context().requestDateTime(), query.context().channel());
+        return toDetailResult(plan);
+    }
+
+    private void validatePaging(FetchMaintenancePlansQuery query, int pageSize, int pageNumber) {
+        if (pageSize < 1 || pageSize > 100) {
+            throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                    ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_SIZE));
+        }
+        if (pageNumber < 1) {
+            throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                    ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_NUMBER));
+        }
+    }
+
+    private void validateVehicleExists(String vehicleId, String merchantId, String requestId, String requestDateTime, String channel) {
+        vehicleProfileRepositoryPort.findById(vehicleId, merchantId)
+                .orElseThrow(() -> new BusinessException(requestId, requestDateTime, channel,
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_NOT_FOUND_BY_ID, vehicleId))));
+    }
+
+    private void validateDuplicateCode(String code, String merchantId, String requestId, String requestDateTime, String channel) {
+        if (maintenancePlanRepositoryPort.existsByCode(code, merchantId)) {
+            throw new BusinessException(requestId, requestDateTime, channel,
+                    ExceptionUtils.buildResultResponse(DUPLICATE_ERROR, String.format(DUPLICATE_MAINTENANCE_PLAN_CODE, code)));
+        }
+    }
+
+    private void validateUpdatedCode(MaintenancePlan existing, UpdateMaintenancePlanCommand command) {
+        if (command.code() == null || command.code().isBlank() || command.code().trim().equals(existing.getCode())) {
+            return;
+        }
+        validateDuplicateCode(command.code().trim(), command.merchantId(), command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+    }
+
+    private void validateDateRange(LocalDate plannedDate, LocalDate dueDate, String requestId, String requestDateTime, String channel) {
+        if (plannedDate != null && dueDate != null && plannedDate.isAfter(dueDate)) {
+            throw new BusinessException(requestId, requestDateTime, channel,
+                    ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, "plannedDate must be before or equal to dueDate"));
+        }
+    }
+
+    private MaintenancePlan findMaintenancePlan(String maintenancePlanId, String merchantId, String requestId, String requestDateTime, String channel) {
+        return maintenancePlanRepositoryPort.findById(maintenancePlanId, merchantId)
+                .orElseThrow(() -> new BusinessException(requestId, requestDateTime, channel,
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(MAINTENANCE_PLAN_NOT_FOUND_BY_ID, maintenancePlanId))));
+    }
+
+    private CreateMaintenancePlanResult toCreateResult(MaintenancePlan plan) {
+        return CreateMaintenancePlanResult.builder()
+                .id(plan.getId())
+                .merchantId(plan.getMerchantId())
+                .vehicleId(plan.getVehicleId())
+                .code(plan.getCode())
+                .title(plan.getTitle())
+                .description(plan.getDescription())
+                .type(plan.getType())
+                .status(plan.getStatus())
+                .plannedDate(plan.getPlannedDate())
+                .dueDate(plan.getDueDate())
+                .completedDate(plan.getCompletedDate())
+                .currentOdometerKm(plan.getCurrentOdometerKm())
+                .targetOdometerKm(plan.getTargetOdometerKm())
+                .estimatedCost(plan.getEstimatedCost())
+                .actualCost(plan.getActualCost())
+                .serviceProvider(plan.getServiceProvider())
+                .note(plan.getNote())
+                .build();
+    }
+
+    private UpdateMaintenancePlanResult toUpdateResult(MaintenancePlan plan) {
+        return UpdateMaintenancePlanResult.builder()
+                .id(plan.getId())
+                .merchantId(plan.getMerchantId())
+                .vehicleId(plan.getVehicleId())
+                .code(plan.getCode())
+                .title(plan.getTitle())
+                .description(plan.getDescription())
+                .type(plan.getType())
+                .status(plan.getStatus())
+                .plannedDate(plan.getPlannedDate())
+                .dueDate(plan.getDueDate())
+                .completedDate(plan.getCompletedDate())
+                .currentOdometerKm(plan.getCurrentOdometerKm())
+                .targetOdometerKm(plan.getTargetOdometerKm())
+                .estimatedCost(plan.getEstimatedCost())
+                .actualCost(plan.getActualCost())
+                .serviceProvider(plan.getServiceProvider())
+                .note(plan.getNote())
+                .build();
+    }
+
+    private FetchMaintenancePlansResult.FetchMaintenancePlanItemResult toFetchItemResult(MaintenancePlan plan) {
+        return FetchMaintenancePlansResult.FetchMaintenancePlanItemResult.builder()
+                .id(plan.getId())
+                .vehicleId(plan.getVehicleId())
+                .code(plan.getCode())
+                .title(plan.getTitle())
+                .type(plan.getType())
+                .status(plan.getStatus())
+                .plannedDate(plan.getPlannedDate())
+                .dueDate(plan.getDueDate())
+                .targetOdometerKm(plan.getTargetOdometerKm())
+                .estimatedCost(plan.getEstimatedCost())
+                .serviceProvider(plan.getServiceProvider())
+                .build();
+    }
+
+    private FetchMaintenancePlanDetailResult toDetailResult(MaintenancePlan plan) {
+        return FetchMaintenancePlanDetailResult.builder()
+                .id(plan.getId())
+                .merchantId(plan.getMerchantId())
+                .vehicleId(plan.getVehicleId())
+                .code(plan.getCode())
+                .title(plan.getTitle())
+                .description(plan.getDescription())
+                .type(plan.getType())
+                .status(plan.getStatus())
+                .plannedDate(plan.getPlannedDate())
+                .dueDate(plan.getDueDate())
+                .completedDate(plan.getCompletedDate())
+                .currentOdometerKm(plan.getCurrentOdometerKm())
+                .targetOdometerKm(plan.getTargetOdometerKm())
+                .estimatedCost(plan.getEstimatedCost())
+                .actualCost(plan.getActualCost())
+                .serviceProvider(plan.getServiceProvider())
+                .note(plan.getNote())
+                .build();
+    }
+}

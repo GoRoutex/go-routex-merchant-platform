@@ -30,6 +30,8 @@ public class ErrorConstant {
     public static final String VEHICLE_NOT_FOUND_BY_ID = "Vehicle with Id %s not found";
     public static final String DUPLICATE_VEHICLE_TEMPLATE_CODE = "Vehicle template with code %s already exists";
     public static final String DUPLICATE_VEHICLE_TEMPLATE_CATEGORY_TYPE = "Vehicle template with category %s and type %s already exists";
+    public static final String MAINTENANCE_PLAN_NOT_FOUND_BY_ID = "Maintenance plan with Id %s not found";
+    public static final String DUPLICATE_MAINTENANCE_PLAN_CODE = "Maintenance plan with code %s already exists";
     public static final String ROUTE_SEAT_NOT_FOUND = "Rout Seat with Route Id %s is not exists";
     public static final String RECORD_NOT_FOUND_MESSAGE = "Record not found";
     public static final String SUCCESS_CODE = "0000";
