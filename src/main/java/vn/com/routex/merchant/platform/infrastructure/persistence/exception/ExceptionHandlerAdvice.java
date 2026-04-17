@@ -38,8 +38,8 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
-    private BaseResponse buildBaseResponse(BaseRequest baseRequest, ApiResult result) {
-        return BaseResponse.builder()
+    private BaseResponse<Void> buildBaseResponse(BaseRequest baseRequest, ApiResult result) {
+        return BaseResponse.<Void>builder()
                 .requestId(baseRequest.getRequestId())
                 .requestDateTime(baseRequest.getRequestDateTime())
                 .channel(baseRequest.getChannel())
@@ -47,8 +47,7 @@ public class ExceptionHandlerAdvice {
                 .build();
     }
 
-    private ResponseEntity<BaseResponse> createErrorResponse(
-            HttpStatus status,
+    private ResponseEntity<BaseResponse<Void>> createErrorResponse(
             BaseRequest baseRequest,
             String responseCode,
             String description
@@ -58,7 +57,7 @@ public class ExceptionHandlerAdvice {
                 .description(description)
                 .build();
 
-        return ResponseEntity.status(status)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(buildBaseResponse(baseRequest, result));
     }
 
@@ -70,7 +69,7 @@ public class ExceptionHandlerAdvice {
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<BaseResponse> handleAuthorizationDeniedException(
+    public ResponseEntity<BaseResponse<Void>> handleAuthorizationDeniedException(
             HttpServletRequest request,
             AuthorizationDeniedException exception
     ) {
@@ -86,7 +85,7 @@ public class ExceptionHandlerAdvice {
                 ));
     }
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<BaseResponse> handleBusinessException(HttpServletRequest request, BusinessException ex) {
+    public ResponseEntity<BaseResponse<Void>> handleBusinessException(HttpServletRequest request, BusinessException ex) {
         BaseRequest baseRequest = logAndGetBaseRequest(request, ex);
 
         if (TIMEOUT_ERROR.equals(ex.getResult().getResponseCode())) {
@@ -98,12 +97,12 @@ public class ExceptionHandlerAdvice {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<BaseResponse> handleMethodArgumentNotValidException(HttpServletRequest request, MethodArgumentNotValidException ex) {
+    public ResponseEntity<BaseResponse<Void>> handleMethodArgumentNotValidException(HttpServletRequest request, MethodArgumentNotValidException ex) {
         String errorFieldList = getErrorFieldListResponse(ex.getBindingResult().getAllErrors());
         String errorMessage = "Invalid Input: " + errorFieldList;
         BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(request);
         String responseCode = getValidationResponseCode(ex);
-        return createErrorResponse(HttpStatus.BAD_REQUEST, baseRequest, responseCode, errorMessage);
+        return createErrorResponse(baseRequest, responseCode, errorMessage);
     }
 
     private static String getValidationResponseCode(MethodArgumentNotValidException e) {
@@ -145,9 +144,9 @@ public class ExceptionHandlerAdvice {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<BaseResponse> handleHttpMessageNotReadableException(HttpServletRequest request, HttpMessageNotReadableException e) {
+    public ResponseEntity<BaseResponse<Void>> handleHttpMessageNotReadableException(HttpServletRequest request, HttpMessageNotReadableException e) {
         BaseRequest baseRequest = logAndGetBaseRequest(request, e);
-        return createErrorResponse(HttpStatus.BAD_REQUEST, baseRequest, INVALID_INPUT_ERROR, INVALID_INPUT_MESSAGE);
+        return createErrorResponse(baseRequest, INVALID_INPUT_ERROR, INVALID_INPUT_MESSAGE);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -163,10 +162,10 @@ public class ExceptionHandlerAdvice {
 //    }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<BaseResponse> handleNoResourceFoundException(HttpServletRequest request, NoResourceFoundException e) {
+    public ResponseEntity<BaseResponse<Void>> handleNoResourceFoundException(HttpServletRequest request, NoResourceFoundException e) {
         BaseRequest baseRequest = logAndGetBaseRequest(request, e);
         String description = String.format(INVALID_HTTP_REQUEST_RESOURCE_ERROR_MESSAGE, e.getResourcePath());
-        return createErrorResponse(HttpStatus.BAD_REQUEST, baseRequest, INVALID_HTTP_REQUEST_RESOURCE_ERROR, description);
+        return createErrorResponse(baseRequest, INVALID_HTTP_REQUEST_RESOURCE_ERROR, description);
     }
 
 }

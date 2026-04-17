@@ -1,11 +1,12 @@
-package vn.com.routex.merchant.platform.interfaces.model.vehicle;
+package vn.com.routex.merchant.platform.interfaces.model.vehicletemplate;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
+import vn.com.routex.merchant.platform.domain.vehicle.FuelType;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateCategory;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateStatus;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseResponse;
 
@@ -13,23 +14,24 @@ import vn.com.routex.merchant.platform.interfaces.model.base.BaseResponse;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-public class FetchVehicleDetailResponse extends BaseResponse<FetchVehicleDetailResponse.FetchVehicleDetailResponseData> {
+public class UpdateVehicleTemplateResponse extends BaseResponse<UpdateVehicleTemplateResponse.UpdateVehicleTemplateResponseData> {
 
     @Getter
     @Setter
     @NoArgsConstructor
     @SuperBuilder
-    public static class FetchVehicleDetailResponseData {
+    public static class UpdateVehicleTemplateResponseData {
         private String id;
         private String merchantId;
-        private String templateId;
-        private String creator;
-        private VehicleStatus status;
+        private String code;
+        private String name;
+        private String manufacturer;
+        private String model;
+        private Long seatCapacity;
         private VehicleTemplateCategory category;
         private VehicleTemplateType type;
-        private String vehiclePlate;
-        private Long seatCapacity;
+        private FuelType fuelType;
         private Boolean hasFloor;
-        private String manufacturer;
+        private VehicleTemplateStatus status;
     }
 }

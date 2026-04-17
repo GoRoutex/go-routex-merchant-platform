@@ -1,4 +1,4 @@
-package vn.com.routex.merchant.platform.interfaces.model.vehicle;
+package vn.com.routex.merchant.platform.interfaces.model.vehicletemplate;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseRequest;
 
 @Getter
@@ -16,28 +15,21 @@ import vn.com.routex.merchant.platform.interfaces.model.base.BaseRequest;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class UpdateVehicleRequest extends BaseRequest {
+public class DeleteVehicleTemplateRequest extends BaseRequest {
 
     @Valid
     @NotNull
-    private UpdateVehicleRequestData data;
+    private DeleteVehicleTemplateRequestData data;
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
-    public static class UpdateVehicleRequestData {
-        @NotNull
+    public static class DeleteVehicleTemplateRequestData {
         @NotBlank
         private String creator;
-
-        @NotNull
         @NotBlank
-        private String vehicleId;
-
         private String templateId;
-        private String vehiclePlate;
-        private VehicleStatus status;
     }
 }

@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
-import vn.com.routex.merchant.platform.domain.vehicle.VehicleType;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateCategory;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseResponse;
 
 @Getter
@@ -20,10 +21,12 @@ public class AddVehicleResponse extends BaseResponse<AddVehicleResponse.AddVehic
     @SuperBuilder
     public static class AddVehicleResponseData {
         private String id;
+        private String templateId;
         private String creator;
-        private VehicleType type;
+        private VehicleTemplateCategory category;
+        private VehicleTemplateType type;
         private String vehiclePlate;
-        private String seatCapacity;
+        private Long seatCapacity;
         private String manufacturer;
         private VehicleStatus status;
     }

@@ -9,6 +9,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.assignment
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.entity.RouteStopEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.entity.VehicleEntity;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.entity.VehicleTemplateEntity;
 
 @Component
 final class RoutePersistenceMapper {
@@ -127,12 +128,12 @@ final class RoutePersistenceMapper {
                 .build();
     }
 
-    public VehicleSnapshot toVehicleSnapshot(VehicleEntity vehicle) {
+    public VehicleSnapshot toVehicleSnapshot(VehicleEntity vehicle, VehicleTemplateEntity template) {
         return VehicleSnapshot.builder()
                 .id(vehicle.getId())
                 .vehiclePlate(vehicle.getVehiclePlate())
-                .seatCapacity(vehicle.getSeatCapacity())
-                .hasFloor(vehicle.isHasFloor())
+                .seatCapacity(template == null || template.getSeatCapacity() == null ? null : template.getSeatCapacity().intValue())
+                .hasFloor(template != null && template.isHasFloor())
                 .build();
     }
 }

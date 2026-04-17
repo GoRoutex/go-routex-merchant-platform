@@ -25,7 +25,11 @@ public class ErrorConstant {
     public static final String SEAT_NOT_FOUND = "Seats not found";
     public static final String ROUTE_POINT_NOT_FOUND = "Route Point not found";
     public static final String VEHICLE_NOT_FOUND = "Vehicle not found";
+    public static final String VEHICLE_TEMPLATE_NOT_FOUND = "Vehicle Template with type %s and category %s not found";
+    public static final String VEHICLE_TEMPLATE_NOT_FOUND_BY_ID = "Vehicle Template with Id %s not found";
     public static final String VEHICLE_NOT_FOUND_BY_ID = "Vehicle with Id %s not found";
+    public static final String DUPLICATE_VEHICLE_TEMPLATE_CODE = "Vehicle template with code %s already exists";
+    public static final String DUPLICATE_VEHICLE_TEMPLATE_CATEGORY_TYPE = "Vehicle template with category %s and type %s already exists";
     public static final String ROUTE_SEAT_NOT_FOUND = "Rout Seat with Route Id %s is not exists";
     public static final String RECORD_NOT_FOUND_MESSAGE = "Record not found";
     public static final String SUCCESS_CODE = "0000";

@@ -16,17 +16,22 @@ import vn.com.routex.merchant.platform.application.command.vehicle.UpdateVehicle
 import vn.com.routex.merchant.platform.application.service.VehicleManagementService;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
-import vn.com.routex.merchant.platform.domain.vehicle.VehicleType;
 import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
+import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleTemplate;
 import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleProfileRepositoryPort;
+import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleTemplateRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_PAGE_NUMBER;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_PAGE_SIZE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DUPLICATE_ERROR;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DUPLICATE_VEHICLE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_INPUT_ERROR;
@@ -34,103 +39,71 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_SIZE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_NOT_FOUND_BY_ID;
-
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_TEMPLATE_NOT_FOUND_BY_ID;
 
 @Service
 @RequiredArgsConstructor
 public class VehicleManagementServiceImpl implements VehicleManagementService {
 
     private final VehicleProfileRepositoryPort vehicleProfileRepositoryPort;
-
-    private static final int DEFAULT_PAGE_SIZE = 10;
-    private static final int DEFAULT_PAGE_NUMBER = 1;
+    private final VehicleTemplateRepositoryPort vehicleTemplateRepositoryPort;
 
     @Override
     @Transactional
     public AddVehicleResult addVehicle(AddVehicleCommand command) {
-        if(vehicleProfileRepositoryPort.existsByVehiclePlate(command.vehiclePlate(), command.merchantId())) {
-            throw new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
-                    ExceptionUtils.buildResultResponse(DUPLICATE_ERROR, String.format(DUPLICATE_VEHICLE, command.vehiclePlate())));
-        }
+        validateDuplicateVehiclePlate(command.vehiclePlate(), command.vehiclePlate(), command.merchantId(), command);
 
+        VehicleTemplate vehicleTemplate = findTemplateById(
+                command.templateId(),
+                command.merchantId(),
+                command.context().requestId(),
+                command.context().requestDateTime(),
+                command.context().channel());
 
         VehicleProfile newVehicle = VehicleProfile.register(
                 UUID.randomUUID().toString(),
                 command.merchantId(),
+                vehicleTemplate.getId(),
                 command.creator(),
-                VehicleType.valueOf(command.type()),
                 command.vehiclePlate(),
-                Integer.valueOf(command.seatCapacity()),
-                command.manufacturer(),
                 OffsetDateTime.now()
         );
 
         vehicleProfileRepositoryPort.save(newVehicle);
-
-        return AddVehicleResult.builder()
-                .id(newVehicle.getId())
-                .creator(command.creator())
-                .type(newVehicle.getType())
-                .vehiclePlate(command.vehiclePlate())
-                .seatCapacity(command.seatCapacity())
-                .manufacturer(command.manufacturer())
-                .status(VehicleStatus.AVAILABLE)
-                .build();
+        return toAddVehicleResult(newVehicle, vehicleTemplate);
     }
 
     @Override
     @Transactional
     public UpdateVehicleResult updateVehicle(UpdateVehicleCommand command) {
-        VehicleProfile existing = vehicleProfileRepositoryPort.findById(command.vehicleId(), command.merchantId())
-                .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
-                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_NOT_FOUND_BY_ID, command.vehicleId()))));
+        VehicleWithTemplate existing = findVehicleWithTemplate(command.vehicleId(), command.merchantId(), command);
 
+        validateDuplicateVehiclePlate(command.vehiclePlate(), existing.vehicle().getVehiclePlate(), command.merchantId(), command);
+        VehicleTemplate updatedTemplate = resolveUpdatedTemplate(command.templateId(), existing.template(), command);
 
-        if (command.vehiclePlate() != null && !command.vehiclePlate().isBlank()
-                && !command.vehiclePlate().trim().equals(existing.getVehiclePlate())
-                && vehicleProfileRepositoryPort.existsByVehiclePlate(command.vehiclePlate().trim(), command.merchantId())) {
-            throw new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
-                    ExceptionUtils.buildResultResponse(DUPLICATE_ERROR, String.format(DUPLICATE_VEHICLE, command.vehiclePlate().trim())));
-        }
-
-
-        VehicleProfile updated = existing.toBuilder()
-                .merchantId(existing.getMerchantId())
-                .creator(ApiRequestUtils.firstNonBlank(command.creator(), existing.getCreator()))
-                .type(command.type() == null || command.type().isBlank() ? existing.getType() : VehicleType.valueOf(command.type().trim()))
-                .vehiclePlate(ApiRequestUtils.firstNonBlank(command.vehiclePlate(), existing.getVehiclePlate()))
-                .seatCapacity(command.seatCapacity() == null || command.seatCapacity().isBlank()
-                        ? existing.getSeatCapacity()
-                        : Integer.valueOf(command.seatCapacity().trim()))
-                .manufacturer(ApiRequestUtils.firstNonBlank(command.manufacturer(), existing.getManufacturer()))
-                .hasFloor(command.hasFloor() == null ? existing.isHasFloor() : command.hasFloor())
-                .status(command.status() == null ? existing.getStatus() : command.status())
+        VehicleProfile updated = existing.vehicle().toBuilder()
+                .merchantId(existing.vehicle().getMerchantId())
+                .templateId(updatedTemplate.getId())
+                .creator(ApiRequestUtils.firstNonBlank(command.creator(), existing.vehicle().getCreator()))
+                .vehiclePlate(ApiRequestUtils.firstNonBlank(command.vehiclePlate(), existing.vehicle().getVehiclePlate()))
+                .status(command.status() == null ? existing.vehicle().getStatus() : command.status())
+                .updatedAt(OffsetDateTime.now())
+                .updatedBy(command.creator())
                 .build();
 
         vehicleProfileRepositoryPort.save(updated);
-
-        return UpdateVehicleResult.builder()
-                .id(updated.getId())
-                .creator(updated.getCreator())
-                .type(updated.getType())
-                .vehiclePlate(updated.getVehiclePlate())
-                .seatCapacity(updated.getSeatCapacity())
-                .hasFloor(updated.isHasFloor())
-                .manufacturer(updated.getManufacturer())
-                .status(updated.getStatus())
-                .build();
+        return toUpdateVehicleResult(updated, updatedTemplate);
     }
 
     @Override
     @Transactional
     public DeleteVehicleResult deleteVehicle(DeleteVehicleCommand command) {
-        VehicleProfile existing = vehicleProfileRepositoryPort.findById(command.vehicleId(), command.merchantId())
-                .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
-                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_NOT_FOUND_BY_ID, command.vehicleId()))));
+        VehicleWithTemplate existing = findVehicleWithTemplate(command.vehicleId(), command.merchantId(), command);
 
-
-        VehicleProfile inactive = existing.toBuilder()
+        VehicleProfile inactive = existing.vehicle().toBuilder()
                 .status(VehicleStatus.INACTIVE)
+                .updatedAt(OffsetDateTime.now())
+                .updatedBy(command.creator())
                 .build();
         vehicleProfileRepositoryPort.save(inactive);
 
@@ -147,28 +120,17 @@ public class VehicleManagementServiceImpl implements VehicleManagementService {
         int pageNumber = ApiRequestUtils.parseIntOrDefault(query.pageNumber(), DEFAULT_PAGE_NUMBER, "pageNumber",
                 query.context().requestId(), query.context().requestDateTime(), query.context().channel());
 
-        if (pageSize < 1 || pageSize > 100) {
-            throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
-                    ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_SIZE));
-        }
-        if (pageNumber < 1) {
-            throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
-                    ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_NUMBER));
-        }
+        validatePaging(query, pageSize, pageNumber);
 
         PagedResult<VehicleProfile> page = vehicleProfileRepositoryPort.fetch(query.merchantId(), pageNumber - 1, pageSize);
+        Map<String, VehicleTemplate> templatesById = vehicleTemplateRepositoryPort.findByIds(page.getItems().stream()
+                .map(VehicleProfile::getTemplateId)
+                .distinct()
+                .toList());
+
         List<FetchVehiclesResult.FetchVehicleItemResult> items = page.getItems().stream()
-                .map(v -> FetchVehiclesResult.FetchVehicleItemResult.builder()
-                        .id(v.getId())
-                        .creator(v.getCreator())
-                        .status(v.getStatus())
-                        .type(v.getType())
-                        .vehiclePlate(v.getVehiclePlate())
-                        .seatCapacity(v.getSeatCapacity())
-                        .hasFloor(v.isHasFloor())
-                        .manufacturer(v.getManufacturer())
-                        .build())
-                .toList();
+                .map(vehicle -> toFetchVehicleItemResult(vehicle, requireTemplate(templatesById, vehicle.getTemplateId(), query)))
+                .collect(Collectors.toList());
 
         return FetchVehiclesResult.builder()
                 .items(items)
@@ -181,20 +143,153 @@ public class VehicleManagementServiceImpl implements VehicleManagementService {
 
     @Override
     public FetchVehicleDetailResult fetchVehicleDetail(FetchVehicleDetailQuery query) {
-        VehicleProfile vehicle = vehicleProfileRepositoryPort.findById(query.vehicleId(), query.merchantId())
-                .orElseThrow(() -> new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
-                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_NOT_FOUND_BY_ID, query.vehicleId()))));
+        VehicleWithTemplate vehicle = findVehicleWithTemplate(query.vehicleId(), query.merchantId(), query);
+        return toFetchVehicleDetailResult(vehicle.vehicle(), vehicle.template());
+    }
 
+    private void validatePaging(FetchVehiclesQuery query, int pageSize, int pageNumber) {
+        if (pageSize < 1 || pageSize > 100) {
+            throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                    ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_SIZE));
+        }
+        if (pageNumber < 1) {
+            throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                    ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_NUMBER));
+        }
+    }
+
+    private void validateDuplicateVehiclePlate(String newVehiclePlate, String currentVehiclePlate, String merchantId, AddVehicleCommand command) {
+        if (vehicleProfileRepositoryPort.existsByVehiclePlate(newVehiclePlate, merchantId)) {
+            throw duplicateVehiclePlate(command.context().requestId(), command.context().requestDateTime(), command.context().channel(), newVehiclePlate);
+        }
+    }
+
+    private void validateDuplicateVehiclePlate(String newVehiclePlate, String currentVehiclePlate, String merchantId, UpdateVehicleCommand command) {
+        if (newVehiclePlate == null || newVehiclePlate.isBlank()) {
+            return;
+        }
+
+        String normalizedVehiclePlate = newVehiclePlate.trim();
+        if (normalizedVehiclePlate.equals(currentVehiclePlate)) {
+            return;
+        }
+
+        if (vehicleProfileRepositoryPort.existsByVehiclePlate(normalizedVehiclePlate, merchantId)) {
+            throw duplicateVehiclePlate(command.context().requestId(), command.context().requestDateTime(), command.context().channel(), normalizedVehiclePlate);
+        }
+    }
+
+    private BusinessException duplicateVehiclePlate(String requestId, String requestDateTime, String channel, String vehiclePlate) {
+        return new BusinessException(requestId, requestDateTime, channel,
+                ExceptionUtils.buildResultResponse(DUPLICATE_ERROR, String.format(DUPLICATE_VEHICLE, vehiclePlate)));
+    }
+
+    private VehicleTemplate resolveUpdatedTemplate(String templateId, VehicleTemplate currentTemplate, UpdateVehicleCommand command) {
+        if (templateId == null || templateId.isBlank()) {
+            return currentTemplate;
+        }
+        return findTemplateById(templateId.trim(), command.merchantId(), command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+    }
+
+    private VehicleWithTemplate findVehicleWithTemplate(String vehicleId, String merchantId, UpdateVehicleCommand command) {
+        VehicleProfile vehicle = findVehicleById(vehicleId, merchantId, command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+        VehicleTemplate template = findTemplateById(vehicle.getTemplateId(), merchantId, command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+        return new VehicleWithTemplate(vehicle, template);
+    }
+
+    private VehicleWithTemplate findVehicleWithTemplate(String vehicleId, String merchantId, DeleteVehicleCommand command) {
+        VehicleProfile vehicle = findVehicleById(vehicleId, merchantId, command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+        VehicleTemplate template = findTemplateById(vehicle.getTemplateId(), merchantId, command.context().requestId(), command.context().requestDateTime(), command.context().channel());
+        return new VehicleWithTemplate(vehicle, template);
+    }
+
+    private VehicleWithTemplate findVehicleWithTemplate(String vehicleId, String merchantId, FetchVehicleDetailQuery query) {
+        VehicleProfile vehicle = findVehicleById(vehicleId, merchantId, query.context().requestId(), query.context().requestDateTime(), query.context().channel());
+        VehicleTemplate template = findTemplateById(vehicle.getTemplateId(), merchantId, query.context().requestId(), query.context().requestDateTime(), query.context().channel());
+        return new VehicleWithTemplate(vehicle, template);
+    }
+
+    private VehicleProfile findVehicleById(String vehicleId, String merchantId, String requestId, String requestDateTime, String channel) {
+        return vehicleProfileRepositoryPort.findById(vehicleId, merchantId)
+                .orElseThrow(() -> new BusinessException(requestId, requestDateTime, channel,
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_NOT_FOUND_BY_ID, vehicleId))));
+    }
+
+    private VehicleTemplate requireTemplate(Map<String, VehicleTemplate> templatesById, String templateId, FetchVehiclesQuery query) {
+        VehicleTemplate template = templatesById.get(templateId);
+        if (template == null) {
+            throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                    ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_TEMPLATE_NOT_FOUND_BY_ID, templateId)));
+        }
+        return template;
+    }
+
+    private VehicleTemplate findTemplateById(String templateId, String merchantId, String requestId, String requestDateTime, String channel) {
+        return vehicleTemplateRepositoryPort.findById(templateId, merchantId)
+                .orElseThrow(() -> new BusinessException(requestId, requestDateTime, channel,
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_TEMPLATE_NOT_FOUND_BY_ID, templateId))));
+    }
+
+    private AddVehicleResult toAddVehicleResult(VehicleProfile vehicle, VehicleTemplate template) {
+        return AddVehicleResult.builder()
+                .id(vehicle.getId())
+                .templateId(template.getId())
+                .creator(vehicle.getCreator())
+                .type(template.getType())
+                .category(template.getCategory())
+                .vehiclePlate(vehicle.getVehiclePlate())
+                .seatCapacity(template.getSeatCapacity())
+                .manufacturer(template.getManufacturer())
+                .status(vehicle.getStatus())
+                .build();
+    }
+
+    private UpdateVehicleResult toUpdateVehicleResult(VehicleProfile vehicle, VehicleTemplate template) {
+        return UpdateVehicleResult.builder()
+                .id(vehicle.getId())
+                .templateId(template.getId())
+                .creator(vehicle.getCreator())
+                .category(template.getCategory())
+                .type(template.getType())
+                .vehiclePlate(vehicle.getVehiclePlate())
+                .seatCapacity(template.getSeatCapacity())
+                .hasFloor(template.isHasFloor())
+                .manufacturer(template.getManufacturer())
+                .status(vehicle.getStatus())
+                .build();
+    }
+
+    private FetchVehiclesResult.FetchVehicleItemResult toFetchVehicleItemResult(VehicleProfile vehicle, VehicleTemplate template) {
+        return FetchVehiclesResult.FetchVehicleItemResult.builder()
+                .id(vehicle.getId())
+                .templateId(template.getId())
+                .creator(vehicle.getCreator())
+                .status(vehicle.getStatus())
+                .category(template.getCategory())
+                .type(template.getType())
+                .vehiclePlate(vehicle.getVehiclePlate())
+                .seatCapacity(template.getSeatCapacity())
+                .hasFloor(template.isHasFloor())
+                .manufacturer(template.getManufacturer())
+                .build();
+    }
+
+    private FetchVehicleDetailResult toFetchVehicleDetailResult(VehicleProfile vehicle, VehicleTemplate template) {
         return FetchVehicleDetailResult.builder()
                 .id(vehicle.getId())
                 .merchantId(vehicle.getMerchantId())
+                .templateId(template.getId())
                 .creator(vehicle.getCreator())
                 .status(vehicle.getStatus())
-                .type(vehicle.getType())
+                .category(template.getCategory())
+                .type(template.getType())
                 .vehiclePlate(vehicle.getVehiclePlate())
-                .seatCapacity(vehicle.getSeatCapacity())
-                .hasFloor(vehicle.isHasFloor())
-                .manufacturer(vehicle.getManufacturer())
+                .seatCapacity(template.getSeatCapacity())
+                .hasFloor(template.isHasFloor())
+                .manufacturer(template.getManufacturer())
                 .build();
+    }
+
+    private record VehicleWithTemplate(VehicleProfile vehicle, VehicleTemplate template) {
     }
 }

@@ -10,11 +10,8 @@ public record UpdateVehicleCommand(
         String merchantId,
         String creator,
         String vehicleId,
-        String type,
+        String templateId,
         String vehiclePlate,
-        String seatCapacity,
-        String manufacturer,
-        Boolean hasFloor,
         VehicleStatus status
 ) {
 }

@@ -1,12 +1,13 @@
-package vn.com.routex.merchant.platform.interfaces.model.vehicle;
+package vn.com.routex.merchant.platform.interfaces.model.vehicletemplate;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
+import vn.com.routex.merchant.platform.domain.vehicle.FuelType;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateCategory;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateStatus;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseResponse;
 
@@ -16,15 +17,15 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-public class FetchVehicleResponse extends BaseResponse<FetchVehicleResponse.FetchVehicleResponsePage> {
+public class FetchVehicleTemplateResponse extends BaseResponse<FetchVehicleTemplateResponse.FetchVehicleTemplateResponsePage> {
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
-    public static class FetchVehicleResponsePage {
-        private List<FetchVehicleResponseData> items;
+    public static class FetchVehicleTemplateResponsePage {
+        private List<FetchVehicleTemplateResponseData> items;
         private Pagination pagination;
     }
 
@@ -33,17 +34,19 @@ public class FetchVehicleResponse extends BaseResponse<FetchVehicleResponse.Fetc
     @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
-    public static class FetchVehicleResponseData {
+    public static class FetchVehicleTemplateResponseData {
         private String id;
-        private String templateId;
-        private String creator;
-        private VehicleStatus status;
+        private String merchantId;
+        private String code;
+        private String name;
+        private String manufacturer;
+        private String model;
+        private Long seatCapacity;
         private VehicleTemplateCategory category;
         private VehicleTemplateType type;
-        private String vehiclePlate;
-        private Long seatCapacity;
+        private FuelType fuelType;
         private Boolean hasFloor;
-        private String manufacturer;
+        private VehicleTemplateStatus status;
     }
 
     @Getter
