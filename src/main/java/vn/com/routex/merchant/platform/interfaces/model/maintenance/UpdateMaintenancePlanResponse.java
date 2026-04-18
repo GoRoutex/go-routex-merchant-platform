@@ -16,14 +16,14 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-public class CreateMaintenancePlanResponse extends BaseResponse<CreateMaintenancePlanResponse.CreateMaintenancePlanResponseData> {
+public class UpdateMaintenancePlanResponse extends BaseResponse<UpdateMaintenancePlanResponse.UpdateMaintenancePlanResponseData> {
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
-    public static class CreateMaintenancePlanResponseData {
+    public static class UpdateMaintenancePlanResponseData {
         private String id;
         private String merchantId;
         private String vehicleId;

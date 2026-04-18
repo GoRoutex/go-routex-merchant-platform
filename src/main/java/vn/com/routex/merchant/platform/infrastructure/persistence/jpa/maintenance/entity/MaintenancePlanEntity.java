@@ -1,4 +1,4 @@
-package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.maintenance;
+package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.maintenance.entity;
 
 
 import jakarta.persistence.Column;

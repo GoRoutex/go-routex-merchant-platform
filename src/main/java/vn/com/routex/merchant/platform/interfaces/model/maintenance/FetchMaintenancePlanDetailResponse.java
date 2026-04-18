@@ -7,6 +7,9 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.domain.maintenance.MaintenancePlanStatus;
 import vn.com.routex.merchant.platform.domain.maintenance.MaintenancePlanType;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateCategory;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseResponse;
 
 import java.math.BigDecimal;
@@ -16,17 +19,34 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-public class CreateMaintenancePlanResponse extends BaseResponse<CreateMaintenancePlanResponse.CreateMaintenancePlanResponseData> {
+public class FetchMaintenancePlanDetailResponse extends BaseResponse<FetchMaintenancePlanDetailResponse.FetchMaintenancePlanDetailResponseData> {
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
-    public static class CreateMaintenancePlanResponseData {
+    public static class MaintenancePlanVehicleDetailResponseData {
+        private String id;
+        private String templateId;
+        private VehicleStatus status;
+        private VehicleTemplateCategory category;
+        private VehicleTemplateType type;
+        private String vehiclePlate;
+        private Long seatCapacity;
+        private Boolean hasFloor;
+        private String manufacturer;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class FetchMaintenancePlanDetailResponseData {
         private String id;
         private String merchantId;
-        private String vehicleId;
+        private MaintenancePlanVehicleDetailResponseData vehicle;
         private String code;
         private String title;
         private String description;

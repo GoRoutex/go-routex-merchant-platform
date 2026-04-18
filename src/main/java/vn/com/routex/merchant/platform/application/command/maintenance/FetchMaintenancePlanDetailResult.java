@@ -3,6 +3,9 @@ package vn.com.routex.merchant.platform.application.command.maintenance;
 import lombok.Builder;
 import vn.com.routex.merchant.platform.domain.maintenance.MaintenancePlanStatus;
 import vn.com.routex.merchant.platform.domain.maintenance.MaintenancePlanType;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateCategory;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,7 +14,7 @@ import java.time.LocalDate;
 public record FetchMaintenancePlanDetailResult(
         String id,
         String merchantId,
-        String vehicleId,
+        MaintenancePlanVehicleResult vehicle,
         String code,
         String title,
         String description,
@@ -27,4 +30,17 @@ public record FetchMaintenancePlanDetailResult(
         String serviceProvider,
         String note
 ) {
+    @Builder
+    public record MaintenancePlanVehicleResult(
+            String id,
+            String templateId,
+            VehicleStatus status,
+            VehicleTemplateCategory category,
+            VehicleTemplateType type,
+            String vehiclePlate,
+            Long seatCapacity,
+            Boolean hasFloor,
+            String manufacturer
+    ) {
+    }
 }

@@ -1,7 +1,7 @@
 package vn.com.routex.merchant.platform.infrastructure.persistence.adapter.maintenance;
 
 import vn.com.routex.merchant.platform.domain.maintenance.model.MaintenancePlan;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.maintenance.MaintenancePlanEntity;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.maintenance.entity.MaintenancePlanEntity;
 
 final class MaintenancePlanPersistenceMapper {
 

@@ -18,7 +18,10 @@ import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.maintenance.MaintenancePlanStatus;
 import vn.com.routex.merchant.platform.domain.maintenance.model.MaintenancePlan;
 import vn.com.routex.merchant.platform.domain.maintenance.port.MaintenancePlanRepositoryPort;
+import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
+import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleTemplate;
 import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleProfileRepositoryPort;
+import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleTemplateRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
@@ -26,7 +29,10 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.utils.Exceptio
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_PAGE_NUMBER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_PAGE_SIZE;
@@ -38,6 +44,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.MAINTENANCE_PLAN_NOT_FOUND_BY_ID;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_NOT_FOUND_BY_ID;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_TEMPLATE_NOT_FOUND_BY_ID;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +52,7 @@ public class MaintenancePlanManagementServiceImpl implements MaintenancePlanMana
 
     private final MaintenancePlanRepositoryPort maintenancePlanRepositoryPort;
     private final VehicleProfileRepositoryPort vehicleProfileRepositoryPort;
+    private final VehicleTemplateRepositoryPort vehicleTemplateRepositoryPort;
 
     @Override
     @Transactional
@@ -160,8 +168,11 @@ public class MaintenancePlanManagementServiceImpl implements MaintenancePlanMana
                 pageNumber - 1,
                 pageSize);
 
+        Map<String, FetchMaintenancePlansResult.MaintenancePlanVehicleResult> vehiclesById = buildVehicleResults(page.getItems(), query.merchantId(),
+                query.context().requestId(), query.context().requestDateTime(), query.context().channel());
+
         List<FetchMaintenancePlansResult.FetchMaintenancePlanItemResult> items = page.getItems().stream()
-                .map(this::toFetchItemResult)
+                .map(plan -> toFetchItemResult(plan, vehiclesById.get(plan.getVehicleId())))
                 .toList();
 
         return FetchMaintenancePlansResult.builder()
@@ -177,7 +188,8 @@ public class MaintenancePlanManagementServiceImpl implements MaintenancePlanMana
     public FetchMaintenancePlanDetailResult fetchMaintenancePlanDetail(FetchMaintenancePlanDetailQuery query) {
         MaintenancePlan plan = findMaintenancePlan(query.maintenancePlanId(), query.merchantId(),
                 query.context().requestId(), query.context().requestDateTime(), query.context().channel());
-        return toDetailResult(plan);
+        return toDetailResult(plan, findVehicleResult(plan.getVehicleId(), query.merchantId(),
+                query.context().requestId(), query.context().requestDateTime(), query.context().channel()));
     }
 
     private void validatePaging(FetchMaintenancePlansQuery query, int pageSize, int pageNumber) {
@@ -268,10 +280,13 @@ public class MaintenancePlanManagementServiceImpl implements MaintenancePlanMana
                 .build();
     }
 
-    private FetchMaintenancePlansResult.FetchMaintenancePlanItemResult toFetchItemResult(MaintenancePlan plan) {
+    private FetchMaintenancePlansResult.FetchMaintenancePlanItemResult toFetchItemResult(
+            MaintenancePlan plan,
+            FetchMaintenancePlansResult.MaintenancePlanVehicleResult vehicle
+    ) {
         return FetchMaintenancePlansResult.FetchMaintenancePlanItemResult.builder()
                 .id(plan.getId())
-                .vehicleId(plan.getVehicleId())
+                .vehicle(vehicle)
                 .code(plan.getCode())
                 .title(plan.getTitle())
                 .type(plan.getType())
@@ -284,11 +299,14 @@ public class MaintenancePlanManagementServiceImpl implements MaintenancePlanMana
                 .build();
     }
 
-    private FetchMaintenancePlanDetailResult toDetailResult(MaintenancePlan plan) {
+    private FetchMaintenancePlanDetailResult toDetailResult(
+            MaintenancePlan plan,
+            FetchMaintenancePlanDetailResult.MaintenancePlanVehicleResult vehicle
+    ) {
         return FetchMaintenancePlanDetailResult.builder()
                 .id(plan.getId())
                 .merchantId(plan.getMerchantId())
-                .vehicleId(plan.getVehicleId())
+                .vehicle(vehicle)
                 .code(plan.getCode())
                 .title(plan.getTitle())
                 .description(plan.getDescription())
@@ -303,6 +321,96 @@ public class MaintenancePlanManagementServiceImpl implements MaintenancePlanMana
                 .actualCost(plan.getActualCost())
                 .serviceProvider(plan.getServiceProvider())
                 .note(plan.getNote())
+                .build();
+    }
+
+    private Map<String, FetchMaintenancePlansResult.MaintenancePlanVehicleResult> buildVehicleResults(
+            List<MaintenancePlan> plans,
+            String merchantId,
+            String requestId,
+            String requestDateTime,
+            String channel
+    ) {
+        Map<String, VehicleProfile> vehiclesById = plans.stream()
+                .map(plan -> findVehicleProfile(plan.getVehicleId(), merchantId, requestId, requestDateTime, channel))
+                .collect(Collectors.toMap(VehicleProfile::getId, Function.identity(), (left, right) -> left));
+
+        Map<String, VehicleTemplate> templatesById = vehicleTemplateRepositoryPort.findByIds(vehiclesById.values().stream()
+                .map(VehicleProfile::getTemplateId)
+                .distinct()
+                .toList());
+
+        return vehiclesById.values().stream()
+                .collect(Collectors.toMap(
+                        VehicleProfile::getId,
+                        vehicle -> toFetchVehicleResult(vehicle,
+                                requireTemplate(templatesById, vehicle.getTemplateId(), requestId, requestDateTime, channel))));
+    }
+
+    private FetchMaintenancePlanDetailResult.MaintenancePlanVehicleResult findVehicleResult(
+            String vehicleId,
+            String merchantId,
+            String requestId,
+            String requestDateTime,
+            String channel
+    ) {
+        VehicleProfile vehicle = findVehicleProfile(vehicleId, merchantId, requestId, requestDateTime, channel);
+        VehicleTemplate template = findTemplateById(vehicle.getTemplateId(), merchantId, requestId, requestDateTime, channel);
+        return toDetailVehicleResult(vehicle, template);
+    }
+
+    private VehicleProfile findVehicleProfile(String vehicleId, String merchantId, String requestId, String requestDateTime, String channel) {
+        return vehicleProfileRepositoryPort.findById(vehicleId, merchantId)
+                .orElseThrow(() -> new BusinessException(requestId, requestDateTime, channel,
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_NOT_FOUND_BY_ID, vehicleId))));
+    }
+
+    private VehicleTemplate findTemplateById(String templateId, String merchantId, String requestId, String requestDateTime, String channel) {
+        return vehicleTemplateRepositoryPort.findById(templateId, merchantId)
+                .orElseThrow(() -> new BusinessException(requestId, requestDateTime, channel,
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_TEMPLATE_NOT_FOUND_BY_ID, templateId))));
+    }
+
+    private VehicleTemplate requireTemplate(
+            Map<String, VehicleTemplate> templatesById,
+            String templateId,
+            String requestId,
+            String requestDateTime,
+            String channel
+    ) {
+        VehicleTemplate template = templatesById.get(templateId);
+        if (template == null) {
+            throw new BusinessException(requestId, requestDateTime, channel,
+                    ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_TEMPLATE_NOT_FOUND_BY_ID, templateId)));
+        }
+        return template;
+    }
+
+    private FetchMaintenancePlansResult.MaintenancePlanVehicleResult toFetchVehicleResult(VehicleProfile vehicle, VehicleTemplate template) {
+        return FetchMaintenancePlansResult.MaintenancePlanVehicleResult.builder()
+                .id(vehicle.getId())
+                .templateId(template.getId())
+                .status(vehicle.getStatus())
+                .category(template.getCategory())
+                .type(template.getType())
+                .vehiclePlate(vehicle.getVehiclePlate())
+                .seatCapacity(template.getSeatCapacity())
+                .hasFloor(template.isHasFloor())
+                .manufacturer(template.getManufacturer())
+                .build();
+    }
+
+    private FetchMaintenancePlanDetailResult.MaintenancePlanVehicleResult toDetailVehicleResult(VehicleProfile vehicle, VehicleTemplate template) {
+        return FetchMaintenancePlanDetailResult.MaintenancePlanVehicleResult.builder()
+                .id(vehicle.getId())
+                .templateId(template.getId())
+                .status(vehicle.getStatus())
+                .category(template.getCategory())
+                .type(template.getType())
+                .vehiclePlate(vehicle.getVehiclePlate())
+                .seatCapacity(template.getSeatCapacity())
+                .hasFloor(template.isHasFloor())
+                .manufacturer(template.getManufacturer())
                 .build();
     }
 }

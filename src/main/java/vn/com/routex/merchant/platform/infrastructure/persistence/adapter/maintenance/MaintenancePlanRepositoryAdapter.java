@@ -3,13 +3,14 @@ package vn.com.routex.merchant.platform.infrastructure.persistence.adapter.maint
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.maintenance.MaintenancePlanStatus;
 import vn.com.routex.merchant.platform.domain.maintenance.MaintenancePlanType;
 import vn.com.routex.merchant.platform.domain.maintenance.model.MaintenancePlan;
 import vn.com.routex.merchant.platform.domain.maintenance.port.MaintenancePlanRepositoryPort;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.maintenance.MaintenancePlanEntity;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.maintenance.entity.MaintenancePlanEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.maintenance.repository.MaintenancePlanEntityRepository;
 
 import java.time.LocalDate;
@@ -62,14 +63,14 @@ public class MaintenancePlanRepositoryAdapter implements MaintenancePlanReposito
             int pageNumber,
             int pageSize
     ) {
-        Page<MaintenancePlanEntity> page = maintenancePlanEntityRepository.findByFilters(
-                merchantId,
-                vehicleId,
-                status,
-                type,
-                fromPlannedDate,
-                toPlannedDate,
-                PageRequest.of(pageNumber, pageSize));
+        Specification<MaintenancePlanEntity> specification = byMerchantId(merchantId)
+                .and(hasVehicleId(vehicleId))
+                .and(hasStatus(status))
+                .and(hasType(type))
+                .and(hasPlannedDateFrom(fromPlannedDate))
+                .and(hasPlannedDateTo(toPlannedDate));
+
+        Page<MaintenancePlanEntity> page = maintenancePlanEntityRepository.findAll(specification, PageRequest.of(pageNumber, pageSize));
         List<MaintenancePlan> items = page.getContent().stream()
                 .map(MaintenancePlanPersistenceMapper::toDomain)
                 .toList();
@@ -81,5 +82,44 @@ public class MaintenancePlanRepositoryAdapter implements MaintenancePlanReposito
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
                 .build();
+    }
+
+    private Specification<MaintenancePlanEntity> byMerchantId(String merchantId) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("merchantId"), merchantId);
+    }
+
+    private Specification<MaintenancePlanEntity> hasVehicleId(String vehicleId) {
+        return (root, query, criteriaBuilder) ->
+                vehicleId == null || vehicleId.isBlank()
+                        ? criteriaBuilder.conjunction()
+                        : criteriaBuilder.equal(root.get("vehicleId"), vehicleId);
+    }
+
+    private Specification<MaintenancePlanEntity> hasStatus(MaintenancePlanStatus status) {
+        return (root, query, criteriaBuilder) ->
+                status == null
+                        ? criteriaBuilder.conjunction()
+                        : criteriaBuilder.equal(root.get("status"), status);
+    }
+
+    private Specification<MaintenancePlanEntity> hasType(MaintenancePlanType type) {
+        return (root, query, criteriaBuilder) ->
+                type == null
+                        ? criteriaBuilder.conjunction()
+                        : criteriaBuilder.equal(root.get("type"), type);
+    }
+
+    private Specification<MaintenancePlanEntity> hasPlannedDateFrom(LocalDate fromPlannedDate) {
+        return (root, query, criteriaBuilder) ->
+                fromPlannedDate == null
+                        ? criteriaBuilder.conjunction()
+                        : criteriaBuilder.greaterThanOrEqualTo(root.get("plannedDate"), fromPlannedDate);
+    }
+
+    private Specification<MaintenancePlanEntity> hasPlannedDateTo(LocalDate toPlannedDate) {
+        return (root, query, criteriaBuilder) ->
+                toPlannedDate == null
+                        ? criteriaBuilder.conjunction()
+                        : criteriaBuilder.lessThanOrEqualTo(root.get("plannedDate"), toPlannedDate);
     }
 }
