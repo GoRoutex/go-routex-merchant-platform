@@ -8,6 +8,7 @@ public record CreateDriverCommand(
         String merchantId,
         String creator,
         String userId,
+        String fullName,
         String employeeCode,
         String emergencyContactName,
         String emergencyContactPhone,

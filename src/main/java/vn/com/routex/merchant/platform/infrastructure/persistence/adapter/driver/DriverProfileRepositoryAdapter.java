@@ -70,6 +70,7 @@ public class DriverProfileRepositoryAdapter implements DriverProfileRepositoryPo
                 .map(DriverProfilePersistenceMapper::toDomain)
                 .toList();
 
+
         return PagedResult.<DriverProfile>builder()
                 .items(items)
                 .pageNumber(page.getNumber())

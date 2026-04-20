@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.authorities.model.UserAccountReference;
 import vn.com.routex.merchant.platform.domain.authorities.port.UserAccountLookupPort;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.user.repository.UserJpaRepository;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.user.repository.UserEntityRepository;
 
 import java.util.Optional;
 
@@ -12,17 +12,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserAccountLookupAdapter implements UserAccountLookupPort {
 
-    private final UserJpaRepository userJpaRepository;
+    private final UserEntityRepository userEntityRepository;
 
     @Override
     public Optional<UserAccountReference> findById(String userId) {
-        return userJpaRepository.findById(userId)
+        return userEntityRepository.findById(userId)
                 .map(user -> new UserAccountReference(user.getId()));
     }
 
     @Override
     public Optional<UserAccountReference> findByEmail(String email) {
-        return userJpaRepository.findByEmail(email)
+        return userEntityRepository.findByEmail(email)
                 .map(user -> new UserAccountReference(user.getId()));
     }
 }

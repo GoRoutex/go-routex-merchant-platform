@@ -36,6 +36,9 @@ import vn.com.routex.merchant.platform.interfaces.model.driver.DeleteDriverReque
 import vn.com.routex.merchant.platform.interfaces.model.driver.DeleteDriverResponse;
 import vn.com.routex.merchant.platform.interfaces.model.driver.FetchDriverDetailResponse;
 import vn.com.routex.merchant.platform.interfaces.model.driver.FetchDriverResponse;
+import vn.com.routex.merchant.platform.interfaces.model.driver.FetchDriverResponse.FetchDriverMerchantInfo;
+import vn.com.routex.merchant.platform.interfaces.model.driver.FetchDriverResponse.FetchDriverResponseData;
+import vn.com.routex.merchant.platform.interfaces.model.driver.FetchDriverResponse.FetchDriverUserInfo;
 import vn.com.routex.merchant.platform.interfaces.model.driver.UpdateDriverRequest;
 import vn.com.routex.merchant.platform.interfaces.model.driver.UpdateDriverResponse;
 
@@ -76,6 +79,7 @@ public class MerchantDriverController {
         CreateDriverResult result = driverManagementService.createDriver(CreateDriverCommand.builder()
                 .context(HttpUtils.toContext(request, merchantId))
                 .merchantId(merchantId)
+                .fullName(request.getData().getFullName())
                 .creator(request.getData().getCreator())
                 .userId(request.getData().getUserId())
                 .employeeCode(request.getData().getEmployeeCode())
@@ -226,28 +230,47 @@ public class MerchantDriverController {
                 .pageSize(String.valueOf(pageSize))
                 .build());
 
-        List<FetchDriverResponse.FetchDriverResponseData> items = result.items().stream()
-                .map(driver -> FetchDriverResponse.FetchDriverResponseData.builder()
-                        .id(driver.id())
-                        .merchantId(driver.merchantId())
-                        .userId(driver.userId())
-                        .employeeCode(driver.employeeCode())
-                        .emergencyContactName(driver.emergencyContactName())
-                        .emergencyContactPhone(driver.emergencyContactPhone())
-                        .status(driver.status())
-                        .operationStatus(driver.operationStatus())
-                        .rating(driver.rating())
-                        .totalTrips(driver.totalTrips())
-                        .licenseClass(driver.licenseClass())
-                        .licenseNumber(driver.licenseNumber())
-                        .licenseIssueDate(driver.licenseIssueDate())
-                        .licenseExpiryDate(driver.licenseExpiryDate())
-                        .pointsDelta(driver.pointsDelta())
-                        .pointsReason(driver.pointsReason())
-                        .kycVerified(driver.kycVerified())
-                        .trainingCompleted(driver.trainingCompleted())
-                        .note(driver.note())
-                        .build())
+
+        List<FetchDriverResponseData> items = result.items().stream()
+                .map(driver -> {
+
+                    FetchDriverMerchantInfo merchantInfo = FetchDriverMerchantInfo.builder()
+                            .merchantId(driver.merchantInfo().merchantId())
+                            .merchantName(driver.merchantInfo().merchantName())
+                            .build();
+
+
+                    FetchDriverUserInfo userInfo = FetchDriverUserInfo.builder()
+                            .userId(driver.userInfo().userId())
+                            .phone(driver.userInfo().phone())
+                            .email(driver.userInfo().email())
+                            .fullName(driver.userInfo().email())
+                            .build();
+
+                    return FetchDriverResponseData.builder()
+                            .id(driver.id())
+                            .merchantInfo(merchantInfo)
+                            .userInfo(userInfo)
+                            .employeeCode(driver.employeeCode())
+                            .emergencyContactName(driver.emergencyContactName())
+                            .emergencyContactPhone(driver.emergencyContactPhone())
+                            .status(driver.status())
+                            .operationStatus(driver.operationStatus())
+                            .rating(driver.rating())
+                            .totalTrips(driver.totalTrips())
+                            .licenseClass(driver.licenseClass())
+                            .licenseNumber(driver.licenseNumber())
+                            .licenseIssueDate(driver.licenseIssueDate())
+                            .licenseExpiryDate(driver.licenseExpiryDate())
+                            .pointsDelta(driver.pointsDelta())
+                            .pointsReason(driver.pointsReason())
+                            .kycVerified(driver.kycVerified())
+                            .trainingCompleted(driver.trainingCompleted())
+                            .note(driver.note())
+                            .build();
+
+
+                })
                 .collect(Collectors.toList());
 
         FetchDriverResponse response = FetchDriverResponse.builder()
@@ -265,6 +288,8 @@ public class MerchantDriverController {
                                 .build())
                         .build())
                 .build();
+
+        sLog.info("[DRIVER-MANAGEMENT] Fetch Driver Response: {}", response);
 
         return HttpUtils.buildResponse(baseRequest, response);
     }
@@ -285,6 +310,18 @@ public class MerchantDriverController {
                 .employeeCode(employeeCode)
                 .build());
 
+        FetchDriverDetailResponse.FetchDriverDetailMerchantInfo merchantInfo = FetchDriverDetailResponse.FetchDriverDetailMerchantInfo.builder()
+                .merchantId(result.merchantInfo().merchantId())
+                .merchantName(result.merchantInfo().merchantName())
+                .build();
+
+        FetchDriverDetailResponse.FetchDriverDetailUserInfo userInfo = FetchDriverDetailResponse.FetchDriverDetailUserInfo.builder()
+                .userId(result.userInfo().userId())
+                .fullName(result.userInfo().fullName())
+                .phone(result.userInfo().phone())
+                .email(result.userInfo().email())
+                .build();
+
         FetchDriverDetailResponse response = FetchDriverDetailResponse.builder()
                 .requestId(baseRequest.getRequestId())
                 .requestDateTime(baseRequest.getRequestDateTime())
@@ -292,8 +329,8 @@ public class MerchantDriverController {
                 .result(apiResultFactory.buildSuccess())
                 .data(FetchDriverDetailResponse.FetchDriverDetailResponseData.builder()
                         .id(result.id())
-                        .merchantId(result.merchantId())
-                        .userId(result.userId())
+                        .merchantInfo(merchantInfo)
+                        .userInfo(userInfo)
                         .employeeCode(result.employeeCode())
                         .emergencyContactName(result.emergencyContactName())
                         .emergencyContactPhone(result.emergencyContactPhone())

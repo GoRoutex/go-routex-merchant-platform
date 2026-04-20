@@ -7,8 +7,12 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.user.entit
 import java.util.Optional;
 
 @Repository
-public interface UserJpaRepository extends JpaRepository<UserEntity, String> {
+public interface UserEntityRepository extends JpaRepository<UserEntity, String> {
     Optional<UserEntity> findById(String id);
 
     Optional<UserEntity> findByEmail(String email);
+
+    boolean existsByPhoneNumber(String phoneNumber);
+
+    boolean existsByEmail(String email);
 }

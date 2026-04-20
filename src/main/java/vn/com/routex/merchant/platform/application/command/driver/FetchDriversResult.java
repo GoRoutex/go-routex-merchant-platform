@@ -18,8 +18,8 @@ public record FetchDriversResult(
     @Builder
     public record FetchDriverItemResult(
             String id,
-            String merchantId,
-            String userId,
+            FetchDriverMerchantInfo merchantInfo,
+            FetchDriverUserInfo userInfo,
             String employeeCode,
             String emergencyContactName,
             String emergencyContactPhone,
@@ -37,5 +37,23 @@ public record FetchDriversResult(
             Boolean trainingCompleted,
             String note
     ) {
+
+        @Builder
+        public record FetchDriverMerchantInfo(
+                String merchantId,
+                String merchantName
+        ) {
+
+        }
+
+        @Builder
+        public record FetchDriverUserInfo(
+                String userId,
+                String fullName,
+                String phone,
+                String email
+        ) {
+
+        }
     }
 }

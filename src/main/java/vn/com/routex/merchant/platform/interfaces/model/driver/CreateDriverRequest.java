@@ -34,6 +34,7 @@ public class CreateDriverRequest extends BaseRequest {
         @NotBlank
         private String creator;
 
+        private String fullName;
         @NotBlank
         private String userId;
 

@@ -35,8 +35,8 @@ public class FetchDriverResponse extends BaseResponse<FetchDriverResponse.FetchD
     @SuperBuilder
     public static class FetchDriverResponseData {
         private String id;
-        private String merchantId;
-        private String userId;
+        private FetchDriverUserInfo userInfo;
+        private FetchDriverMerchantInfo merchantInfo;
         private String employeeCode;
         private String emergencyContactName;
         private String emergencyContactPhone;
@@ -53,6 +53,28 @@ public class FetchDriverResponse extends BaseResponse<FetchDriverResponse.FetchD
         private Boolean kycVerified;
         private Boolean trainingCompleted;
         private String note;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class FetchDriverUserInfo {
+        private String userId;
+        private String fullName;
+        private String email;
+        private String phone;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class FetchDriverMerchantInfo {
+        private String merchantId;
+        private String merchantName;
     }
 
     @Getter

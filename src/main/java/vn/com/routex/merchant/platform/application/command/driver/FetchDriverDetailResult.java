@@ -9,8 +9,8 @@ import java.time.LocalDate;
 @Builder
 public record FetchDriverDetailResult(
         String id,
-        String merchantId,
-        String userId,
+        FetchDriverDetailMerchantInfo merchantInfo,
+        FetchDriverDetailUserInfo userInfo,
         String employeeCode,
         String emergencyContactName,
         String emergencyContactPhone,
@@ -28,4 +28,20 @@ public record FetchDriverDetailResult(
         Boolean trainingCompleted,
         String note
 ) {
+
+    @Builder
+    public record FetchDriverDetailMerchantInfo(
+        String merchantId,
+        String merchantName
+    ) {}
+
+    @Builder
+    public record FetchDriverDetailUserInfo(
+            String userId,
+            String phone,
+            String fullName,
+            String email
+    ) {
+
+    }
 }

@@ -1,5 +1,6 @@
 package vn.com.routex.merchant.platform.interfaces.model.driver;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,12 +19,13 @@ public class FetchDriverDetailResponse extends BaseResponse<FetchDriverDetailRes
 
     @Getter
     @Setter
+    @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
     public static class FetchDriverDetailResponseData {
         private String id;
-        private String merchantId;
-        private String userId;
+        private FetchDriverDetailMerchantInfo merchantInfo;
+        private FetchDriverDetailUserInfo userInfo;
         private String employeeCode;
         private String emergencyContactName;
         private String emergencyContactPhone;
@@ -40,5 +42,28 @@ public class FetchDriverDetailResponse extends BaseResponse<FetchDriverDetailRes
         private Boolean kycVerified;
         private Boolean trainingCompleted;
         private String note;
+    }
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class FetchDriverDetailMerchantInfo {
+        private String merchantId;
+        private String merchantName;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class FetchDriverDetailUserInfo {
+        private String userId;
+        private String phone;
+        private String email;
+        private String fullName;
     }
 }

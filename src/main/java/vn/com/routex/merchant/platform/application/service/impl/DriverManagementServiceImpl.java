@@ -19,6 +19,10 @@ import vn.com.routex.merchant.platform.domain.driver.DriverStatus;
 import vn.com.routex.merchant.platform.domain.driver.OperationStatus;
 import vn.com.routex.merchant.platform.domain.driver.model.DriverProfile;
 import vn.com.routex.merchant.platform.domain.driver.port.DriverProfileRepositoryPort;
+import vn.com.routex.merchant.platform.domain.merchant.model.Merchant;
+import vn.com.routex.merchant.platform.domain.merchant.port.MerchantRepositoryPort;
+import vn.com.routex.merchant.platform.domain.user.model.User;
+import vn.com.routex.merchant.platform.domain.user.port.UserRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
@@ -38,7 +42,9 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_INPUT_ERROR;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_NUMBER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_SIZE;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.MERCHANT_NOT_FOUND_BY_ID;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.USER_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +54,9 @@ public class DriverManagementServiceImpl implements DriverManagementService {
     private static final int DEFAULT_PAGE_NUMBER = 1;
 
     private final DriverProfileRepositoryPort driverProfileRepositoryPort;
+    private final MerchantRepositoryPort merchantRepositoryPort;
+    private final UserRepositoryPort userRepositoryPort;
+
 
     @Override
     @Transactional
@@ -60,18 +69,19 @@ public class DriverManagementServiceImpl implements DriverManagementService {
                 .id(UUID.randomUUID().toString())
                 .merchantId(command.merchantId())
                 .userId(normalize(command.userId()))
+                .fullName(command.fullName())
                 .employeeCode(normalize(command.employeeCode()))
                 .emergencyContactName(normalize(command.emergencyContactName()))
                 .emergencyContactPhone(normalize(command.emergencyContactPhone()))
                 .status(parseDriverStatus(command.status(), DriverStatus.ACTIVE))
                 .operationStatus(parseOperationStatus(command.operationStatus(), OperationStatus.OFFLINE))
-                .rating(parseDouble(command.rating(), 0D))
-                .totalTrips(parseInteger(command.totalTrips(), 0))
+                .rating(parseDouble(command.rating()))
+                .totalTrips(parseInteger(command.totalTrips()))
                 .licenseClass(normalize(command.licenseClass()))
                 .licenseNumber(normalize(command.licenseNumber()))
                 .licenseIssueDate(parseLocalDate(command.licenseIssueDate()))
                 .licenseExpiryDate(parseLocalDate(command.licenseExpiryDate()))
-                .pointsDelta(parseInteger(command.pointsDelta(), 0))
+                .pointsDelta(parseInteger(command.pointsDelta()))
                 .pointsReason(normalize(command.pointsReason()))
                 .kycVerified(command.kycVerified() != null ? command.kycVerified() : Boolean.FALSE)
                 .trainingCompleted(command.trainingCompleted() != null ? command.trainingCompleted() : Boolean.FALSE)
@@ -101,7 +111,7 @@ public class DriverManagementServiceImpl implements DriverManagementService {
     @Transactional
     public DeleteDriverResult deleteDriver(DeleteDriverCommand command) {
         DriverProfile existing = driverProfileRepositoryPort.findById(command.driverId(), command.merchantId())
-                .orElseThrow(() -> notFound(command.driverId(), DRIVER_NOT_FOUND_BY_ID, command));
+                .orElseThrow(() -> notFound(command.driverId(), command));
 
         DriverProfile deleted = existing.toBuilder()
                 .status(DriverStatus.DELETED)
@@ -136,7 +146,18 @@ public class DriverManagementServiceImpl implements DriverManagementService {
 
         PagedResult<DriverProfile> page = driverProfileRepositoryPort.fetch(query.merchantId(), pageNumber - 1, pageSize);
         List<FetchDriversResult.FetchDriverItemResult> items = page.getItems().stream()
-                .map(this::toFetchItem)
+                .map(item -> {
+
+                    Merchant merchant = merchantRepositoryPort.findById(item.getMerchantId())
+                            .orElseThrow(() -> new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                                    ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(MERCHANT_NOT_FOUND_BY_ID, item.getMerchantId()))));
+
+                    User user = userRepositoryPort.findById(item.getUserId())
+                            .orElseThrow(() -> new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                                    ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, USER_NOT_FOUND_MESSAGE)));
+
+                    return toFetchItem(item, merchant, user);
+                })
                 .toList();
 
         return FetchDriversResult.builder()
@@ -153,10 +174,26 @@ public class DriverManagementServiceImpl implements DriverManagementService {
         DriverProfile driverProfile = resolveDriver(query)
                 .orElseThrow(() -> notFound(buildLookupValue(query), buildLookupMessage(query), query));
 
+        Merchant merchant = merchantRepositoryPort.findById(driverProfile.getMerchantId())
+                .orElseThrow(() -> new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(MERCHANT_NOT_FOUND_BY_ID, driverProfile.getMerchantId()))));
+
+        User user = userRepositoryPort.findById(driverProfile.getUserId())
+                .orElseThrow(() -> new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, USER_NOT_FOUND_MESSAGE)));
+
         return FetchDriverDetailResult.builder()
                 .id(driverProfile.getId())
-                .merchantId(driverProfile.getMerchantId())
-                .userId(driverProfile.getUserId())
+                .merchantInfo(FetchDriverDetailResult.FetchDriverDetailMerchantInfo.builder()
+                        .merchantId(driverProfile.getMerchantId())
+                        .merchantName(merchant.getDisplayName())
+                        .build())
+                .userInfo(FetchDriverDetailResult.FetchDriverDetailUserInfo.builder()
+                        .userId(driverProfile.getUserId())
+                        .phone(user.getPhoneNumber())
+                        .email(user.getEmail())
+                        .fullName(driverProfile.getFullName())
+                        .build())
                 .employeeCode(driverProfile.getEmployeeCode())
                 .emergencyContactName(driverProfile.getEmergencyContactName())
                 .emergencyContactPhone(driverProfile.getEmergencyContactPhone())
@@ -190,7 +227,7 @@ public class DriverManagementServiceImpl implements DriverManagementService {
 
     private DriverProfile findDriverForUpdate(UpdateDriverCommand command) {
         return driverProfileRepositoryPort.findById(command.driverId(), command.merchantId())
-                .orElseThrow(() -> notFound(command.driverId(), DRIVER_NOT_FOUND_BY_ID, command));
+                .orElseThrow(() -> notFound(command.driverId(), command));
     }
 
     private void validateUpdateUniqueness(UpdateDriverCommand command, DriverProfile existing) {
@@ -245,11 +282,19 @@ public class DriverManagementServiceImpl implements DriverManagementService {
                 .build();
     }
 
-    private FetchDriversResult.FetchDriverItemResult toFetchItem(DriverProfile driverProfile) {
+    private FetchDriversResult.FetchDriverItemResult toFetchItem(DriverProfile driverProfile, Merchant merchant, User user) {
         return FetchDriversResult.FetchDriverItemResult.builder()
                 .id(driverProfile.getId())
-                .merchantId(driverProfile.getMerchantId())
-                .userId(driverProfile.getUserId())
+                .merchantInfo(FetchDriversResult.FetchDriverItemResult.FetchDriverMerchantInfo.builder()
+                        .merchantId(driverProfile.getMerchantId())
+                        .merchantName(merchant.getDisplayName())
+                        .build())
+                .userInfo(FetchDriversResult.FetchDriverItemResult.FetchDriverUserInfo.builder()
+                        .userId(driverProfile.getUserId())
+                        .fullName(driverProfile.getFullName())
+                        .phone(user.getPhoneNumber())
+                        .email(user.getEmail())
+                        .build())
                 .employeeCode(driverProfile.getEmployeeCode())
                 .emergencyContactName(driverProfile.getEmergencyContactName())
                 .emergencyContactPhone(driverProfile.getEmergencyContactPhone())
@@ -368,14 +413,14 @@ public class DriverManagementServiceImpl implements DriverManagementService {
                 ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(template, lookupValue)));
     }
 
-    private BusinessException notFound(String lookupValue, String template, UpdateDriverCommand command) {
+    private BusinessException notFound(String lookupValue, UpdateDriverCommand command) {
         return new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
-                ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(template, lookupValue)));
+                ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(DRIVER_NOT_FOUND_BY_ID, lookupValue)));
     }
 
-    private BusinessException notFound(String lookupValue, String template, DeleteDriverCommand command) {
+    private BusinessException notFound(String lookupValue, DeleteDriverCommand command) {
         return new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
-                ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(template, lookupValue)));
+                ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(DRIVER_NOT_FOUND_BY_ID, lookupValue)));
     }
 
     private BusinessException notFound(String lookupValue, String template, FetchDriverDetailQuery query) {
@@ -399,12 +444,12 @@ public class DriverManagementServiceImpl implements DriverManagementService {
         return value == null || value.isBlank() ? defaultValue : OperationStatus.valueOf(value.trim());
     }
 
-    private Integer parseInteger(String value, Integer defaultValue) {
-        return value == null || value.isBlank() ? defaultValue : Integer.valueOf(value.trim());
+    private Integer parseInteger(String value) {
+        return value == null || value.isBlank() ? (Integer) 0 : Integer.valueOf(value.trim());
     }
 
-    private Double parseDouble(String value, Double defaultValue) {
-        return value == null || value.isBlank() ? defaultValue : Double.valueOf(value.trim());
+    private Double parseDouble(String value) {
+        return value == null || value.isBlank() ? (Double) 0.0 : Double.valueOf(value.trim());
     }
 
     private LocalDate parseLocalDate(String value) {
