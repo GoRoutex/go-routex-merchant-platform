@@ -218,6 +218,7 @@ public class MerchantDriverController {
 
     @GetMapping(DRIVER_PATH + FETCH_PATH)
     public ResponseEntity<FetchDriverResponse> fetchDrivers(HttpServletRequest servletRequest,
+                                                            @RequestParam(required = false) String status,
                                                             @RequestParam(defaultValue = "1") int pageNumber,
                                                             @RequestParam(defaultValue = "10") int pageSize) {
         BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
@@ -226,6 +227,7 @@ public class MerchantDriverController {
         FetchDriversResult result = driverManagementService.fetchDrivers(FetchDriversQuery.builder()
                 .context(HttpUtils.toContext(baseRequest, merchantId))
                 .merchantId(merchantId)
+                .status(status)
                 .pageNumber(String.valueOf(pageNumber))
                 .pageSize(String.valueOf(pageSize))
                 .build());
@@ -239,12 +241,11 @@ public class MerchantDriverController {
                             .merchantName(driver.merchantInfo().merchantName())
                             .build();
 
-
                     FetchDriverUserInfo userInfo = FetchDriverUserInfo.builder()
                             .userId(driver.userInfo().userId())
                             .phone(driver.userInfo().phone())
                             .email(driver.userInfo().email())
-                            .fullName(driver.userInfo().email())
+                            .fullName(driver.userInfo().fullName())
                             .build();
 
                     return FetchDriverResponseData.builder()

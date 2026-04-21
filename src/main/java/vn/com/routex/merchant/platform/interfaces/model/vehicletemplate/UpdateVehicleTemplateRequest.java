@@ -1,6 +1,7 @@
 package vn.com.routex.merchant.platform.interfaces.model.vehicletemplate;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,6 +15,8 @@ import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateCategory;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateStatus;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseRequest;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -46,6 +49,8 @@ public class UpdateVehicleTemplateRequest extends BaseRequest {
         private VehicleTemplateType type;
         private FuelType fuelType;
         private Boolean hasFloor;
+        @DecimalMin(value = "0.0", inclusive = true)
+        private BigDecimal ticketPrice;
         private VehicleTemplateStatus status;
     }
 }

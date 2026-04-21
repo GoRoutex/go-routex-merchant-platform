@@ -18,6 +18,8 @@ import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateStatus;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.AbstractAuditingEntity;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -59,6 +61,9 @@ public class VehicleTemplateEntity extends AbstractAuditingEntity {
 
     @Column(name = "HAS_FLOOR")
     private boolean hasFloor;
+
+    @Column(name = "TICKET_PRICE")
+    private BigDecimal ticketPrice;
 
     @Column(name = "MERCHANT_ID")
     private String merchantId;

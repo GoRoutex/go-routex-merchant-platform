@@ -26,6 +26,7 @@ public class VehicleTemplatePersistenceMapper {
                 .type(vehicleTemplate.getType())
                 .fuelType(vehicleTemplate.getFuelType())
                 .hasFloor(vehicleTemplate.isHasFloor())
+                .ticketPrice(vehicleTemplate.getTicketPrice())
                 .merchantId(vehicleTemplate.getMerchantId())
                 .status(vehicleTemplate.getStatus())
                 .build();
@@ -47,6 +48,7 @@ public class VehicleTemplatePersistenceMapper {
                 .type(vehicleTemplate.getType())
                 .fuelType(vehicleTemplate.getFuelType())
                 .hasFloor(vehicleTemplate.isHasFloor())
+                .ticketPrice(vehicleTemplate.getTicketPrice())
                 .merchantId(vehicleTemplate.getMerchantId())
                 .status(vehicleTemplate.getStatus())
                 .build();

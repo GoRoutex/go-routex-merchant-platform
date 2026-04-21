@@ -7,6 +7,7 @@ import vn.com.routex.merchant.platform.application.command.common.RequestContext
 public record FetchDriversQuery(
         RequestContext context,
         String merchantId,
+        String status,
         String pageNumber,
         String pageSize
 ) {

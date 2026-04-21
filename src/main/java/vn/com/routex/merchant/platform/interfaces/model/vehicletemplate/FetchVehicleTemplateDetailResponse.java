@@ -10,6 +10,8 @@ import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateStatus;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseResponse;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,6 +34,7 @@ public class FetchVehicleTemplateDetailResponse extends BaseResponse<FetchVehicl
         private VehicleTemplateType type;
         private FuelType fuelType;
         private Boolean hasFloor;
+        private BigDecimal ticketPrice;
         private VehicleTemplateStatus status;
     }
 }

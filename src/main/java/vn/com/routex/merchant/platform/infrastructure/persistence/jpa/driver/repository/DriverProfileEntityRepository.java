@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import vn.com.routex.merchant.platform.domain.driver.DriverStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.driver.entity.DriverProfileEntity;
 
 import java.util.List;
@@ -26,4 +27,6 @@ public interface DriverProfileEntityRepository extends JpaRepository<DriverProfi
     List<DriverProfileEntity> findByMerchantId(String merchantId);
 
     Page<DriverProfileEntity> findByMerchantId(String merchantId, Pageable pageable);
+
+    Page<DriverProfileEntity> findByMerchantIdAndStatus(String merchantId, DriverStatus status, Pageable pageable);
 }

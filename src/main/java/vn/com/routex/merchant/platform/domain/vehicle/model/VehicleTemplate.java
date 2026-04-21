@@ -11,6 +11,8 @@ import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateCategory;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateStatus;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 
+import java.math.BigDecimal;
+
 
 @Getter
 @Setter
@@ -28,6 +30,7 @@ public class VehicleTemplate extends AbstractAuditingEntity {
     private VehicleTemplateType type;
     private FuelType fuelType;
     private boolean hasFloor;
+    private BigDecimal ticketPrice;
     private String merchantId;
     private VehicleTemplateStatus status;
 }

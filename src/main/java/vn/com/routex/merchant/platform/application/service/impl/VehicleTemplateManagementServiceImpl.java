@@ -22,6 +22,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.exception.Busi
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -48,6 +49,7 @@ public class VehicleTemplateManagementServiceImpl implements VehicleTemplateMana
     public CreateVehicleTemplateResult createVehicleTemplate(CreateVehicleTemplateCommand command) {
         validateTemplateCodeUniqueness(command.code(), command.merchantId(), command);
         validateTemplateCategoryTypeUniqueness(command.category().name(), command.type().name(), command.merchantId(), command);
+        validateTicketPrice(command.ticketPrice(), command.context().requestId(), command.context().requestDateTime(), command.context().channel());
 
         VehicleTemplate template = VehicleTemplate.builder()
                 .id(UUID.randomUUID().toString())
@@ -61,6 +63,7 @@ public class VehicleTemplateManagementServiceImpl implements VehicleTemplateMana
                 .type(command.type())
                 .fuelType(command.fuelType())
                 .hasFloor(Boolean.TRUE.equals(command.hasFloor()))
+                .ticketPrice(command.ticketPrice())
                 .status(command.status() == null ? VehicleTemplateStatus.ACTIVE : command.status())
                 .createdAt(OffsetDateTime.now())
                 .createdBy(command.creator())
@@ -78,6 +81,7 @@ public class VehicleTemplateManagementServiceImpl implements VehicleTemplateMana
 
         validateUpdatedCode(existing, command);
         validateUpdatedCategoryType(existing, command);
+        validateTicketPrice(command.ticketPrice(), command.context().requestId(), command.context().requestDateTime(), command.context().channel());
 
         VehicleTemplate updated = VehicleTemplate.builder()
                 .id(existing.getId())
@@ -91,6 +95,7 @@ public class VehicleTemplateManagementServiceImpl implements VehicleTemplateMana
                 .type(command.type() == null ? existing.getType() : command.type())
                 .fuelType(command.fuelType() == null ? existing.getFuelType() : command.fuelType())
                 .hasFloor(command.hasFloor() == null ? existing.isHasFloor() : command.hasFloor())
+                .ticketPrice(command.ticketPrice() == null ? existing.getTicketPrice() : command.ticketPrice())
                 .status(command.status() == null ? existing.getStatus() : command.status())
                 .createdAt(existing.getCreatedAt())
                 .createdBy(existing.getCreatedBy())
@@ -120,6 +125,7 @@ public class VehicleTemplateManagementServiceImpl implements VehicleTemplateMana
                 .type(existing.getType())
                 .fuelType(existing.getFuelType())
                 .hasFloor(existing.isHasFloor())
+                .ticketPrice(existing.getTicketPrice())
                 .status(VehicleTemplateStatus.INACTIVE)
                 .createdAt(existing.getCreatedAt())
                 .createdBy(existing.getCreatedBy())
@@ -225,6 +231,13 @@ public class VehicleTemplateManagementServiceImpl implements VehicleTemplateMana
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(VEHICLE_TEMPLATE_NOT_FOUND_BY_ID, templateId))));
     }
 
+    private void validateTicketPrice(BigDecimal ticketPrice, String requestId, String requestDateTime, String channel) {
+        if (ticketPrice != null && ticketPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException(requestId, requestDateTime, channel,
+                    ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, "ticketPrice must be >= 0"));
+        }
+    }
+
     private CreateVehicleTemplateResult toCreateResult(VehicleTemplate template) {
         return CreateVehicleTemplateResult.builder()
                 .id(template.getId())
@@ -238,6 +251,7 @@ public class VehicleTemplateManagementServiceImpl implements VehicleTemplateMana
                 .type(template.getType())
                 .fuelType(template.getFuelType())
                 .hasFloor(template.isHasFloor())
+                .ticketPrice(template.getTicketPrice())
                 .status(template.getStatus())
                 .build();
     }
@@ -255,6 +269,7 @@ public class VehicleTemplateManagementServiceImpl implements VehicleTemplateMana
                 .type(template.getType())
                 .fuelType(template.getFuelType())
                 .hasFloor(template.isHasFloor())
+                .ticketPrice(template.getTicketPrice())
                 .status(template.getStatus())
                 .build();
     }
@@ -272,6 +287,7 @@ public class VehicleTemplateManagementServiceImpl implements VehicleTemplateMana
                 .type(template.getType())
                 .fuelType(template.getFuelType())
                 .hasFloor(template.isHasFloor())
+                .ticketPrice(template.getTicketPrice())
                 .status(template.getStatus())
                 .build();
     }
@@ -289,6 +305,7 @@ public class VehicleTemplateManagementServiceImpl implements VehicleTemplateMana
                 .type(template.getType())
                 .fuelType(template.getFuelType())
                 .hasFloor(template.isHasFloor())
+                .ticketPrice(template.getTicketPrice())
                 .status(template.getStatus())
                 .build();
     }

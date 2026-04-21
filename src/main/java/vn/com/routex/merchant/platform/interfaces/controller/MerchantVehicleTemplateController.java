@@ -91,6 +91,7 @@ public class MerchantVehicleTemplateController {
                 .type(request.getData().getType())
                 .fuelType(request.getData().getFuelType())
                 .hasFloor(request.getData().getHasFloor())
+                .ticketPrice(request.getData().getTicketPrice())
                 .status(request.getData().getStatus())
                 .build());
 
@@ -108,6 +109,7 @@ public class MerchantVehicleTemplateController {
                         .type(result.type())
                         .fuelType(result.fuelType())
                         .hasFloor(result.hasFloor())
+                        .ticketPrice(result.ticketPrice())
                         .status(result.status())
                         .build())
                 .build();
@@ -137,6 +139,7 @@ public class MerchantVehicleTemplateController {
                 .type(request.getData().getType())
                 .fuelType(request.getData().getFuelType())
                 .hasFloor(request.getData().getHasFloor())
+                .ticketPrice(request.getData().getTicketPrice())
                 .status(request.getData().getStatus())
                 .build());
 
@@ -154,6 +157,7 @@ public class MerchantVehicleTemplateController {
                         .type(result.type())
                         .fuelType(result.fuelType())
                         .hasFloor(result.hasFloor())
+                        .ticketPrice(result.ticketPrice())
                         .status(result.status())
                         .build())
                 .build();
@@ -223,6 +227,7 @@ public class MerchantVehicleTemplateController {
                         .type(template.type())
                         .fuelType(template.fuelType())
                         .hasFloor(template.hasFloor())
+                        .ticketPrice(template.ticketPrice())
                         .status(template.status())
                         .build())
                 .collect(Collectors.toList());
@@ -277,6 +282,7 @@ public class MerchantVehicleTemplateController {
                         .type(result.type())
                         .fuelType(result.fuelType())
                         .hasFloor(result.hasFloor())
+                        .ticketPrice(result.ticketPrice())
                         .status(result.status())
                         .build())
                 .build();

@@ -3,6 +3,7 @@ package vn.com.routex.merchant.platform.application.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.application.command.driver.CreateDriverCommand;
 import vn.com.routex.merchant.platform.application.command.driver.CreateDriverResult;
 import vn.com.routex.merchant.platform.application.command.driver.DeleteDriverCommand;
@@ -15,6 +16,8 @@ import vn.com.routex.merchant.platform.application.command.driver.UpdateDriverCo
 import vn.com.routex.merchant.platform.application.command.driver.UpdateDriverResult;
 import vn.com.routex.merchant.platform.application.service.DriverManagementService;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.customer.model.Customer;
+import vn.com.routex.merchant.platform.domain.customer.port.CustomerRepositoryPort;
 import vn.com.routex.merchant.platform.domain.driver.DriverStatus;
 import vn.com.routex.merchant.platform.domain.driver.OperationStatus;
 import vn.com.routex.merchant.platform.domain.driver.model.DriverProfile;
@@ -33,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.CUSTOMER_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DRIVER_NOT_FOUND_BY_EMPLOYEE_CODE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DRIVER_NOT_FOUND_BY_ID;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DRIVER_NOT_FOUND_BY_USER_ID;
@@ -56,8 +60,9 @@ public class DriverManagementServiceImpl implements DriverManagementService {
     private final DriverProfileRepositoryPort driverProfileRepositoryPort;
     private final MerchantRepositoryPort merchantRepositoryPort;
     private final UserRepositoryPort userRepositoryPort;
+    private final CustomerRepositoryPort customerRepositoryPort;
 
-
+    private final SystemLog sLog = SystemLog.getLogger(this.getClass());
     @Override
     @Transactional
     public CreateDriverResult createDriver(CreateDriverCommand command) {
@@ -134,6 +139,7 @@ public class DriverManagementServiceImpl implements DriverManagementService {
                 query.context().requestId(), query.context().requestDateTime(), query.context().channel());
         int pageNumber = ApiRequestUtils.parseIntOrDefault(query.pageNumber(), DEFAULT_PAGE_NUMBER, "pageNumber",
                 query.context().requestId(), query.context().requestDateTime(), query.context().channel());
+        DriverStatus status = parseDriverStatus(query.status(), null);
 
         if (pageSize < 1 || pageSize > 100) {
             throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
@@ -144,7 +150,9 @@ public class DriverManagementServiceImpl implements DriverManagementService {
                     ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_NUMBER));
         }
 
-        PagedResult<DriverProfile> page = driverProfileRepositoryPort.fetch(query.merchantId(), pageNumber - 1, pageSize);
+        PagedResult<DriverProfile> page = status == null
+                ? driverProfileRepositoryPort.fetch(query.merchantId(), pageNumber - 1, pageSize)
+                : driverProfileRepositoryPort.fetch(query.merchantId(), status, pageNumber - 1, pageSize);
         List<FetchDriversResult.FetchDriverItemResult> items = page.getItems().stream()
                 .map(item -> {
 
@@ -156,7 +164,10 @@ public class DriverManagementServiceImpl implements DriverManagementService {
                             .orElseThrow(() -> new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
                                     ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, USER_NOT_FOUND_MESSAGE)));
 
-                    return toFetchItem(item, merchant, user);
+                    Customer customer = customerRepositoryPort.findByUserId(item.getUserId())
+                            .orElseThrow(() -> new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
+                                    ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, CUSTOMER_NOT_FOUND)));
+                    return toFetchItem(item, merchant, user, customer);
                 })
                 .toList();
 
@@ -282,7 +293,7 @@ public class DriverManagementServiceImpl implements DriverManagementService {
                 .build();
     }
 
-    private FetchDriversResult.FetchDriverItemResult toFetchItem(DriverProfile driverProfile, Merchant merchant, User user) {
+    private FetchDriversResult.FetchDriverItemResult toFetchItem(DriverProfile driverProfile, Merchant merchant, User user, Customer customer) {
         return FetchDriversResult.FetchDriverItemResult.builder()
                 .id(driverProfile.getId())
                 .merchantInfo(FetchDriversResult.FetchDriverItemResult.FetchDriverMerchantInfo.builder()
@@ -291,7 +302,7 @@ public class DriverManagementServiceImpl implements DriverManagementService {
                         .build())
                 .userInfo(FetchDriversResult.FetchDriverItemResult.FetchDriverUserInfo.builder()
                         .userId(driverProfile.getUserId())
-                        .fullName(driverProfile.getFullName())
+                        .fullName(customer.getFullName())
                         .phone(user.getPhoneNumber())
                         .email(user.getEmail())
                         .build())

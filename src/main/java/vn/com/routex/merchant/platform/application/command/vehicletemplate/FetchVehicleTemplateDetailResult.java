@@ -6,6 +6,8 @@ import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateCategory;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateStatus;
 import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 
+import java.math.BigDecimal;
+
 @Builder
 public record FetchVehicleTemplateDetailResult(
         String id,
@@ -19,6 +21,7 @@ public record FetchVehicleTemplateDetailResult(
         VehicleTemplateType type,
         FuelType fuelType,
         Boolean hasFloor,
+        BigDecimal ticketPrice,
         VehicleTemplateStatus status
 ) {
 }

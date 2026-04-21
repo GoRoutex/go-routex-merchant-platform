@@ -38,6 +38,7 @@ public class ErrorConstant {
     public static final String SUCCESS_MESSAGE = "Success";
     public static final String DRIVER_NOT_FOUND_MESSAGE = "Driver Profile not found";
     public static final String USER_NOT_FOUND_MESSAGE = "User Profile not found";
+    public static final String CUSTOMER_NOT_FOUND = "Customer information not found";
     public static final String INVALID_HTTP_REQUEST_RESOURCE_ERROR = "4000";
     public static final String INVALID_HTTP_REQUEST_RESOURCE_ERROR_MESSAGE = "Resource %s path is not exists";
     public static final String INVALID_INPUT_ERROR = "0310";

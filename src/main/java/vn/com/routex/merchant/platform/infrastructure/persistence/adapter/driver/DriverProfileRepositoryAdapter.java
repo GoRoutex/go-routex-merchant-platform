@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.driver.DriverStatus;
 import vn.com.routex.merchant.platform.domain.driver.model.DriverProfile;
 import vn.com.routex.merchant.platform.domain.driver.port.DriverProfileRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.driver.entity.DriverProfileEntity;
@@ -66,6 +67,20 @@ public class DriverProfileRepositoryAdapter implements DriverProfileRepositoryPo
     @Override
     public PagedResult<DriverProfile> fetch(String merchantId, int pageNumber, int pageSize) {
         Page<DriverProfileEntity> page = driverProfileEntityRepository.findByMerchantId(merchantId, PageRequest.of(pageNumber, pageSize));
+        return toPagedResult(page);
+    }
+
+    @Override
+    public PagedResult<DriverProfile> fetch(String merchantId, DriverStatus status, int pageNumber, int pageSize) {
+        Page<DriverProfileEntity> page = driverProfileEntityRepository.findByMerchantIdAndStatus(
+                merchantId,
+                status,
+                PageRequest.of(pageNumber, pageSize)
+        );
+        return toPagedResult(page);
+    }
+
+    private PagedResult<DriverProfile> toPagedResult(Page<DriverProfileEntity> page) {
         List<DriverProfile> items = page.getContent().stream()
                 .map(DriverProfilePersistenceMapper::toDomain)
                 .toList();
@@ -79,7 +94,6 @@ public class DriverProfileRepositoryAdapter implements DriverProfileRepositoryPo
                 .totalPages(page.getTotalPages())
                 .build();
     }
-
     @Override
     public DriverProfile save(DriverProfile profile) {
         return DriverProfilePersistenceMapper.toDomain(driverProfileEntityRepository.save(DriverProfilePersistenceMapper.toEntity(profile)));
