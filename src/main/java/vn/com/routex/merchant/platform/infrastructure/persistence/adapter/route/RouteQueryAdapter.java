@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.application.command.route.RoutePointResult;
 import vn.com.routex.merchant.platform.application.specification.RouteSpecification;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
@@ -20,6 +21,7 @@ import vn.com.routex.merchant.platform.domain.route.port.RouteStopRepositoryPort
 import vn.com.routex.merchant.platform.domain.route.port.RouteVehicleRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.readmodel.RouteFetchView;
 import vn.com.routex.merchant.platform.domain.route.readmodel.RouteSearchView;
+import vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.repository.RouteEntityRepository;
 
@@ -34,6 +36,8 @@ public class RouteQueryAdapter implements RouteQueryPort {
     private final RouteStopRepositoryPort routeStopRepositoryPort;
     private final RouteAssignmentRepositoryPort routeAssignmentRepositoryPort;
     private final RouteVehicleRepositoryPort routeVehicleRepositoryPort;
+
+    private final SystemLog sLog = SystemLog.getLogger(this.getClass());
 
     @Override
     public List<RouteSearchView> searchAssignedRoutes(
@@ -63,8 +67,8 @@ public class RouteQueryAdapter implements RouteQueryPort {
                     searchView.setPickupBranch(route.getPickupBranch());
                     searchView.setOrigin(route.getOrigin());
                     searchView.setDestination(route.getDestination());
-                    searchView.setPlannedStartTime(route.getPlannedStartTime());
-                    searchView.setPlannedEndTime(route.getPlannedEndTime());
+                    searchView.setPlannedStartTime(toDefaultOffset(route.getPlannedStartTime()));
+                    searchView.setPlannedEndTime(toDefaultOffset(route.getPlannedEndTime()));
                     return searchView;
                 })
                 .toList();
@@ -76,6 +80,8 @@ public class RouteQueryAdapter implements RouteQueryPort {
         Specification<RouteEntity> specification = Specification.where(RouteSpecification.hasMerchantId(merchantId))
                 .and(RouteSpecification.hasMerchantName(merchantName));
         Page<RouteEntity> page = routeEntityRepository.findAll(specification, pageable);
+
+        sLog.info("PAGE INFO: {}", page);
         List<RouteFetchView> items = page.getContent().stream()
                 .map(route -> {
 
@@ -95,18 +101,18 @@ public class RouteQueryAdapter implements RouteQueryPort {
                     view.setPickupBranch(route.getPickupBranch());
                     view.setOrigin(route.getOrigin());
                     view.setDestination(route.getDestination());
-                    view.setPlannedStartTime(route.getPlannedStartTime());
-                    view.setPlannedEndTime(route.getPlannedEndTime());
-                    view.setActualStartTime(route.getActualStartTime());
-                    view.setActualEndTime(route.getActualEndTime());
+                    view.setPlannedStartTime(toDefaultOffset(route.getPlannedStartTime()));
+                    view.setPlannedEndTime(toDefaultOffset(route.getPlannedEndTime()));
+                    view.setActualStartTime(toDefaultOffset(route.getActualStartTime()));
+                    view.setActualEndTime(toDefaultOffset(route.getActualEndTime()));
                     view.setStatus(route.getStatus() == null ? null : route.getStatus().name());
                     view.setRoutePoints(routeStopPlans.stream().map(
                             stop -> RoutePointResult.builder()
                                     .id(stop.getId())
                                     .operationOrder(String.valueOf(stop.getStopOrder()))
                                     .routeId(stop.getRouteId())
-                                    .plannedArrivalTime(stop.getPlannedArrivalTime())
-                                    .plannedDepartureTime(stop.getPlannedDepartureTime())
+                                    .plannedArrivalTime(toDefaultOffset(stop.getPlannedArrivalTime()))
+                                    .plannedDepartureTime(toDefaultOffset(stop.getPlannedDepartureTime()))
                                     .note(stop.getNote())
                                     .operationPointId(stop.getOperationPointId())
                                     .stopName(stop.getStopName())
@@ -117,7 +123,7 @@ public class RouteQueryAdapter implements RouteQueryPort {
                                     .build())
                             .toList()
                     );
-                    view.setAssignedAt(assignmentRecord != null ? assignmentRecord.getAssignedAt() : null);
+                    view.setAssignedAt(assignmentRecord != null ? toDefaultOffset(assignmentRecord.getAssignedAt()) : null);
                     view.setVehicleId(assignmentRecord != null ? assignmentRecord.getVehicleId() : null);
                     view.setVehiclePlate(snapshot != null ? snapshot.getVehiclePlate() : null);
                     return view;
@@ -131,5 +137,11 @@ public class RouteQueryAdapter implements RouteQueryPort {
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
                 .build();
+    }
+
+    private OffsetDateTime toDefaultOffset(OffsetDateTime dateTime) {
+        return dateTime == null
+                ? null
+                : dateTime.atZoneSameInstant(ApplicationConstant.DEFAULT_ZONE).toOffsetDateTime();
     }
 }

@@ -26,8 +26,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.Abs
 public class RouteSeatEntity extends AbstractAuditingEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private String id;
 
     @Column(name = "ROUTE_ID")
     private String routeId;

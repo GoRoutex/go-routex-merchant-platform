@@ -1,8 +1,8 @@
 package vn.com.routex.merchant.platform.domain.driver.port;
 
 
-import vn.com.routex.merchant.platform.domain.driver.DriverStatus;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.driver.DriverStatus;
 import vn.com.routex.merchant.platform.domain.driver.model.DriverProfile;
 
 import java.util.List;

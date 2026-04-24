@@ -37,6 +37,8 @@ import vn.com.routex.merchant.platform.domain.route.port.RouteQueryPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteStopRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteVehicleRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.readmodel.RouteFetchView;
+import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleTemplate;
+import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleTemplateRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.kafka.event.RouteAssignedEvent;
 import vn.com.routex.merchant.platform.infrastructure.kafka.event.RouteSellableEvent;
 import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
@@ -64,6 +66,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_POINT_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.STOP_COORDINATES_MUST_BE_PROVIDED_TOGETHER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_NOT_FOUND;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.VEHICLE_TEMPLATE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -77,6 +80,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
     private final RouteQueryPort routeQueryPort;
     private final OperationPointRepositoryPort operationPointRepositoryPort;
     private final OutBoxService outBoxService;
+    private final VehicleTemplateRepositoryPort vehicleTemplateRepositoryPort;
 
     @Value("${spring.kafka.topics.routes}")
     private String routeTopic;
@@ -96,7 +100,9 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         String destination = command.destination().trim();
 
         OffsetDateTime plannedStartTime = OffsetDateTime.parse(command.plannedStartTime());
+        sLog.info("Planned Start Time of trip: {}", plannedStartTime);
         OffsetDateTime plannedEndTime = OffsetDateTime.parse(command.plannedEndTime());
+        sLog.info("Planned End Time of trip: {}", plannedEndTime);
 
         ProvincesCodePair codeResult = routeProvincesLookupPort.getCodes(command.origin(), command.destination());
 
@@ -194,14 +200,19 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(ROUTE_NOT_FOUND, command.routeId()))));
 
+        VehicleTemplate vehicleTemplate = vehicleTemplateRepositoryPort.findById(vehicle.getTemplateId(), command.merchantId())
+                .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, VEHICLE_TEMPLATE_NOT_FOUND)));
+
         OffsetDateTime assignedAt = OffsetDateTime.now();
         RouteAssignmentRecord routeAssignment = RouteAssignmentRecord.assign(
                 UUID.randomUUID().toString(),
-                route.getMerchantId(),
                 command.routeId(),
                 command.creator(),
+                route.getMerchantId(),
                 vehicle.getId(),
                 command.driverId(),
+                vehicleTemplate.getTicketPrice(),
                 assignedAt
         );
 
@@ -223,6 +234,8 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .creator(command.creator())
                 .build();
 
+
+        sLog.info("HEADERS: {}", command.context());
         outBoxService.generateEvent(routeAssignment.getRouteId(), routeTopic, routeReadyForSaleEvent, routeAssignment.getId(), sellableEvent, ApiRequestUtils.getHeader(command.context()));
 
         RouteAssignedEvent assignedEvent = RouteAssignedEvent
@@ -240,6 +253,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .build();
 
 
+        sLog.info("HEADERS 2: {}", command.context());
         outBoxService.generateEvent(routeAssignment.getRouteId(), routeTopic, routeAssignedEvent, routeAssignment.getId(), assignedEvent, ApiRequestUtils.getHeader(command.context()));
 
         return AssignRouteResult.builder()

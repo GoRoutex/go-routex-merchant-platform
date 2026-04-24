@@ -1,6 +1,9 @@
 package vn.com.routex.merchant.platform.domain.vehicle.port;
 
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateCategory;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateStatus;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType;
 import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleTemplate;
 
 import java.util.List;
@@ -26,9 +29,9 @@ public interface VehicleTemplateRepositoryPort {
 
     PagedResult<VehicleTemplate> fetch(
             String merchantId,
-            vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateStatus status,
-            vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateCategory category,
-            vn.com.routex.merchant.platform.domain.vehicle.VehicleTemplateType type,
+            VehicleTemplateStatus status,
+            VehicleTemplateCategory category,
+            VehicleTemplateType type,
             int pageNumber,
             int pageSize
     );

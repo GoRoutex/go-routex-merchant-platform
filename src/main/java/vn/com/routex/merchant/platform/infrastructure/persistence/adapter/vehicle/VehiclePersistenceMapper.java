@@ -1,15 +1,15 @@
 package vn.com.routex.merchant.platform.infrastructure.persistence.adapter.vehicle;
 
 
+import lombok.experimental.UtilityClass;
 import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.entity.VehicleEntity;
 
-final class VehiclePersistenceMapper {
 
-    private VehiclePersistenceMapper() {
-    }
+@UtilityClass
+public class VehiclePersistenceMapper {
 
-    static VehicleProfile toDomain(VehicleEntity entity) {
+    public VehicleProfile toDomain(VehicleEntity entity) {
         if (entity == null) return null;
         return VehicleProfile.builder()
                 .id(entity.getId())
@@ -25,7 +25,7 @@ final class VehiclePersistenceMapper {
                 .build();
     }
 
-    static VehicleEntity toEntity(VehicleProfile vehicleProfile) {
+    public VehicleEntity toEntity(VehicleProfile vehicleProfile) {
         return VehicleEntity.builder()
                 .id(vehicleProfile.getId())
                 .merchantId(vehicleProfile.getMerchantId())

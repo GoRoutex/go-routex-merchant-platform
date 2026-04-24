@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.domain.assignment.RouteAssignmentStatus;
 import vn.com.routex.merchant.platform.domain.auditing.AbstractAuditingEntity;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Getter
@@ -22,6 +23,7 @@ public class RouteAssignmentRecord extends AbstractAuditingEntity {
     private String merchantId;
     private String vehicleId;
     private String driverId;
+    private BigDecimal ticketPrice;
     private OffsetDateTime assignedAt;
     private OffsetDateTime unAssignedAt;
     private RouteAssignmentStatus status;
@@ -33,6 +35,7 @@ public class RouteAssignmentRecord extends AbstractAuditingEntity {
             String merchantId,
             String vehicleId,
             String driverId,
+            BigDecimal ticketPrice,
             OffsetDateTime assignedAt
     ) {
         return RouteAssignmentRecord.builder()
@@ -43,6 +46,7 @@ public class RouteAssignmentRecord extends AbstractAuditingEntity {
                 .driverId(driverId)
                 .vehicleId(vehicleId)
                 .assignedAt(assignedAt)
+                .ticketPrice(ticketPrice)
                 .status(RouteAssignmentStatus.ASSIGNED)
                 .build();
     }

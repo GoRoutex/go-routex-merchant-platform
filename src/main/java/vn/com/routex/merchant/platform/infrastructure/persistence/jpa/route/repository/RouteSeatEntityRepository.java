@@ -10,7 +10,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.proj
 import java.util.List;
 
 @Repository
-public interface RouteSeatEntityRepository extends JpaRepository<RouteSeatEntity, Integer> {
+public interface RouteSeatEntityRepository extends JpaRepository<RouteSeatEntity, String> {
 
     boolean existsByRouteId(String routeId);
 

@@ -16,4 +16,5 @@ public class VehicleSnapshot {
     private String vehiclePlate;
     private Integer seatCapacity;
     private boolean hasFloor;
+    private String templateId;
 }

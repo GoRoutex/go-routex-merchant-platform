@@ -1,5 +1,6 @@
 package vn.com.routex.merchant.platform.domain.seat.model;
 
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ import java.time.OffsetDateTime;
 @SuperBuilder(toBuilder = true)
 public class RouteSeat {
 
-    private Integer id;
+    private String id;
     private String routeId;
     private String seatNo;
     private SeatStatus status;

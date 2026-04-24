@@ -66,18 +66,6 @@ public class RouteSpecification {
             cb.lessThan(root.get("plannedStartTime"), endInitialize));
     }
 
-    public static OffsetDateTime dayStart(LocalDate date, ZoneId zoneId) {
-        return date.atStartOfDay(zoneId).toOffsetDateTime();
-    }
-
-    public static OffsetDateTime dayEndExclusive(LocalDate date, ZoneId zoneId) {
-        return date.plusDays(1).atStartOfDay(zoneId).toOffsetDateTime();
-    }
-
-    public static OffsetDateTime atTime(LocalDate date, LocalTime time, ZoneId zoneId) {
-        return date.atTime(time).atZone(zoneId).toOffsetDateTime();
-    }
-
     private static String normalize(String message) {
         return message == null ? "" : message.trim().toLowerCase();
     }

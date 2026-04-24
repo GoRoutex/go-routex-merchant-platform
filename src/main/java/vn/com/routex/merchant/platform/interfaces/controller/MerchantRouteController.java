@@ -101,23 +101,6 @@ public class MerchantRouteController {
                 );
 
 
-        List<SearchRouteResponse.SearchRoutePoints> routePoints = result.routePoints().stream()
-                .map(point -> SearchRouteResponse.SearchRoutePoints.builder()
-                        .id(point.id())
-                        .operationOrder(point.operationOrder())
-                        .routeId(point.routeId())
-                        .plannedArrivalTime(point.plannedArrivalTime())
-                        .plannedDepartureTime(point.plannedDepartureTime())
-                        .note(point.note())
-                        .operationPointId(point.operationPointId())
-                        .stopName(point.stopName())
-                        .stopAddress(point.stopAddress())
-                        .stopCity(point.stopCity())
-                        .stopLatitude(point.stopLatitude())
-                        .stopLongitude(point.stopLongitude())
-                        .build())
-                .collect(Collectors.toList());
-
         FetchDetailRouteResponse response = FetchDetailRouteResponse.builder()
                 .requestId(baseRequest.getRequestId())
                 .requestDateTime(baseRequest.getRequestDateTime())
@@ -140,12 +123,30 @@ public class MerchantRouteController {
                         .vehiclePlate(result.vehiclePlate())
                         .hasFloor(result.hasFloor())
                         .assignedAt(result.assignedAt())
-                        .routePoints(routePoints)
                         .build())
                 .build();
 
+        if(result.routePoints() != null) {
+            List<SearchRouteResponse.SearchRoutePoints> routePoints = result.routePoints().stream()
+                    .map(point -> SearchRouteResponse.SearchRoutePoints.builder()
+                            .id(point.id())
+                            .operationOrder(point.operationOrder())
+                            .routeId(point.routeId())
+                            .plannedArrivalTime(point.plannedArrivalTime())
+                            .plannedDepartureTime(point.plannedDepartureTime())
+                            .note(point.note())
+                            .operationPointId(point.operationPointId())
+                            .stopName(point.stopName())
+                            .stopAddress(point.stopAddress())
+                            .stopCity(point.stopCity())
+                            .stopLatitude(point.stopLatitude())
+                            .stopLongitude(point.stopLongitude())
+                            .build())
+                    .collect(Collectors.toList());
 
 
+            response.getData().setRoutePoints(routePoints);
+        }
         sLog.info("[ROUTE-DETAIL] Fetch Route Detail Response: {}", response);
 
         return HttpUtils.buildResponse(baseRequest, response);
@@ -340,6 +341,9 @@ public class MerchantRouteController {
                 .build());
 
         AssignRouteResponse response = AssignRouteResponse.builder()
+                .requestId(request.getRequestId())
+                .requestDateTime(request.getRequestDateTime())
+                .channel(request.getChannel())
                 .result(apiResultFactory.buildSuccess())
                 .data(AssignRouteResponse.AssignRouteResponseData.builder()
                         .creator(result.creator())

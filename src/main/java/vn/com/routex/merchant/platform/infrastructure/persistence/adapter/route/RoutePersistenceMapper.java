@@ -107,6 +107,9 @@ final class RoutePersistenceMapper {
                 .assignedAt(assignment.getAssignedAt())
                 .unAssignedAt(assignment.getUnAssignedAt())
                 .status(assignment.getStatus())
+                .ticketPrice(assignment.getTicketPrice())
+                .createdAt(assignment.getCreatedAt())
+                .createdBy(assignment.getCreatedBy())
                 .updatedAt(assignment.getUpdatedAt())
                 .updatedBy(assignment.getUpdatedBy())
                 .build();
@@ -123,6 +126,9 @@ final class RoutePersistenceMapper {
                 .assignedAt(record.getAssignedAt())
                 .unAssignedAt(record.getUnAssignedAt())
                 .status(record.getStatus())
+                .ticketPrice(record.getTicketPrice())
+                .createdAt(record.getCreatedAt())
+                .createdBy(record.getCreatedBy())
                 .updatedAt(record.getUpdatedAt())
                 .updatedBy(record.getUpdatedBy())
                 .build();
@@ -132,6 +138,7 @@ final class RoutePersistenceMapper {
         return VehicleSnapshot.builder()
                 .id(vehicle.getId())
                 .vehiclePlate(vehicle.getVehiclePlate())
+                .templateId(template.getId())
                 .seatCapacity(template == null || template.getSeatCapacity() == null ? null : template.getSeatCapacity().intValue())
                 .hasFloor(template != null && template.isHasFloor())
                 .build();

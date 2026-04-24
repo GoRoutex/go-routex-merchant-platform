@@ -24,7 +24,6 @@ import java.time.OffsetDateTime;
 @Entity
 @SuperBuilder
 @Table(name = "ROUTE")
-
 public class RouteEntity extends AbstractAuditingEntity {
 
     @Id

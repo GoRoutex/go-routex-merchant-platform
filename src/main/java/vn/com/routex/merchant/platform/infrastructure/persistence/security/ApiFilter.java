@@ -65,7 +65,7 @@ public class ApiFilter extends OncePerRequestFilter {
         } finally {
             // Always mirror the response back to the client and log it.
             String responseMessage = new String(contentCachingResponseWrapper.getContentAsByteArray(), StandardCharsets.UTF_8);
-            sLog.info("{}", responseMessage);
+            sLog.info("API Response: {}", responseMessage);
             contentCachingResponseWrapper.copyBodyToResponse();
         }
     }
