@@ -1,6 +1,5 @@
 package vn.com.routex.merchant.platform.domain.seat.model;
 
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
