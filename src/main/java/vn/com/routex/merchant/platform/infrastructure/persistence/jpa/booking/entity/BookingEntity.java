@@ -58,7 +58,7 @@ public class BookingEntity extends AbstractAuditingEntity {
     private String customerEmail;
 
     @Column(name = "SEAT_COUNT")
-    private Integer seatCount;
+    private Long seatCount;
 
     @Column(name = "TOTAL_AMOUNT")
     private BigDecimal totalAmount;

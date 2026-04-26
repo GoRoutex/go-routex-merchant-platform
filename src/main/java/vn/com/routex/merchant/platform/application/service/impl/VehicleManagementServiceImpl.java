@@ -65,6 +65,7 @@ public class VehicleManagementServiceImpl implements VehicleManagementService {
                 command.merchantId(),
                 vehicleTemplate.getId(),
                 command.creator(),
+                command.hasFloor(),
                 command.vehiclePlate(),
                 OffsetDateTime.now()
         );

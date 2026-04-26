@@ -1,5 +1,6 @@
 package vn.com.routex.merchant.platform.interfaces.model.route;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class FetchRouteResponse extends BaseResponse<FetchRouteResponse.FetchRou
 
     @Getter
     @Setter
+    @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
     public static class FetchRouteResponsePage {
@@ -26,6 +28,7 @@ public class FetchRouteResponse extends BaseResponse<FetchRouteResponse.FetchRou
 
     @Getter
     @Setter
+    @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
     public static class FetchRouteResponseData {
@@ -45,7 +48,21 @@ public class FetchRouteResponse extends BaseResponse<FetchRouteResponse.FetchRou
         private String vehiclePlate;
         private Boolean hasFloor;
         private OffsetDateTime assignedAt;
+        private AssignmentInformation assignmentInformation;
         private List<SearchRouteResponse.SearchRoutePoints> routePoints;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class AssignmentInformation {
+        private String vehicleId;
+        private String vehiclePlate;
+        private String vehicleTemplateName;
+        private String driverId;
+        private String driverName;
     }
 
     @Getter

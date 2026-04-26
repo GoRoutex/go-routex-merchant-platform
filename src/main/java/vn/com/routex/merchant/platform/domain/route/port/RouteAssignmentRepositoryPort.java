@@ -14,6 +14,8 @@ public interface RouteAssignmentRepositoryPort {
 
     Optional<RouteAssignmentRecord> findByRouteIdAndMerchantId(String routeId, String merchantId);
 
+    List<RouteAssignmentRecord> findByRouteIdAndMerchantId(List<String> routeIds, String merchantId);
+
     Optional<RouteAssignmentRecord> findActiveByRouteId(String routeId);
 
     Optional<RouteAssignmentRecord> findActiveByRouteId(String routeId, String merchantId);

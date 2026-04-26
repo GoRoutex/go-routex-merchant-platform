@@ -53,4 +53,6 @@ public interface RouteAssignmentEntityRepository extends JpaRepository<RouteAssi
     );
 
     Optional<RouteAssignmentEntity> findByRouteIdAndMerchantId(String routeId, String merchantId);
+
+    List<RouteAssignmentEntity> findByRouteIdInAndMerchantId(List<String> routeIds, String merchantId);
 }

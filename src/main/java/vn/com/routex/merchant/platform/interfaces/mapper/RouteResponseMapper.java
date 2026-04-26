@@ -3,7 +3,6 @@ package vn.com.routex.merchant.platform.interfaces.mapper;
 import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.application.command.route.FetchRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.RoutePointResult;
-import vn.com.routex.merchant.platform.application.command.route.SearchRouteItemResult;
 import vn.com.routex.merchant.platform.interfaces.model.route.FetchRouteResponse;
 import vn.com.routex.merchant.platform.interfaces.model.route.SearchRouteResponse;
 
@@ -28,46 +27,20 @@ public class RouteResponseMapper {
                 .vehiclePlate(item.vehiclePlate())
                 .hasFloor(item.hasFloor())
                 .assignedAt(item.assignedAt())
+                .assignmentInformation(item.assignmentRecord() != null ? toAssignmentInformation(item.assignmentRecord()) : null)
                 .routePoints(item.routePoints() == null ? null : item.routePoints().stream()
                         .map(this::toSearchRoutePoint)
                         .toList())
                 .build();
     }
 
-    public FetchRouteResponse.FetchRouteResponseData toPublicFetchRouteResponseData(FetchRouteResult item) {
-        return FetchRouteResponse.FetchRouteResponseData.builder()
-                .id(item.id())
-                .routeCode(item.routeCode())
-                .origin(item.origin())
-                .destination(item.destination())
-                .plannedStartTime(item.plannedStartTime())
-                .plannedEndTime(item.plannedEndTime())
-                .status(item.status())
-                .availableSeats(item.availableSeats())
-                .vehiclePlate(item.vehiclePlate())
-                .hasFloor(item.hasFloor())
-                .routePoints(item.routePoints() == null ? null : item.routePoints().stream()
-                        .map(this::toSearchRoutePoint)
-                        .toList())
-                .build();
-    }
-
-
-    public SearchRouteResponse.SearchRouteResponseData toSearchRouteResponseData(SearchRouteItemResult item) {
-        return SearchRouteResponse.SearchRouteResponseData.builder()
-                .id(item.id())
-                .pickupBranch(item.pickupBranch())
-                .origin(item.origin())
-                .destination(item.destination())
-                .availableSeats(item.availableSeats())
-                .plannedStartTime(item.plannedStartTime())
-                .plannedEndTime(item.plannedEndTime())
-                .vehiclePlate(item.vehiclePlate())
-                .hasFloor(item.hasFloor())
-                .routeCode(item.routeCode())
-                .routePoints(item.routePoints().stream()
-                        .map(this::toSearchRoutePoint)
-                        .toList())
+    public FetchRouteResponse.AssignmentInformation toAssignmentInformation(FetchRouteResult.AssignmentRecord record) {
+        return FetchRouteResponse.AssignmentInformation.builder()
+                .vehicleId(record.vehicleId())
+                .vehiclePlate(record.vehiclePlate())
+                .vehicleTemplateName(record.vehicleTemplateName())
+                .driverId(record.driverId())
+                .driverName(record.driverName())
                 .build();
     }
 

@@ -8,6 +8,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.en
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface VehicleEntityRepository extends JpaRepository<VehicleEntity, String> {
@@ -18,6 +19,8 @@ public interface VehicleEntityRepository extends JpaRepository<VehicleEntity, St
     Optional<VehicleEntity> findByIdAndMerchantId(String id, String merchantId);
 
     List<VehicleEntity> findByIdIn(List<String> vehicleIds);
+
+    List<VehicleEntity> findByIdIn(Set<String> vehicleIds);
 
     List<VehicleEntity> findByIdInAndMerchantId(List<String> vehicleIds, String merchantId);
 

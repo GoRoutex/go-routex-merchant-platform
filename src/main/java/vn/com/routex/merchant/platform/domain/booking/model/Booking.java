@@ -20,7 +20,7 @@ public class Booking {
     private String bookingCode;
     private String routeId;
     private String customerId;
-    private Integer seatCount;
+    private Long seatCount;
     private BigDecimal totalAmount;
     private String merchantId;
     private String currency;

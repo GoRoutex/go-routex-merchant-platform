@@ -1,10 +1,10 @@
 package vn.com.routex.merchant.platform.infrastructure.persistence.adapter.driver;
 
-import lombok.experimental.UtilityClass;
+import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.driver.model.DriverProfile;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.driver.entity.DriverProfileEntity;
 
-@UtilityClass
+@Component
 public class DriverProfilePersistenceMapper {
     public DriverProfile toDomain(DriverProfileEntity entity) {
         if (entity == null) {

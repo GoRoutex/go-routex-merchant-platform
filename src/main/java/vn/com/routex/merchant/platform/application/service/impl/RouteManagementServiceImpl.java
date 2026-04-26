@@ -29,15 +29,15 @@ import vn.com.routex.merchant.platform.domain.route.model.ProvincesCodePair;
 import vn.com.routex.merchant.platform.domain.route.model.RouteAggregate;
 import vn.com.routex.merchant.platform.domain.route.model.RouteAssignmentRecord;
 import vn.com.routex.merchant.platform.domain.route.model.RouteStopPlan;
-import vn.com.routex.merchant.platform.domain.route.model.VehicleSnapshot;
 import vn.com.routex.merchant.platform.domain.route.port.RouteAggregateRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteAssignmentRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteProvincesLookupPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteQueryPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteStopRepositoryPort;
-import vn.com.routex.merchant.platform.domain.route.port.RouteVehicleRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.readmodel.RouteFetchView;
+import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
 import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleTemplate;
+import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleProfileRepositoryPort;
 import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleTemplateRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.kafka.event.RouteAssignedEvent;
 import vn.com.routex.merchant.platform.infrastructure.kafka.event.RouteSellableEvent;
@@ -75,7 +75,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
     private final RouteAggregateRepositoryPort routeAggregateRepositoryPort;
     private final RouteStopRepositoryPort routeStopRepositoryPort;
     private final RouteAssignmentRepositoryPort routeAssignmentRepositoryPort;
-    private final RouteVehicleRepositoryPort routeVehicleRepositoryPort;
+    private final VehicleProfileRepositoryPort vehicleProfileRepositoryPort;
     private final RouteProvincesLookupPort routeProvincesLookupPort;
     private final RouteQueryPort routeQueryPort;
     private final OperationPointRepositoryPort operationPointRepositoryPort;
@@ -192,7 +192,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                     ExceptionUtils.buildResultResponse(DUPLICATE_ERROR, String.format(DUPLICATE_ROUTE_ASSIGNMENT, command.routeId())));
         }
 
-        VehicleSnapshot vehicle = routeVehicleRepositoryPort.findById(command.vehicleId(), command.merchantId())
+        VehicleProfile vehicle = vehicleProfileRepositoryPort.findById(command.vehicleId(), command.merchantId())
                 .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, VEHICLE_NOT_FOUND)));
 
@@ -216,7 +216,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 assignedAt
         );
 
-        route.setStatus(RouteStatus.ASSIGNED);
+        route.setStatus(RouteStatus.PENDING_ASSIGNMENT);
         routeAggregateRepositoryPort.save(route);
         routeAssignmentRepositoryPort.save(routeAssignment);
 
@@ -229,19 +229,16 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .assignedBy(command.creator())
                 .assignedAt(routeAssignment.getAssignedAt())
                 .routeStatus(RouteStatus.ASSIGNED.name())
-                .seatCount(vehicle.getSeatCapacity())
+                .seatCount(vehicleTemplate.getSeatCapacity())
                 .hasFloor(vehicle.isHasFloor())
                 .creator(command.creator())
                 .build();
 
-
-        sLog.info("HEADERS: {}", command.context());
         outBoxService.generateEvent(routeAssignment.getRouteId(), routeTopic, routeReadyForSaleEvent, routeAssignment.getId(), sellableEvent, ApiRequestUtils.getHeader(command.context()));
 
         RouteAssignedEvent assignedEvent = RouteAssignedEvent
                 .builder()
                 .routeId(routeAssignment.getRouteId())
-                .driverUserId(routeAssignment.getDriverId()) // TODO: Get User Id from driverId
                 .driverId(routeAssignment.getDriverId())
                 .vehicleId(routeAssignment.getVehicleId())
                 .originName(route.getOrigin())
@@ -252,8 +249,6 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .assignedAt(routeAssignment.getAssignedAt())
                 .build();
 
-
-        sLog.info("HEADERS 2: {}", command.context());
         outBoxService.generateEvent(routeAssignment.getRouteId(), routeTopic, routeAssignedEvent, routeAssignment.getId(), assignedEvent, ApiRequestUtils.getHeader(command.context()));
 
         return AssignRouteResult.builder()
@@ -417,10 +412,12 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         RouteAssignmentRecord routeAssignmentRecord = routeAssignmentRepositoryPort.findByRouteIdAndMerchantId(query.routeId(), query.merchantId())
                 .orElse(null);
 
-        VehicleSnapshot vehicleSnapshot = null;
+        VehicleProfile vehicleProfile = null;
+        VehicleTemplate vehicleTemplate = null;
 
         if(routeAssignmentRecord != null) {
-            vehicleSnapshot = routeVehicleRepositoryPort.findById(routeAssignmentRecord.getVehicleId()).orElse(null);
+            vehicleProfile = vehicleProfileRepositoryPort.findById(routeAssignmentRecord.getVehicleId()).orElse(null);
+            vehicleTemplate = vehicleTemplateRepositoryPort.findById(vehicleProfile.getTemplateId()).orElse(null);
         }
 
         List<RouteStopPlan> routeStopPlans = routeStopRepositoryPort.findByRouteId(query.routeId());
@@ -455,10 +452,10 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .actualStartTime(routeAggregate.getActualStartTime())
                 .actualEndTime(routeAggregate.getActualEndTime())
                 .status(routeAggregate.getStatus())
-                .availableSeats(vehicleSnapshot != null ? vehicleSnapshot.getSeatCapacity().longValue() : null)
+                .availableSeats(vehicleTemplate != null ? vehicleTemplate.getSeatCapacity() : null)
                 .vehicleId(routeAssignmentRecord != null ? routeAssignmentRecord.getVehicleId() : null)
-                .vehiclePlate(vehicleSnapshot != null ? vehicleSnapshot.getVehiclePlate() : null)
-                .hasFloor(vehicleSnapshot != null ? vehicleSnapshot.isHasFloor() : null)
+                .vehiclePlate(vehicleProfile != null ? vehicleProfile.getVehiclePlate() : null)
+                .hasFloor(vehicleProfile != null ? vehicleProfile.isHasFloor() : null)
                 .assignedAt(routeAssignmentRecord != null ? routeAssignmentRecord.getAssignedAt() : null)
                 .routePoints(routePointResults)
                 .build();
@@ -496,11 +493,16 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .actualEndTime(view.getActualEndTime())
                 .status(view.getStatus())
                 .availableSeats(view.getAvailableSeats())
-                .vehicleId(view.getVehicleId())
-                .vehiclePlate(view.getVehiclePlate())
                 .hasFloor(view.getHasFloor())
                 .assignedAt(view.getAssignedAt())
                 .routePoints(view.getRoutePoints())
+                .assignmentRecord(FetchRouteResult.AssignmentRecord.builder()
+                        .vehicleId(view.getAssignmentResult().getVehicleId())
+                        .vehiclePlate(view.getAssignmentResult().getVehiclePlate())
+                        .vehicleTemplateName(view.getAssignmentResult().getVehicleTemplateName())
+                        .driverId(view.getAssignmentResult().getDriverId())
+                        .driverName(view.getAssignmentResult().getDriverName())
+                        .build())
                 .build();
     }
 

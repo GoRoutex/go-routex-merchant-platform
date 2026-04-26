@@ -2,9 +2,9 @@ package vn.com.routex.merchant.platform.domain.assignment;
 
 
 public enum RouteAssignmentStatus {
-
     ASSIGNED,
+    PENDING_ASSIGNMENT,
     IN_PROGRESS,
-    DONE,
+    COMPLETED,
     CANCELED
 }

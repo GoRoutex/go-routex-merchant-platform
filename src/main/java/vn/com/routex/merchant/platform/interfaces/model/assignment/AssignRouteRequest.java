@@ -40,5 +40,10 @@ public class AssignRouteRequest extends BaseRequest {
         @NotNull
         @NotBlank
         private String vehicleId;
+
+
+        @NotNull
+        @NotBlank
+        private String driverId;
     }
 }

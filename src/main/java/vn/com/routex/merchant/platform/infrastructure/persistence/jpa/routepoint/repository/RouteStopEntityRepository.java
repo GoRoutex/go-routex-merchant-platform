@@ -17,5 +17,6 @@ public interface RouteStopEntityRepository extends JpaRepository<RouteStopEntity
     List<RouteStopEntity> findByRouteIdIn(List<String> routeIds);
 
     Optional<RouteStopEntity> findByRouteIdAndStopOrder(String routeId, String stopOrder);
+
 }
 

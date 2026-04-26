@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.route.model.RouteAggregate;
 import vn.com.routex.merchant.platform.domain.route.model.RouteAssignmentRecord;
 import vn.com.routex.merchant.platform.domain.route.model.RouteStopPlan;
-import vn.com.routex.merchant.platform.domain.route.model.VehicleSnapshot;
+import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.assignment.entity.RouteAssignmentEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.entity.RouteStopEntity;
@@ -12,7 +12,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.en
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.entity.VehicleTemplateEntity;
 
 @Component
-final class RoutePersistenceMapper {
+public class RoutePersistenceMapper {
 
     public RouteAggregate toAggregate(RouteEntity route) {
         return RouteAggregate.builder()
@@ -134,12 +134,11 @@ final class RoutePersistenceMapper {
                 .build();
     }
 
-    public VehicleSnapshot toVehicleSnapshot(VehicleEntity vehicle, VehicleTemplateEntity template) {
-        return VehicleSnapshot.builder()
+    public VehicleProfile toVehicleProfile(VehicleEntity vehicle, VehicleTemplateEntity template) {
+        return VehicleProfile.builder()
                 .id(vehicle.getId())
                 .vehiclePlate(vehicle.getVehiclePlate())
                 .templateId(template.getId())
-                .seatCapacity(template == null || template.getSeatCapacity() == null ? null : template.getSeatCapacity().intValue())
                 .hasFloor(template != null && template.isHasFloor())
                 .build();
     }

@@ -1,4 +1,4 @@
-package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity;
+package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.seat.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,6 +28,9 @@ public class RouteSeatEntity extends AbstractAuditingEntity {
 
     @Column(name = "ROUTE_ID")
     private String routeId;
+
+    @Column(name = "SEAT_TEMPLATE_ID")
+    private String seatTemplateId;
 
     @Column(name = "SEAT_NO")
     private String seatNo;

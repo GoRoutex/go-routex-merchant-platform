@@ -1,11 +1,11 @@
-package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.repository;
+package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.seat.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteSeatEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.projection.RouteSeatAvailabilityProjection;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.seat.entity.RouteSeatEntity;
 
 import java.util.List;
 

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.route.port.RouteSeatAvailabilityPort;
 import vn.com.routex.merchant.platform.domain.seat.SeatStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.projection.RouteSeatAvailabilityProjection;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.repository.RouteSeatEntityRepository;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.seat.repository.RouteSeatEntityRepository;
 
 import java.util.List;
 import java.util.Map;

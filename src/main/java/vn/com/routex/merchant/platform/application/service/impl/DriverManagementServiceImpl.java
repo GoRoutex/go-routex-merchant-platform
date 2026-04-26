@@ -139,7 +139,7 @@ public class DriverManagementServiceImpl implements DriverManagementService {
                 query.context().requestId(), query.context().requestDateTime(), query.context().channel());
         int pageNumber = ApiRequestUtils.parseIntOrDefault(query.pageNumber(), DEFAULT_PAGE_NUMBER, "pageNumber",
                 query.context().requestId(), query.context().requestDateTime(), query.context().channel());
-        DriverStatus status = parseDriverStatus(query.status(), null);
+        OperationStatus operationStatus = parseOperationStatus(query.status(), null);
 
         if (pageSize < 1 || pageSize > 100) {
             throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
@@ -150,9 +150,9 @@ public class DriverManagementServiceImpl implements DriverManagementService {
                     ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_NUMBER));
         }
 
-        PagedResult<DriverProfile> page = status == null
+        PagedResult<DriverProfile> page = operationStatus == null
                 ? driverProfileRepositoryPort.fetch(query.merchantId(), pageNumber - 1, pageSize)
-                : driverProfileRepositoryPort.fetch(query.merchantId(), status, pageNumber - 1, pageSize);
+                : driverProfileRepositoryPort.fetch(query.merchantId(), operationStatus, pageNumber - 1, pageSize);
         List<FetchDriversResult.FetchDriverItemResult> items = page.getItems().stream()
                 .map(item -> {
 

@@ -7,6 +7,7 @@ import vn.com.routex.merchant.platform.domain.route.port.RouteStopRepositoryPort
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.entity.RouteStopEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.repository.RouteStopEntityRepository;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class RouteStopRepositoryAdapter implements RouteStopRepositoryPort {
 
     @Override
     public List<RouteStopPlan> findByRouteId(String routeId) {
-        List<RouteStopPlan> stopPlans = new java.util.ArrayList<>(routeStopEntityRepository.findAllByRouteId(routeId).stream()
+        List<RouteStopPlan> stopPlans = new ArrayList<>(routeStopEntityRepository.findAllByRouteId(routeId).stream()
                 .map(routePersistenceMapper::toStopPlan)
                 .toList());
         stopPlans.sort(Comparator.comparingInt(RouteStopPlan::getStopOrder));

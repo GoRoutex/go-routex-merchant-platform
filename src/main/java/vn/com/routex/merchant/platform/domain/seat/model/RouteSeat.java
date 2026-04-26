@@ -23,6 +23,7 @@ public class RouteSeat {
 
     private String id;
     private String routeId;
+    private String seatTemplateId;
     private String seatNo;
     private SeatStatus status;
     private String ticketId;

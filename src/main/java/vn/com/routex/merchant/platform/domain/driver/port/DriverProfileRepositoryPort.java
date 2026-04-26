@@ -2,11 +2,12 @@ package vn.com.routex.merchant.platform.domain.driver.port;
 
 
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
-import vn.com.routex.merchant.platform.domain.driver.DriverStatus;
+import vn.com.routex.merchant.platform.domain.driver.OperationStatus;
 import vn.com.routex.merchant.platform.domain.driver.model.DriverProfile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Domain repository port (no Spring Data/JPA dependency).
@@ -22,7 +23,9 @@ public interface DriverProfileRepositoryPort {
     boolean existsByEmployeeCode(String employeeCode, String merchantId);
     List<DriverProfile> findByMerchantId(String merchantId);
     PagedResult<DriverProfile> fetch(String merchantId, int pageNumber, int pageSize);
-    PagedResult<DriverProfile> fetch(String merchantId, DriverStatus status, int pageNumber, int pageSize);
+    PagedResult<DriverProfile> fetch(String merchantId, OperationStatus status, int pageNumber, int pageSize);
 
     DriverProfile save(DriverProfile profile);
+
+    List<DriverProfile> findByIdIn(Set<String> vehicleIds);
 }

@@ -23,6 +23,17 @@ public record FetchRouteResult(
         String vehiclePlate,
         Boolean hasFloor,
         OffsetDateTime assignedAt,
+        AssignmentRecord assignmentRecord,
         List<RoutePointResult> routePoints
 ) {
+
+
+    @Builder
+    public record AssignmentRecord(
+            String vehicleId,
+            String vehiclePlate,
+            String vehicleTemplateName,
+            String driverId,
+            String driverName
+    ) {}
 }

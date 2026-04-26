@@ -47,8 +47,14 @@ public class RouteAssignmentRecord extends AbstractAuditingEntity {
                 .vehicleId(vehicleId)
                 .assignedAt(assignedAt)
                 .ticketPrice(ticketPrice)
-                .status(RouteAssignmentStatus.ASSIGNED)
+                .status(RouteAssignmentStatus.PENDING_ASSIGNMENT)
                 .build();
+    }
+
+    public void complete(String actor, OffsetDateTime at) {
+        this.status = RouteAssignmentStatus.COMPLETED;
+        this.setUpdatedAt(at);
+        this.setUpdatedBy(actor);
     }
 
     public void cancel(String actor, OffsetDateTime at) {

@@ -4,7 +4,9 @@ import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface VehicleProfileRepositoryPort {
     boolean existsByVehiclePlate(String vehiclePlate);
@@ -22,4 +24,10 @@ public interface VehicleProfileRepositoryPort {
     PagedResult<VehicleProfile> fetch(int pageNumber, int pageSize);
 
     PagedResult<VehicleProfile> fetch(String merchantId, int pageNumber, int pageSize);
+
+    Map<String, VehicleProfile> findByIds(List<String> vehicleIds);
+
+    Map<String, VehicleProfile> findByIds(List<String> vehicleIds, String merchantId);
+
+    List<VehicleProfile> findByIdIn(Set<String> vehicleIds);
 }

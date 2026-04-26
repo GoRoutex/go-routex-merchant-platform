@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
-import vn.com.routex.merchant.platform.domain.driver.DriverStatus;
+import vn.com.routex.merchant.platform.domain.driver.OperationStatus;
 import vn.com.routex.merchant.platform.domain.driver.model.DriverProfile;
 import vn.com.routex.merchant.platform.domain.driver.port.DriverProfileRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.driver.entity.DriverProfileEntity;
@@ -13,38 +13,40 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.driver.rep
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 public class DriverProfileRepositoryAdapter implements DriverProfileRepositoryPort {
     private final DriverProfileEntityRepository driverProfileEntityRepository;
+    private final DriverProfilePersistenceMapper driverProfilePersistenceMapper;
 
     @Override
     public Optional<DriverProfile> findById(String id) {
-        return driverProfileEntityRepository.findById(id).map(DriverProfilePersistenceMapper::toDomain);
+        return driverProfileEntityRepository.findById(id).map(driverProfilePersistenceMapper::toDomain);
     }
 
     @Override
     public Optional<DriverProfile> findById(String id, String merchantId) {
         return driverProfileEntityRepository.findByIdAndMerchantId(id, merchantId)
-                .map(DriverProfilePersistenceMapper::toDomain);
+                .map(driverProfilePersistenceMapper::toDomain);
     }
 
     @Override
     public Optional<DriverProfile> findByUserId(String userId) {
-        return driverProfileEntityRepository.findByUserId(userId).map(DriverProfilePersistenceMapper::toDomain);
+        return driverProfileEntityRepository.findByUserId(userId).map(driverProfilePersistenceMapper::toDomain);
     }
 
     @Override
     public Optional<DriverProfile> findByUserId(String userId, String merchantId) {
         return driverProfileEntityRepository.findByUserIdAndMerchantId(userId, merchantId)
-                .map(DriverProfilePersistenceMapper::toDomain);
+                .map(driverProfilePersistenceMapper::toDomain);
     }
 
     @Override
     public Optional<DriverProfile> findByEmployeeCode(String employeeCode, String merchantId) {
         return driverProfileEntityRepository.findByEmployeeCodeAndMerchantId(employeeCode, merchantId)
-                .map(DriverProfilePersistenceMapper::toDomain);
+                .map(driverProfilePersistenceMapper::toDomain);
     }
 
     @Override
@@ -60,7 +62,7 @@ public class DriverProfileRepositoryAdapter implements DriverProfileRepositoryPo
     @Override
     public List<DriverProfile> findByMerchantId(String merchantId) {
         return driverProfileEntityRepository.findByMerchantId(merchantId).stream()
-                .map(DriverProfilePersistenceMapper::toDomain)
+                .map(driverProfilePersistenceMapper::toDomain)
                 .toList();
     }
 
@@ -71,8 +73,8 @@ public class DriverProfileRepositoryAdapter implements DriverProfileRepositoryPo
     }
 
     @Override
-    public PagedResult<DriverProfile> fetch(String merchantId, DriverStatus status, int pageNumber, int pageSize) {
-        Page<DriverProfileEntity> page = driverProfileEntityRepository.findByMerchantIdAndStatus(
+    public PagedResult<DriverProfile> fetch(String merchantId, OperationStatus status, int pageNumber, int pageSize) {
+        Page<DriverProfileEntity> page = driverProfileEntityRepository.findByMerchantIdAndOperationStatus(
                 merchantId,
                 status,
                 PageRequest.of(pageNumber, pageSize)
@@ -82,7 +84,7 @@ public class DriverProfileRepositoryAdapter implements DriverProfileRepositoryPo
 
     private PagedResult<DriverProfile> toPagedResult(Page<DriverProfileEntity> page) {
         List<DriverProfile> items = page.getContent().stream()
-                .map(DriverProfilePersistenceMapper::toDomain)
+                .map(driverProfilePersistenceMapper::toDomain)
                 .toList();
 
 
@@ -96,6 +98,14 @@ public class DriverProfileRepositoryAdapter implements DriverProfileRepositoryPo
     }
     @Override
     public DriverProfile save(DriverProfile profile) {
-        return DriverProfilePersistenceMapper.toDomain(driverProfileEntityRepository.save(DriverProfilePersistenceMapper.toEntity(profile)));
+        return driverProfilePersistenceMapper.toDomain(driverProfileEntityRepository.save(driverProfilePersistenceMapper.toEntity(profile)));
+    }
+
+    @Override
+    public List<DriverProfile> findByIdIn(Set<String> vehicleIds) {
+        return driverProfileEntityRepository.findByIdIn(vehicleIds)
+                .stream()
+                .map(driverProfilePersistenceMapper::toDomain)
+                .toList();
     }
 }

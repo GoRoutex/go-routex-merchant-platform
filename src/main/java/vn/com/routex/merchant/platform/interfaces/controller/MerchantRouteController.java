@@ -337,6 +337,7 @@ public class MerchantRouteController {
                 .creator(request.getData().getCreator())
                 .routeId(request.getData().getRouteId())
                 .vehicleId(request.getData().getVehicleId())
+                .driverId(request.getData().getDriverId())
                 .context(HttpUtils.toContext(request, merchantId))
                 .build());
 

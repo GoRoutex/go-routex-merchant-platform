@@ -9,6 +9,7 @@ public record AddVehicleCommand(
         String merchantId,
         String creator,
         String templateId,
+        boolean hasFloor,
         String vehiclePlate
 ) {
 }

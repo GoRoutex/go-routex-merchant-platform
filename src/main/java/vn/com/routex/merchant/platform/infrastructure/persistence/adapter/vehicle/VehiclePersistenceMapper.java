@@ -1,12 +1,11 @@
 package vn.com.routex.merchant.platform.infrastructure.persistence.adapter.vehicle;
 
 
-import lombok.experimental.UtilityClass;
+import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.entity.VehicleEntity;
 
-
-@UtilityClass
+@Component
 public class VehiclePersistenceMapper {
 
     public VehicleProfile toDomain(VehicleEntity entity) {
