@@ -27,6 +27,7 @@ import vn.com.routex.merchant.platform.application.command.vehicle.FetchVehicles
 import vn.com.routex.merchant.platform.application.command.vehicle.UpdateVehicleCommand;
 import vn.com.routex.merchant.platform.application.command.vehicle.UpdateVehicleResult;
 import vn.com.routex.merchant.platform.application.service.VehicleManagementService;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.HttpUtils;
 import vn.com.routex.merchant.platform.interfaces.factory.ApiResultFactory;
@@ -174,7 +175,8 @@ public class MerchantVehicleController {
     public ResponseEntity<FetchVehicleResponse> fetchVehicles(
             HttpServletRequest servletRequest,
             @RequestParam(defaultValue = "1") int pageNumber,
-            @RequestParam(defaultValue = "10") int pageSize
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) VehicleStatus status
     ) {
         BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
         String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, baseRequest);
@@ -184,6 +186,7 @@ public class MerchantVehicleController {
                 .pageNumber(String.valueOf(pageNumber))
                 .pageSize(String.valueOf(pageSize))
                 .merchantId(merchantId)
+                .status(status)
                 .build());
 
         List<FetchVehicleResponse.FetchVehicleResponseData> items = result.items().stream()

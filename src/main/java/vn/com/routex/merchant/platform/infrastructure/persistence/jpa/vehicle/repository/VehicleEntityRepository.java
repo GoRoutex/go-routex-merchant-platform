@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.entity.VehicleEntity;
 
 import java.util.List;
@@ -25,6 +26,8 @@ public interface VehicleEntityRepository extends JpaRepository<VehicleEntity, St
     List<VehicleEntity> findByIdInAndMerchantId(List<String> vehicleIds, String merchantId);
 
     List<VehicleEntity> findByMerchantId(String merchantId);
+
+    Page<VehicleEntity> findByMerchantIdAndStatus(String merchantId, VehicleStatus status, Pageable pageable);
 
     Page<VehicleEntity> findByMerchantId(String merchantId, Pageable pageable);
 

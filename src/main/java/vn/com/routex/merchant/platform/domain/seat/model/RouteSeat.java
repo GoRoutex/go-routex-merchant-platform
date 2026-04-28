@@ -20,15 +20,11 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 public class RouteSeat {
-
     private String id;
     private String routeId;
-    private String seatTemplateId;
     private String seatNo;
     private SeatStatus status;
-    private String ticketId;
-    private OffsetDateTime holdUntil;
-    private String holdBy;
     private String creator;
+    private String seatTemplateId;
 }
 

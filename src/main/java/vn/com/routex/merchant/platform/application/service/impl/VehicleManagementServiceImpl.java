@@ -123,7 +123,13 @@ public class VehicleManagementServiceImpl implements VehicleManagementService {
 
         validatePaging(query, pageSize, pageNumber);
 
-        PagedResult<VehicleProfile> page = vehicleProfileRepositoryPort.fetch(query.merchantId(), pageNumber - 1, pageSize);
+
+        PagedResult<VehicleProfile> page = null;
+        if(query.status() != null) {
+             page = vehicleProfileRepositoryPort.fetch(query.merchantId(), query.status(), pageNumber - 1, pageSize);
+        } else {
+            page = vehicleProfileRepositoryPort.fetch(query.merchantId(), pageNumber - 1, pageSize);
+        }
         Map<String, VehicleTemplate> templatesById = vehicleTemplateRepositoryPort.findByIds(page.getItems().stream()
                 .map(VehicleProfile::getTemplateId)
                 .distinct()

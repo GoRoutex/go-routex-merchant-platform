@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
 import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
 import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleProfileRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.adapter.route.RoutePersistenceMapper;
@@ -108,6 +109,12 @@ public class VehicleProfileRepositoryAdapter implements VehicleProfileRepository
     @Override
     public PagedResult<VehicleProfile> fetch(int pageNumber, int pageSize) {
         Page<VehicleEntity> page = vehicleEntityRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        return toPagedResult(page);
+    }
+
+    @Override
+    public PagedResult<VehicleProfile> fetch(String merchantId, VehicleStatus status, int pageNumber, int pageSize) {
+        Page<VehicleEntity> page = vehicleEntityRepository.findByMerchantIdAndStatus(merchantId, status, PageRequest.of(pageNumber, pageSize));
         return toPagedResult(page);
     }
 

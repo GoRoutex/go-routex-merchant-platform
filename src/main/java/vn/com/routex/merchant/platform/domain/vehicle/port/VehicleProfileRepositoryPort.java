@@ -1,6 +1,7 @@
 package vn.com.routex.merchant.platform.domain.vehicle.port;
 
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.vehicle.VehicleStatus;
 import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
 
 import java.util.List;
@@ -22,6 +23,8 @@ public interface VehicleProfileRepositoryPort {
     void save(VehicleProfile vehicleProfile);
 
     PagedResult<VehicleProfile> fetch(int pageNumber, int pageSize);
+
+    PagedResult<VehicleProfile> fetch(String merchantId, VehicleStatus status, int pageNumber, int pageSize);
 
     PagedResult<VehicleProfile> fetch(String merchantId, int pageNumber, int pageSize);
 
