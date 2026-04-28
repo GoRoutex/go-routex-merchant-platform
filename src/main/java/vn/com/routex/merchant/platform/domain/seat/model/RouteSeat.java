@@ -7,8 +7,6 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.domain.seat.SeatStatus;
 
-import java.time.OffsetDateTime;
-
 /**
  * Domain model for route seat.
  * Persistence concerns (JPA annotations, table/column mapping) live in infrastructure layer:

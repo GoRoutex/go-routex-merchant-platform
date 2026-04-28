@@ -14,8 +14,6 @@ import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.domain.seat.SeatStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.AbstractAuditingEntity;
 
-import java.math.BigDecimal;
-
 @Getter
 @Setter
 @AllArgsConstructor
