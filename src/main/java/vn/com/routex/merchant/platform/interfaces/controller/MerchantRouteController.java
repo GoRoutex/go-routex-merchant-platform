@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import vn.com.go.routex.identity.security.log.SystemLog;
-import vn.com.routex.merchant.platform.application.command.route.AssignRouteCommand;
-import vn.com.routex.merchant.platform.application.command.route.AssignRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.CreateRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.CreateRouteResult;
 import vn.com.routex.merchant.platform.application.command.route.DeleteRouteCommand;
@@ -33,8 +31,6 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiReque
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.HttpUtils;
 import vn.com.routex.merchant.platform.interfaces.factory.ApiResultFactory;
 import vn.com.routex.merchant.platform.interfaces.mapper.RouteResponseMapper;
-import vn.com.routex.merchant.platform.interfaces.model.assignment.AssignRouteRequest;
-import vn.com.routex.merchant.platform.interfaces.model.assignment.AssignRouteResponse;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseRequest;
 import vn.com.routex.merchant.platform.interfaces.model.route.CreateRouteRequest;
 import vn.com.routex.merchant.platform.interfaces.model.route.CreateRouteResponse;
@@ -46,14 +42,12 @@ import vn.com.routex.merchant.platform.interfaces.model.route.SearchRouteRespons
 import vn.com.routex.merchant.platform.interfaces.model.route.UpdateRouteRequest;
 import vn.com.routex.merchant.platform.interfaces.model.route.UpdateRouteResponse;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_VERSION;
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.ASSIGNMENT_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.CREATE_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DELETE_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DETAIL_PATH;
@@ -109,14 +103,10 @@ public class MerchantRouteController {
                         .builder()
                         .id(result.id())
                         .creator(result.creator())
-                        .pickupBranch(result.pickupBranch())
-                        .routeCode(result.routeCode())
-                        .origin(result.origin())
-                        .destination(result.destination())
-                        .plannedStartTime(result.plannedStartTime())
-                        .plannedEndTime(result.plannedEndTime())
-                        .actualStartTime(result.actualStartTime())
-                        .actualEndTime(result.actualEndTime())
+                        .originCode(result.originCode())
+                        .originName(result.originName())
+                        .destinationCode(result.destinationCode())
+                        .destinationName(result.destinationName())
                         .status(result.status())
                         .availableSeats(result.availableSeats())
                         .vehicleId(result.vehicleId())
@@ -132,8 +122,6 @@ public class MerchantRouteController {
                             .id(point.id())
                             .operationOrder(point.operationOrder())
                             .routeId(point.routeId())
-                            .plannedArrivalTime(point.plannedArrivalTime())
-                            .plannedDepartureTime(point.plannedDepartureTime())
                             .note(point.note())
                             .operationPointId(point.operationPointId())
                             .stopName(point.stopName())
@@ -198,8 +186,6 @@ public class MerchantRouteController {
                     point -> UpdateRouteCommand.UpdateRoutePointCommand.builder()
                             .id(point.getId())
                             .operationOrder(point.getOperationOrder())
-                            .plannedArrivalTime(OffsetDateTime.parse(point.getPlannedArrivalTime()))
-                            .plannedDepartureTime(OffsetDateTime.parse(point.getPlannedDepartureTime()))
                             .note(point.getNote())
                             .build()
             ).toList();
@@ -209,13 +195,8 @@ public class MerchantRouteController {
                 .context(HttpUtils.toContext(request, merchantId))
                 .routeId(request.getRouteId())
                 .creator(request.getCreator())
-                .pickupBranch(request.getData().getPickupBranch())
-                .origin(request.getData().getOrigin())
-                .destination(request.getData().getDestination())
-                .plannedStartTime(OffsetDateTime.parse(request.getData().getPlannedStartTime()))
-                .plannedEndTime(OffsetDateTime.parse(request.getData().getPlannedEndTime()))
-                .actualStartTime(OffsetDateTime.parse(request.getData().getActualStartTime()))
-                .actualEndTime(OffsetDateTime.parse(request.getData().getActualEndTime()))
+                .originName(request.getData().getOriginName())
+                .destinationName(request.getData().getDestinationName())
                 .status(request.getData().getStatus())
                 .routePoints(routePointCommandList)
                 .build());
@@ -224,20 +205,15 @@ public class MerchantRouteController {
                 .routeId(result.routeId())
                 .creator(result.creator())
                 .data(UpdateRouteResponse.UpdateRouteResponseData.builder()
-                        .pickupBranch(result.pickupBranch())
-                        .origin(result.origin())
-                        .destination(result.destination())
-                        .plannedStartTime(result.plannedStartTime())
-                        .plannedEndTime(result.plannedEndTime())
-                        .actualStartTime(result.actualStartTime())
-                        .actualEndTime(result.actualEndTime())
+                        .originCode(result.originCode())
+                        .originName(result.originName())
+                        .destinationCode(result.destinationCode())
+                        .destinationName(result.destinationName())
                         .status(result.status())
                         .routePoints(result.routePoints() == null ? null : result.routePoints().stream().map(
                                 point -> UpdateRouteResponse.UpdateRoutePointResponse.builder()
                                         .id(point.id())
                                         .operationOrder(point.operationOrder())
-                                        .plannedArrivalTime(point.plannedArrivalTime())
-                                        .plannedDepartureTime(point.plannedDepartureTime())
                                         .note(point.note())
                                         .build()
                         ).collect(Collectors.toList()))
@@ -258,8 +234,6 @@ public class MerchantRouteController {
             routePointCommands = request.getData().getOperationPoints().stream()
                     .map(point -> RoutePointCommand.builder()
                             .operationOrder(point.getOperationOrder())
-                            .plannedArrivalTime(point.getPlannedArrivalTime())
-                            .plannedDepartureTime(point.getPlannedDepartureTime())
                             .note(point.getNote())
                             .operationPointId(point.getOperationPointId())
                             .stopName(point.getStopName())
@@ -275,11 +249,8 @@ public class MerchantRouteController {
                 .context(HttpUtils.toContext(request, merchantId))
                 .merchantId(merchantId)
                 .creator(request.getData().getCreator())
-                .pickupBranch(request.getData().getPickupBranch())
-                .origin(request.getData().getOrigin())
-                .destination(request.getData().getDestination())
-                .plannedStartTime(request.getData().getPlannedStartTime())
-                .plannedEndTime(request.getData().getPlannedEndTime())
+                .originName(request.getData().getOriginName())
+                .destinationName(request.getData().getDestinationName())
                 .routePoints(routePointCommands)
                 .build());
 
@@ -290,8 +261,6 @@ public class MerchantRouteController {
                     .map(point -> {
                         CreateRouteRequest.RoutePoints rp = new CreateRouteRequest.RoutePoints();
                         rp.setOperationOrder(point.operationOrder());
-                        rp.setPlannedArrivalTime(point.plannedArrivalTime());
-                        rp.setPlannedDepartureTime(point.plannedDepartureTime());
                         rp.setNote(point.note());
                         rp.setOperationPointId(point.operationPointId());
                         rp.setStopName(point.stopName());
@@ -312,12 +281,10 @@ public class MerchantRouteController {
                 .data(CreateRouteResponse.CreateRouteResponseData.builder()
                         .id(result.id())
                         .creator(result.creator())
-                        .pickupBranch(result.pickupBranch())
-                        .routeCode(result.routeCode())
-                        .origin(result.origin())
-                        .destination(result.destination())
-                        .plannedStartTime(result.plannedStartTime())
-                        .plannedEndTime(result.plannedEndTime())
+                        .originCode(result.originCode())
+                        .destinationCode(result.destinationCode())
+                        .originName(result.originName())
+                        .destinationName(result.destinationName())
                         .status(result.status())
                         .routePoints(routePointResponses)
                         .build())
@@ -327,37 +294,37 @@ public class MerchantRouteController {
         return HttpUtils.buildResponse(request, response);
     }
 
-    @PostMapping(ASSIGNMENT_PATH)
-    public ResponseEntity<AssignRouteResponse> assignRoute(@Valid @RequestBody AssignRouteRequest request,
-                                                           HttpServletRequest servletRequest) {
-        sLog.info("[ASSIGN-ROUTE] Assign Route Request: {}", request);
-        String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, request);
-        AssignRouteResult result = routeManagementService.assignRoute(AssignRouteCommand.builder()
-                .merchantId(merchantId)
-                .creator(request.getData().getCreator())
-                .routeId(request.getData().getRouteId())
-                .vehicleId(request.getData().getVehicleId())
-                .driverId(request.getData().getDriverId())
-                .context(HttpUtils.toContext(request, merchantId))
-                .build());
-
-        AssignRouteResponse response = AssignRouteResponse.builder()
-                .requestId(request.getRequestId())
-                .requestDateTime(request.getRequestDateTime())
-                .channel(request.getChannel())
-                .result(apiResultFactory.buildSuccess())
-                .data(AssignRouteResponse.AssignRouteResponseData.builder()
-                        .creator(result.creator())
-                        .routeId(result.routeId())
-                        .vehicleId(result.vehicleId())
-                        .assignedAt(result.assignedAt())
-                        .status(result.status())
-                        .build())
-                .build();
-
-        sLog.info("[ASSIGN-ROUTE] Assign Route Response: {}", response);
-        return HttpUtils.buildResponse(request, response);
-    }
+//    @PostMapping(ASSIGNMENT_PATH)
+//    public ResponseEntity<AssignRouteResponse> assignRoute(@Valid @RequestBody AssignRouteRequest request,
+//                                                           HttpServletRequest servletRequest) {
+//        sLog.info("[ASSIGN-ROUTE] Assign Route Request: {}", request);
+//        String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, request);
+//        AssignRouteResult result = routeManagementService.assignRoute(AssignRouteCommand.builder()
+//                .merchantId(merchantId)
+//                .creator(request.getData().getCreator())
+//                .routeId(request.getData().getRouteId())
+//                .vehicleId(request.getData().getVehicleId())
+//                .driverId(request.getData().getDriverId())
+//                .context(HttpUtils.toContext(request, merchantId))
+//                .build());
+//
+//        AssignRouteResponse response = AssignRouteResponse.builder()
+//                .requestId(request.getRequestId())
+//                .requestDateTime(request.getRequestDateTime())
+//                .channel(request.getChannel())
+//                .result(apiResultFactory.buildSuccess())
+//                .data(AssignRouteResponse.AssignRouteResponseData.builder()
+//                        .creator(result.creator())
+//                        .routeId(result.routeId())
+//                        .vehicleId(result.vehicleId())
+//                        .assignedAt(result.assignedAt())
+//                        .status(result.status())
+//                        .build())
+//                .build();
+//
+//        sLog.info("[ASSIGN-ROUTE] Assign Route Response: {}", response);
+//        return HttpUtils.buildResponse(request, response);
+//    }
 
     @PostMapping(DELETE_PATH)
     public ResponseEntity<DeleteRouteResponse> deleteRoute(@Valid @RequestBody DeleteRouteRequest request,
@@ -377,7 +344,6 @@ public class MerchantRouteController {
                 .data(DeleteRouteResponse.DeleteRouteResponseData.builder()
                         .creator(result.creator())
                         .routeId(result.routeId())
-                        .routeCode(result.routeCode())
                         .status(result.status())
                         .updatedAt(result.updatedAt())
                         .build())

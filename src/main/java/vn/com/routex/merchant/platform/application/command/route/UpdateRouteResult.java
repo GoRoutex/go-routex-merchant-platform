@@ -11,13 +11,10 @@ import java.util.List;
 public record UpdateRouteResult(
         String routeId,
         String creator,
-        String pickupBranch,
-        String origin,
-        String destination,
-        OffsetDateTime plannedStartTime,
-        OffsetDateTime plannedEndTime,
-        OffsetDateTime actualStartTime,
-        OffsetDateTime actualEndTime,
+        String originCode,
+        String originName,
+        String destinationCode,
+        String destinationName,
         RouteStatus status,
         List<UpdateRoutePointResult> routePoints
 ) {
@@ -25,8 +22,6 @@ public record UpdateRouteResult(
     public record UpdateRoutePointResult(
             String id,
             String operationOrder,
-            OffsetDateTime plannedArrivalTime,
-            OffsetDateTime plannedDepartureTime,
             String note
     ) {
 

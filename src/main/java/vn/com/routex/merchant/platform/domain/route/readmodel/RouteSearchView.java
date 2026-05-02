@@ -15,10 +15,8 @@ import java.time.OffsetDateTime;
 @SuperBuilder
 public class RouteSearchView {
     private String id;
-    private String routeCode;
-    private String pickupBranch;
-    private String origin;
-    private String destination;
-    private OffsetDateTime plannedStartTime;
-    private OffsetDateTime plannedEndTime;
+    private String originCode;
+    private String originName;
+    private String destinationCode;
+    private String destinationName;
 }

@@ -39,27 +39,13 @@ public class CreateRouteRequest extends BaseRequest {
         @NotNull
         private String creator;
 
-        @NotNull
         @NotBlank
-        private String pickupBranch;
+        @NotNull
+        private String originName;
 
         @NotBlank
         @NotNull
-        private String origin;
-
-        @NotBlank
-        @NotNull
-        private String destination;
-
-        @NotBlank
-        @NotNull
-        @Pattern(regexp = OFFSET_DATE_TIME_REGEX, message= "must be in format of yyyy-MM-ddTHH:mm:ss+timezone e.g. 2026-03-03T14:30:00+07:00")
-        private String plannedStartTime;
-
-        @NotBlank
-        @NotNull
-        @Pattern(regexp = OFFSET_DATE_TIME_REGEX, message= "must be in format of yyyy-MM-ddTHH:mm:ss+timezone e.g. 2026-03-03T14:30:00+07:00")
-        private String plannedEndTime;
+        private String destinationName;
 
         private List<RoutePoints> operationPoints;
     }
@@ -71,13 +57,7 @@ public class CreateRouteRequest extends BaseRequest {
     @SuperBuilder
     public static class RoutePoints {
         private String operationOrder;
-        @Pattern(regexp = OFFSET_DATE_TIME_REGEX, message= "must be in format of yyyy-MM-ddTHH:mm:ss+timezone e.g. 2026-03-03T14:30:00+07:00")
-        private String plannedArrivalTime;
-        @Pattern(regexp = OFFSET_DATE_TIME_REGEX, message= "must be in format of yyyy-MM-ddTHH:mm:ss+timezone e.g. 2026-03-03T14:30:00+07:00")
-        private String plannedDepartureTime;
         private String note;
-        // Either reference an existing OperationPoint or provide a custom stop.
-        // Exactly one of (operationPointId) or (stopName) must be provided.
         private String operationPointId;
         private String stopName;
         private String stopAddress;

@@ -1,8 +1,8 @@
 package vn.com.routex.merchant.platform.domain.route.port;
 
 
-import vn.com.routex.merchant.platform.domain.route.model.ProvincesCodePair;
+import vn.com.routex.merchant.platform.domain.route.model.ProvincesInformationPair;
 
 public interface RouteProvincesLookupPort {
-    ProvincesCodePair getCodes(String origin, String destination);
+    ProvincesInformationPair getCodes(String origin, String destination);
 }

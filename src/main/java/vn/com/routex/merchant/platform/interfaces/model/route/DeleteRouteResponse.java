@@ -21,7 +21,6 @@ public class DeleteRouteResponse extends BaseResponse<DeleteRouteResponse.Delete
     public static class DeleteRouteResponseData {
         private String creator;
         private String routeId;
-        private String routeCode;
         private String status;
         private OffsetDateTime updatedAt;
     }

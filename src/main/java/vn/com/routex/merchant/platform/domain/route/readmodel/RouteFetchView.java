@@ -17,15 +17,11 @@ import java.util.List;
 @SuperBuilder
 public class RouteFetchView {
     private String id;
-    private String routeCode;
     private String creator;
-    private String pickupBranch;
-    private String origin;
-    private String destination;
-    private OffsetDateTime plannedStartTime;
-    private OffsetDateTime plannedEndTime;
-    private OffsetDateTime actualStartTime;
-    private OffsetDateTime actualEndTime;
+    private String originCode;
+    private String originName;
+    private String destinationCode;
+    private String destinationName;
     private String status;
     private Long availableSeats;
     private Boolean hasFloor;

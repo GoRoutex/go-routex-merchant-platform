@@ -34,18 +34,6 @@ public class RouteStopEntity extends AbstractAuditingEntity {
     @Column(name = "STOP_ORDER")
     private String stopOrder;
 
-    @Column(name = "PLANNED_ARRIVAL_TIME")
-    private OffsetDateTime plannedArrivalTime;
-
-    @Column(name = "PLANNED_DEPARTURE_TIME")
-    private OffsetDateTime plannedDepartureTime;
-
-    @Column(name = "ACTUAL_ARRIVAL_TIME")
-    private OffsetDateTime actualArrivalTime;
-
-    @Column(name = "ACTUAL_DEPARTURE_TIME")
-    private OffsetDateTime actualDepartureTime;
-
     @Column(name = "NOTE")
     private String note;
 

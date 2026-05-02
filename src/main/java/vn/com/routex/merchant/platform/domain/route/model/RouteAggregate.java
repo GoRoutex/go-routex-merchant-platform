@@ -19,52 +19,44 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 public class RouteAggregate extends AbstractAuditingEntity {
     private String id;
-    private String routeCode;
     private String creator;
     private String merchantId;
-    private String pickupBranch;
-    private String origin;
-    private String destination;
-    private OffsetDateTime plannedStartTime;
-    private OffsetDateTime plannedEndTime;
-    private OffsetDateTime actualStartTime;
-    private OffsetDateTime actualEndTime;
+    private String originName;
+    private String destinationName;
+    private String originCode;
+    private String destinationCode;
     private RouteStatus status;
     private List<RouteStopPlan> stopPlans;
 
     public static RouteAggregate plan(
             String id,
-            String routeCode,
             String creator,
             String merchantId,
-            String pickupBranch,
-            String origin,
-            String destination,
-            OffsetDateTime plannedStartTime,
-            OffsetDateTime plannedEndTime,
+            String originCode,
+            String destinationCode,
+            String originName,
+            String destinationName,
             OffsetDateTime createdAt,
             List<RouteStopPlan> stopPlans
     ) {
         return RouteAggregate.builder()
                 .id(id)
-                .routeCode(routeCode)
                 .creator(creator)
                 .merchantId(merchantId)
-                .pickupBranch(pickupBranch)
-                .origin(origin)
-                .destination(destination)
-                .plannedStartTime(plannedStartTime)
-                .plannedEndTime(plannedEndTime)
-                .status(RouteStatus.PLANNED)
+                .originCode(originCode)
+                .destinationCode(destinationCode)
+                .originName(originName)
+                .destinationName(destinationName)
+                .status(RouteStatus.ACTIVE)
                 .createdAt(createdAt)
                 .createdBy(creator)
                 .stopPlans(stopPlans == null ? new ArrayList<>() : new ArrayList<>(stopPlans))
                 .build();
     }
 
-    public void cancel(String actor, OffsetDateTime updatedAt) {
-        this.status = RouteStatus.CANCELED;
-        this.setCreatedBy(actor);
-        this.setUpdatedAt(updatedAt);
+    public void cancel(String creator, OffsetDateTime now) {
+        this.status = RouteStatus.INACTIVE;
+        this.setUpdatedBy(creator);
+        this.setUpdatedAt(now);
     }
 }

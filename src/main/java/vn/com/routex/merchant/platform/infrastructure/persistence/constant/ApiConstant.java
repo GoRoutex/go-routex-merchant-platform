@@ -5,6 +5,7 @@ public class ApiConstant {
     public static final String API_VERSION = "/v1";
     public static final String MERCHANT_SERVICE = "/merchant-service";
     public static final String MAINTENANCE_PATH = "/maintenance";
+    public static final String TRIPS_PATH = "/trips";
     public static final String PROFILE_PATH = "/profile";
     public static final String ROUTES_PATH = "/routes";
     public static final String DRIVER_PATH = "/drivers";

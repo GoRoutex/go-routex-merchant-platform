@@ -39,9 +39,4 @@ public class RouteAggregateRepositoryAdapter implements RouteAggregateRepository
     public void save(RouteAggregate aggregate) {
         routeEntityRepository.save(routePersistenceMapper.toEntity(aggregate));
     }
-
-    @Override
-    public String generateRouteCode(String originCode, String destinationCode) {
-        return routeEntityRepository.generateRouteCode(originCode, destinationCode);
-    }
 }

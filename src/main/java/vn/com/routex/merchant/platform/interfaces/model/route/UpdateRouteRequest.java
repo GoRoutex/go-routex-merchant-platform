@@ -32,13 +32,8 @@ public class UpdateRouteRequest extends BaseRequest {
     @NoArgsConstructor
     @SuperBuilder
     public static class UpdateRouteRequestData {
-        private String pickupBranch;
-        private String origin;
-        private String destination;
-        private String plannedStartTime;
-        private String plannedEndTime;
-        private String actualStartTime;
-        private String actualEndTime;
+        private String originName;
+        private String destinationName;
         private RouteStatus status;
         private List<UpdateRoutePointRequest> routePoints;
     }
@@ -52,8 +47,6 @@ public class UpdateRouteRequest extends BaseRequest {
         private String id;
         private String operationOrder;
         private String routeId;
-        private String plannedArrivalTime;
-        private String plannedDepartureTime;
         private String note;
     }
 }

@@ -18,7 +18,7 @@ public interface RouteManagementService {
 
     CreateRouteResult createRoute(CreateRouteCommand command);
 
-    AssignRouteResult assignRoute(AssignRouteCommand command);
+//    AssignRouteResult assignRoute(AssignRouteCommand command);
 
     UpdateRouteResult updateRoute(UpdateRouteCommand command);
 

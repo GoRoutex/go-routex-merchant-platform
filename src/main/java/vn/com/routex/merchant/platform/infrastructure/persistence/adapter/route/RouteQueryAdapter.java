@@ -61,7 +61,7 @@ public class RouteQueryAdapter implements RouteQueryPort {
                 .and(RouteSpecification.originContainsIgnoreCase(origin))
                 .and(RouteSpecification.destinationContainsIgnoreCase(destination))
                 .and(RouteSpecification.plannedStartBetween(startTime, endTime))
-                .and(RouteSpecification.assignedStatus(RouteStatus.ASSIGNED));
+                .and(RouteSpecification.assignedStatus(RouteStatus.ACTIVE));
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, "plannedStartTime"));
 
@@ -71,12 +71,6 @@ public class RouteQueryAdapter implements RouteQueryPort {
                 .map(route -> {
                     RouteSearchView searchView = new RouteSearchView();
                     searchView.setId(route.getId());
-                    searchView.setRouteCode(route.getRouteCode());
-                    searchView.setPickupBranch(route.getPickupBranch());
-                    searchView.setOrigin(route.getOrigin());
-                    searchView.setDestination(route.getDestination());
-                    searchView.setPlannedStartTime(toDefaultOffset(route.getPlannedStartTime()));
-                    searchView.setPlannedEndTime(toDefaultOffset(route.getPlannedEndTime()));
                     return searchView;
                 })
                 .toList();
@@ -179,15 +173,11 @@ public class RouteQueryAdapter implements RouteQueryPort {
                     }
                     return RouteFetchView.builder()
                             .id(route.getId())
-                            .routeCode(route.getRouteCode())
                             .creator(route.getCreator())
-                            .pickupBranch(route.getPickupBranch())
-                            .origin(route.getOrigin())
-                            .destination(route.getDestination())
-                            .plannedStartTime(route.getPlannedStartTime())
-                            .plannedEndTime(route.getPlannedEndTime())
-                            .actualStartTime(route.getActualStartTime())
-                            .actualEndTime(route.getActualEndTime())
+                            .originCode(route.getOriginCode())
+                            .originName(route.getOriginName())
+                            .destinationCode(route.getDestinationCode())
+                            .destinationName(route.getDestinationName())
                             .status(route.getStatus() != null ? route.getStatus().name() : null)
                             .assignmentResult(RouteFetchView.AssignmentResult.builder()
                                     .vehicleId(assignmentRecord != null ? assignmentRecord.getVehicleId() : null)
@@ -200,8 +190,6 @@ public class RouteQueryAdapter implements RouteQueryPort {
                                             .id(stop.getId())
                                             .operationOrder(String.valueOf(stop.getStopOrder()))
                                             .routeId(stop.getRouteId())
-                                            .plannedArrivalTime(toDefaultOffset(stop.getPlannedArrivalTime()))
-                                            .plannedDepartureTime(toDefaultOffset(stop.getPlannedDepartureTime()))
                                             .note(stop.getNote())
                                             .operationPointId(stop.getOperationPointId())
                                             .stopName(stop.getStopName())

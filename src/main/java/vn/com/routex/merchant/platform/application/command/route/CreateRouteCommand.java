@@ -10,11 +10,8 @@ public record CreateRouteCommand(
         RequestContext context,
         String merchantId,
         String creator,
-        String pickupBranch,
-        String origin,
-        String destination,
-        String plannedStartTime,
-        String plannedEndTime,
+        String destinationName,
+        String originName,
         List<RoutePointCommand> routePoints
 ) {
 }

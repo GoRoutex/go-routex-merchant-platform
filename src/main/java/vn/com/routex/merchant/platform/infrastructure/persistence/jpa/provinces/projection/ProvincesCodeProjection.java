@@ -3,6 +3,7 @@ package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.provinces
 public interface ProvincesCodeProjection {
 
     String getOriginCode();
-
     String getDestinationCode();
+    String getOriginName();
+    String getDestinationName();
 }

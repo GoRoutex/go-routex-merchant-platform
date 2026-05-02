@@ -9,8 +9,6 @@ public record RoutePointResult(
         String id,
         String operationOrder,
         String routeId,
-        OffsetDateTime plannedArrivalTime,
-        OffsetDateTime plannedDepartureTime,
         String note,
         String operationPointId,
         String stopName,

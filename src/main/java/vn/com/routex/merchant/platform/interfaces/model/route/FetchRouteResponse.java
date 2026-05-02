@@ -34,14 +34,10 @@ public class FetchRouteResponse extends BaseResponse<FetchRouteResponse.FetchRou
     public static class FetchRouteResponseData {
         private String id;
         private String creator;
-        private String pickupBranch;
-        private String routeCode;
-        private String origin;
-        private String destination;
-        private OffsetDateTime plannedStartTime;
-        private OffsetDateTime plannedEndTime;
-        private OffsetDateTime actualStartTime;
-        private OffsetDateTime actualEndTime;
+        private String originCode;
+        private String originName;
+        private String destinationCode;
+        private String destinationName;
         private String status;
         private Long availableSeats;
         private String vehicleId;

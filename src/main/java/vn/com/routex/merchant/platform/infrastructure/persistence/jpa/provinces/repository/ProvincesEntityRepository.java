@@ -30,7 +30,9 @@ public interface ProvincesEntityRepository extends JpaRepository<ProvincesEntity
 
     @Query(value = """
             SELECT  o.code AS originCode,
-                    d.code AS destinationCode
+                    o.name AS originName,
+                    d.code AS destinationCode,
+                    d.name AS destinationName
             FROM PROVINCES o
             JOIN PROVINCES d
             ON d.name = :destination

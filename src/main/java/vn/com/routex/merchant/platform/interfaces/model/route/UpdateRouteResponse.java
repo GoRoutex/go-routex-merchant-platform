@@ -26,13 +26,10 @@ public class UpdateRouteResponse extends BaseResponse<UpdateRouteResponse.Update
     @NoArgsConstructor
     @SuperBuilder
     public static class UpdateRouteResponseData {
-        private String pickupBranch;
-        private String origin;
-        private String destination;
-        private OffsetDateTime plannedStartTime;
-        private OffsetDateTime plannedEndTime;
-        private OffsetDateTime actualStartTime;
-        private OffsetDateTime actualEndTime;
+        private String originCode;
+        private String originName;
+        private String destinationCode;
+        private String destinationName;
         private RouteStatus status;
         private List<UpdateRoutePointResponse> routePoints;
     }
@@ -46,8 +43,6 @@ public class UpdateRouteResponse extends BaseResponse<UpdateRouteResponse.Update
         private String id;
         private String operationOrder;
         private String routeId;
-        private OffsetDateTime plannedArrivalTime;
-        private OffsetDateTime plannedDepartureTime;
         private String note;
     }
 }

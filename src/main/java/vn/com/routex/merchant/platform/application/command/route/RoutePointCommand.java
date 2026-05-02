@@ -5,8 +5,6 @@ import lombok.Builder;
 @Builder
 public record RoutePointCommand(
         String operationOrder,
-        String plannedArrivalTime,
-        String plannedDepartureTime,
         String note,
         String operationPointId,
         String stopName,

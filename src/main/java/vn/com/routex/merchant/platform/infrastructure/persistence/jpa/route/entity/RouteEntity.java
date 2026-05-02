@@ -15,8 +15,6 @@ import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.AbstractAuditingEntity;
 
-import java.time.OffsetDateTime;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -28,35 +26,24 @@ public class RouteEntity extends AbstractAuditingEntity {
 
     @Id
     private String id;
-    @Column(name = "ROUTE_CODE")
-    private String routeCode;
+
+    @Column(name = "ORIGIN_CODE")
+    private String originCode;
+
+    @Column(name = "DESTINATION_CODE")
+    private String destinationCode;
+
+    @Column(name = "ORIGIN_NAME")
+    private String originName;
+
+    @Column(name = "DESTINATION_NAME")
+    private String destinationName;
 
     @Column(name = "CREATOR")
     private String creator;
 
     @Column(name = "MERCHANT_ID")
     private String merchantId;
-
-    @Column(name = "PICKUP_BRANCH")
-    private String pickupBranch;
-
-    @Column(name = "ORIGIN")
-    private String origin;
-
-    @Column(name = "DESTINATION")
-    private String destination;
-
-    @Column(name = "PLANNED_START_TIME")
-    private OffsetDateTime plannedStartTime;
-
-    @Column(name = "PLANNED_END_TIME")
-    private OffsetDateTime plannedEndTime;
-
-    @Column(name = "ACTUAL_START_TIME")
-    private OffsetDateTime actualStartTime;
-
-    @Column(name = "ACTUAL_END_TIME")
-    private OffsetDateTime actualEndTime;
 
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)

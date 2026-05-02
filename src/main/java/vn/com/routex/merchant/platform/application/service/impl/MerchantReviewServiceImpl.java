@@ -15,7 +15,6 @@ import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.review.ReviewType;
 import vn.com.routex.merchant.platform.domain.review.model.MerchantReview;
 import vn.com.routex.merchant.platform.domain.review.port.MerchantReviewRepositoryPort;
-import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.domain.route.port.RouteAggregateRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
@@ -271,12 +270,14 @@ public class MerchantReviewServiceImpl implements MerchantReviewService {
             throw invalidInput(command, BOOKING_CUSTOMER_MISMATCH);
         }
 
-        boolean completedRoute = routeAggregateRepositoryPort.findById(booking.getRouteId(), merchantId)
-                .map(route -> route.getStatus() == RouteStatus.COMPLETED)
-                .orElse(false);
-        if (!completedRoute) {
-            throw invalidInput(command, TRIP_REVIEW_REQUIRES_COMPLETED_ROUTE);
-        }
+
+        // TODO: Refactor to trip entity instead of route
+//        boolean completedRoute = routeAggregateRepositoryPort.findById(booking.getRouteId(), merchantId)
+//                .map(route -> route.getStatus() == RouteStatus.COMPLETED)
+//                .orElse(false);
+//        if (!completedRoute) {
+//            throw invalidInput(command, TRIP_REVIEW_REQUIRES_COMPLETED_ROUTE);
+//        }
 
         if (merchantReviewRepositoryPort.existsTripReview(
                 merchantId,

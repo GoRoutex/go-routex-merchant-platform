@@ -1,6 +1,7 @@
 package vn.com.routex.merchant.platform.application.command.route;
 
 import lombok.Builder;
+import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 
 import java.util.List;
 
@@ -8,13 +9,11 @@ import java.util.List;
 public record CreateRouteResult(
         String id,
         String creator,
-        String pickupBranch,
-        String routeCode,
-        String origin,
-        String destination,
-        String plannedStartTime,
-        String plannedEndTime,
-        String status,
+        String originCode,
+        String originName,
+        String destinationCode,
+        String destinationName,
+        RouteStatus status,
         List<RoutePointCommand> routePoints
 ) {
 }

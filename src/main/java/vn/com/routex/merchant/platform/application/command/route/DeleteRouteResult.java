@@ -8,7 +8,6 @@ import java.time.OffsetDateTime;
 public record DeleteRouteResult(
         String creator,
         String routeId,
-        String routeCode,
         String status,
         OffsetDateTime updatedAt
 ) {

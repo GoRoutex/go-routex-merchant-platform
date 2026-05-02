@@ -12,13 +12,8 @@ public record UpdateRouteCommand(
         RequestContext context,
         String routeId,
         String creator,
-        String pickupBranch,
-        String origin,
-        String destination,
-        OffsetDateTime plannedStartTime,
-        OffsetDateTime plannedEndTime,
-        OffsetDateTime actualStartTime,
-        OffsetDateTime actualEndTime,
+        String originName,
+        String destinationName,
         RouteStatus status,
         List<UpdateRoutePointCommand> routePoints
 ) {
@@ -27,8 +22,6 @@ public record UpdateRouteCommand(
     public record UpdateRoutePointCommand(
         String id,
         String operationOrder,
-        OffsetDateTime plannedArrivalTime,
-        OffsetDateTime plannedDepartureTime,
         String note
     ) {
     }
