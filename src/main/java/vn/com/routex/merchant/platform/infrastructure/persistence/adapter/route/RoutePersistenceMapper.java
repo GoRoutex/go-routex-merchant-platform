@@ -1,11 +1,11 @@
 package vn.com.routex.merchant.platform.infrastructure.persistence.adapter.route;
 
 import org.springframework.stereotype.Component;
+import vn.com.routex.merchant.platform.domain.assignment.model.TripAssignmentRecord;
 import vn.com.routex.merchant.platform.domain.route.model.RouteAggregate;
-import vn.com.routex.merchant.platform.domain.route.model.RouteAssignmentRecord;
 import vn.com.routex.merchant.platform.domain.route.model.RouteStopPlan;
 import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.assignment.entity.RouteAssignmentEntity;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.assignment.entity.TripAssignmentEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.routepoint.entity.RouteStopEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.vehicle.entity.VehicleEntity;
@@ -84,11 +84,11 @@ public class RoutePersistenceMapper {
                 .build();
     }
 
-    public RouteAssignmentRecord toAssignmentRecord(RouteAssignmentEntity assignment) {
-        return RouteAssignmentRecord.builder()
+    public TripAssignmentRecord toAssignmentRecord(TripAssignmentEntity assignment) {
+        return TripAssignmentRecord.builder()
                 .id(assignment.getId())
                 .merchantId(assignment.getMerchantId())
-                .routeId(assignment.getRouteId())
+                .tripId(assignment.getTripId())
                 .creator(assignment.getCreator())
                 .driverId(assignment.getDriverId())
                 .vehicleId(assignment.getVehicleId())
@@ -103,11 +103,11 @@ public class RoutePersistenceMapper {
                 .build();
     }
 
-    public RouteAssignmentEntity toEntity(RouteAssignmentRecord record) {
-        return RouteAssignmentEntity.builder()
+    public TripAssignmentEntity toEntity(TripAssignmentRecord record) {
+        return TripAssignmentEntity.builder()
                 .id(record.getId())
                 .merchantId(record.getMerchantId())
-                .routeId(record.getRouteId())
+                .tripId(record.getTripId())
                 .creator(record.getCreator())
                 .driverId(record.getDriverId())
                 .vehicleId(record.getVehicleId())

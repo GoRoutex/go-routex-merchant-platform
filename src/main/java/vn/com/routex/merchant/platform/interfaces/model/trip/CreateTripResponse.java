@@ -5,16 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import vn.com.routex.merchant.platform.domain.trip.TripStatus;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseResponse;
 
 import java.time.OffsetDateTime;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class CreateTripResponse extends BaseResponse<CreateTripResponseData> {
+public class CreateTripResponse extends BaseResponse<CreateTripResponse.CreateTripResponseData> {
 
     @Getter
     @Setter
@@ -22,10 +22,13 @@ public class CreateTripResponse extends BaseResponse<CreateTripResponseData> {
     @NoArgsConstructor
     @SuperBuilder
     public static class CreateTripResponseData {
+        private String tripId;
         private String routeId;
+        private String merchantId;
         private OffsetDateTime departureTime;
         private String rawDepartureTime;
         private String rawDepartureDate;
         private Long durationMinutes;
+        private TripStatus status;
     }
 }

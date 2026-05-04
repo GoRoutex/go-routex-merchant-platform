@@ -19,7 +19,7 @@ public class AssignRouteResponse extends BaseResponse<AssignRouteResponse.Assign
     @SuperBuilder
     public static class AssignRouteResponseData {
         private String creator;
-        private String routeId;
+        private String tripId;
         private String vehicleId;
         private String assignedAt;
         private String status;

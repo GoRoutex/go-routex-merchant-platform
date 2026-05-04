@@ -2,12 +2,10 @@ package vn.com.routex.merchant.platform.application.command.route;
 
 import lombok.Builder;
 
-import java.time.OffsetDateTime;
-
 @Builder
 public record RoutePointResult(
         String id,
-        String operationOrder,
+        int operationOrder,
         String routeId,
         String note,
         String operationPointId,

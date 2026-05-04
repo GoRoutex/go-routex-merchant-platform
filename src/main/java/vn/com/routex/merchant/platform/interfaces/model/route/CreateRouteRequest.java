@@ -4,7 +4,6 @@ package vn.com.routex.merchant.platform.interfaces.model.route;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,8 +12,6 @@ import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseRequest;
 
 import java.util.List;
-
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.RegexConstant.OFFSET_DATE_TIME_REGEX;
 
 
 @Getter

@@ -1,7 +1,7 @@
 package vn.com.routex.merchant.platform.domain.assignment;
 
 
-public enum RouteAssignmentStatus {
+public enum TripAssignmentStatus {
     ASSIGNED,
     PENDING_ASSIGNMENT,
     IN_PROGRESS,

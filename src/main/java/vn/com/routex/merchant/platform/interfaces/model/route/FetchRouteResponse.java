@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseResponse;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Getter
@@ -38,27 +38,8 @@ public class FetchRouteResponse extends BaseResponse<FetchRouteResponse.FetchRou
         private String originName;
         private String destinationCode;
         private String destinationName;
-        private String status;
-        private Long availableSeats;
-        private String vehicleId;
-        private String vehiclePlate;
-        private Boolean hasFloor;
-        private OffsetDateTime assignedAt;
-        private AssignmentInformation assignmentInformation;
+        private RouteStatus status;
         private List<SearchRouteResponse.SearchRoutePoints> routePoints;
-    }
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @SuperBuilder
-    public static class AssignmentInformation {
-        private String vehicleId;
-        private String vehiclePlate;
-        private String vehicleTemplateName;
-        private String driverId;
-        private String driverName;
     }
 
     @Getter

@@ -64,7 +64,7 @@ public class MerchantReviewServiceImpl implements MerchantReviewService {
                 command.merchantId().trim(),
                 command.reviewType(),
                 trimToNull(command.bookingId()),
-                trimToNull(command.routeId()),
+                trimToNull(command.tripId()),
                 trimToNull(command.routeCode()),
                 trimToNull(command.driverId()),
                 trimToNull(command.vehicleId()),
@@ -90,8 +90,8 @@ public class MerchantReviewServiceImpl implements MerchantReviewService {
                 .merchantId(savedReview.getMerchantId())
                 .reviewType(savedReview.getReviewType())
                 .bookingId(savedReview.getBookingId())
-                .routeId(savedReview.getRouteId())
-                .routeCode(savedReview.getRouteCode())
+                .tripId(savedReview.getTripId())
+                .tripCode(savedReview.getTripCode())
                 .driverId(savedReview.getDriverId())
                 .vehicleId(savedReview.getVehicleId())
                 .customerId(savedReview.getCustomerId())
@@ -142,8 +142,8 @@ public class MerchantReviewServiceImpl implements MerchantReviewService {
                         .id(review.getId())
                         .reviewType(review.getReviewType())
                         .bookingId(review.getBookingId())
-                        .routeId(review.getRouteId())
-                        .routeCode(review.getRouteCode())
+                        .tripId(review.getTripId())
+                        .tripCode(review.getTripCode())
                         .driverId(review.getDriverId())
                         .vehicleId(review.getVehicleId())
                         .customerId(review.getCustomerId())
@@ -188,8 +188,8 @@ public class MerchantReviewServiceImpl implements MerchantReviewService {
                 .merchantId(review.getMerchantId())
                 .reviewType(review.getReviewType())
                 .bookingId(review.getBookingId())
-                .routeId(review.getRouteId())
-                .routeCode(review.getRouteCode())
+                .tripId(review.getTripId())
+                .tripCode(review.getTripCode())
                 .driverId(review.getDriverId())
                 .vehicleId(review.getVehicleId())
                 .customerId(review.getCustomerId())

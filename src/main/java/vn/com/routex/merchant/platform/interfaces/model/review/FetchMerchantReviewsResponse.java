@@ -36,8 +36,8 @@ public class FetchMerchantReviewsResponse extends BaseResponse<FetchMerchantRevi
         private String id;
         private ReviewType reviewType;
         private String bookingId;
-        private String routeId;
-        private String routeCode;
+        private String tripId;
+        private String tripCode;
         private String driverId;
         private String vehicleId;
         private String customerId;

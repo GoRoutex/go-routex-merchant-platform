@@ -294,38 +294,6 @@ public class MerchantRouteController {
         return HttpUtils.buildResponse(request, response);
     }
 
-//    @PostMapping(ASSIGNMENT_PATH)
-//    public ResponseEntity<AssignRouteResponse> assignRoute(@Valid @RequestBody AssignRouteRequest request,
-//                                                           HttpServletRequest servletRequest) {
-//        sLog.info("[ASSIGN-ROUTE] Assign Route Request: {}", request);
-//        String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, request);
-//        AssignRouteResult result = routeManagementService.assignRoute(AssignRouteCommand.builder()
-//                .merchantId(merchantId)
-//                .creator(request.getData().getCreator())
-//                .routeId(request.getData().getRouteId())
-//                .vehicleId(request.getData().getVehicleId())
-//                .driverId(request.getData().getDriverId())
-//                .context(HttpUtils.toContext(request, merchantId))
-//                .build());
-//
-//        AssignRouteResponse response = AssignRouteResponse.builder()
-//                .requestId(request.getRequestId())
-//                .requestDateTime(request.getRequestDateTime())
-//                .channel(request.getChannel())
-//                .result(apiResultFactory.buildSuccess())
-//                .data(AssignRouteResponse.AssignRouteResponseData.builder()
-//                        .creator(result.creator())
-//                        .routeId(result.routeId())
-//                        .vehicleId(result.vehicleId())
-//                        .assignedAt(result.assignedAt())
-//                        .status(result.status())
-//                        .build())
-//                .build();
-//
-//        sLog.info("[ASSIGN-ROUTE] Assign Route Response: {}", response);
-//        return HttpUtils.buildResponse(request, response);
-//    }
-
     @PostMapping(DELETE_PATH)
     public ResponseEntity<DeleteRouteResponse> deleteRoute(@Valid @RequestBody DeleteRouteRequest request,
                                                            HttpServletRequest servletRequest) {

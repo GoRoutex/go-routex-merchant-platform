@@ -7,7 +7,7 @@ import vn.com.routex.merchant.platform.application.command.common.RequestContext
 public record AssignRouteCommand(
         String merchantId,
         String creator,
-        String routeId,
+        String tripId,
         String vehicleId,
         String driverId,
         RequestContext context

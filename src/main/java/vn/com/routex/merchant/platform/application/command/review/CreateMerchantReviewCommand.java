@@ -10,7 +10,7 @@ public record CreateMerchantReviewCommand(
         String merchantId,
         ReviewType reviewType,
         String bookingId,
-        String routeId,
+        String tripId,
         String routeCode,
         String driverId,
         String vehicleId,

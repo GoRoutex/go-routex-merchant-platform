@@ -24,8 +24,8 @@ public class CreateMerchantReviewResponse extends BaseResponse<CreateMerchantRev
         private String merchantId;
         private ReviewType reviewType;
         private String bookingId;
-        private String routeId;
-        private String routeCode;
+        private String tripId;
+        private String tripCode;
         private String driverId;
         private String vehicleId;
         private String customerId;

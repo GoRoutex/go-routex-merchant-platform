@@ -35,7 +35,7 @@ public class CreateMerchantReviewRequest extends BaseRequest {
         @NotNull
         private ReviewType reviewType;
         private String bookingId;
-        private String routeId;
+        private String tripId;
         private String routeCode;
         private String driverId;
         private String vehicleId;

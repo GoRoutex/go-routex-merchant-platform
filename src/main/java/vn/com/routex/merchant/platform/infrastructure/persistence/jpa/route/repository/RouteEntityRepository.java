@@ -1,17 +1,19 @@
 package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteEntity;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RouteEntityRepository extends JpaRepository<RouteEntity, String>, JpaSpecificationExecutor<RouteEntity> {
+public interface RouteEntityRepository extends JpaRepository<RouteEntity, String>{
 
     Optional<RouteEntity> findByIdAndMerchantId(String id, String merchantId);
 
-    List<RouteEntity> findByMerchantId(String merchantId);
+    Optional<RouteEntity> findByMerchantId(String merchantId);
+
+    Page<RouteEntity> findByMerchantId(String merchantId, Pageable pageable);
 }

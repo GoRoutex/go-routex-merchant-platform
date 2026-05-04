@@ -10,16 +10,16 @@ import vn.com.routex.merchant.platform.domain.seat.SeatStatus;
 /**
  * Domain model for route seat.
  * Persistence concerns (JPA annotations, table/column mapping) live in infrastructure layer:
- * {@code infrastructure.persistence.jpa.route.entity.RouteSeatEntity}.
+ * {@code infrastructure.persistence.jpa.route.entity.TripSeatEntity}.
  */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
-public class RouteSeat {
+public class TripSeat {
     private String id;
-    private String routeId;
+    private String tripId;
     private String seatNo;
     private SeatStatus status;
     private String creator;

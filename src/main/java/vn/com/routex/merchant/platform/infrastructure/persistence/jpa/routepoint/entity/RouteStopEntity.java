@@ -11,8 +11,6 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.AbstractAuditingEntity;
 
-import java.time.OffsetDateTime;
-
 @Getter
 @Setter
 @AllArgsConstructor

@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
 @Builder
 public record UpdateTripCommand(
         RequestContext context,
+        String tripId,
         String routeId,
         String merchantId,
         OffsetDateTime departureTime,

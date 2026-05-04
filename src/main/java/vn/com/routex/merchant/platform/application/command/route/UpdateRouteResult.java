@@ -4,7 +4,6 @@ package vn.com.routex.merchant.platform.application.command.route;
 import lombok.Builder;
 import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Builder

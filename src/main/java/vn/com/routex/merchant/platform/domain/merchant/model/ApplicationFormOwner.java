@@ -1,4 +1,4 @@
-package vn.com.routex.merchant.platform.domain.merchant;
+package vn.com.routex.merchant.platform.domain.merchant.model;
 
 
 import jakarta.persistence.Embeddable;

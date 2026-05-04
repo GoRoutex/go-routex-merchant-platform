@@ -35,7 +35,7 @@ public class AssignRouteRequest extends BaseRequest {
 
         @NotNull
         @NotBlank
-        private String routeId;
+        private String tripId;
 
         @NotNull
         @NotBlank

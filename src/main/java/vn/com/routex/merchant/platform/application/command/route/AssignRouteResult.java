@@ -5,7 +5,7 @@ import lombok.Builder;
 @Builder
 public record AssignRouteResult(
         String creator,
-        String routeId,
+        String tripId,
         String vehicleId,
         String driverId,
         String assignedAt,

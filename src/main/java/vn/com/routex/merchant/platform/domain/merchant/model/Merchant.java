@@ -18,7 +18,6 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 public class Merchant extends AbstractAuditingEntity {
-
     private static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
     private String id;
     private String code;

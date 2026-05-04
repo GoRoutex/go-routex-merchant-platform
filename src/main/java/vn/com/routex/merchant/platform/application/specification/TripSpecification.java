@@ -5,26 +5,27 @@ import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import vn.com.routex.merchant.platform.domain.route.RouteStatus;
+import vn.com.routex.merchant.platform.domain.trip.TripStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.entity.MerchantEntity;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.entity.RouteEntity;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.trip.entity.TripEntity;
 
 import java.time.OffsetDateTime;
 
 
 @RequiredArgsConstructor
-public class RouteSpecification {
+public class TripSpecification {
 
-    public static Specification<RouteEntity> originContainsIgnoreCase(String origin) {
-        String v = normalize(origin);
-        return (root, query, cb) -> cb.like(cb.lower(root.get("origin")), "%" + v + "%");
+    public static Specification<TripEntity> originNameContainsIgnoreCase(String originName) {
+        String v = normalize(originName);
+        return (root, query, cb) -> cb.like(cb.lower(root.get("originName")), "%" + v + "%");
     }
 
-    public static Specification<RouteEntity> destinationContainsIgnoreCase(String destination) {
-        String v = normalize(destination);
-        return (root, query, cb) -> cb.like(cb.lower(root.get("destination")), "%" + v + "%");
+    public static Specification<TripEntity> destinationNameContainsIgnoreCase(String destinationName) {
+        String v = normalize(destinationName);
+        return (root, query, cb) -> cb.like(cb.lower(root.get("destinationName")), "%" + v + "%");
     }
 
-    public static Specification<RouteEntity> assignedStatus(RouteStatus status) {
+    public static Specification<TripEntity> assignedStatus(TripStatus status) {
         return (root, query, cb) -> {
             if(status == null) {
                 return cb.conjunction();
@@ -33,7 +34,7 @@ public class RouteSpecification {
         };
     }
 
-    public static Specification<RouteEntity> hasMerchantId(String merchantId) {
+    public static Specification<TripEntity> hasMerchantId(String merchantId) {
         return (root, query, cb) -> {
             if (merchantId == null || merchantId.isBlank()) {
                 return cb.conjunction();
@@ -43,7 +44,7 @@ public class RouteSpecification {
     }
 
 
-    public static Specification<RouteEntity> hasMerchantName(String merchantName) {
+    public static Specification<TripEntity> hasMerchantName(String merchantName) {
         return (root, query, cb) -> {
             if (merchantName == null || merchantName.isBlank()) {
                 return cb.conjunction();
@@ -55,14 +56,6 @@ public class RouteSpecification {
             return root.get("merchantId").in(subquery);
         };
     }
-
-
-    public static Specification<RouteEntity> plannedStartBetween(OffsetDateTime startInitialize, OffsetDateTime endInitialize) {
-        return (root, query, cb) -> cb.and(
-            cb.greaterThanOrEqualTo(root.get("plannedStartTime"), startInitialize),
-            cb.lessThan(root.get("plannedStartTime"), endInitialize));
-    }
-
     private static String normalize(String message) {
         return message == null ? "" : message.trim().toLowerCase();
     }

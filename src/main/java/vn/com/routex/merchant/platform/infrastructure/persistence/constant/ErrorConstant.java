@@ -8,6 +8,7 @@ public class ErrorConstant {
     public static final String AUTHORITIES_ERROR = "You are not authorized for this action";
     public static final String TIMEOUT_ERROR_MESSAGE = "Timeout";
     public static final String RECORD_NOT_FOUND = "1407";
+    public static final String TRIP_ASSIGNMENT_NOT_FOUND = "Trip Assignment not found";
     public static final String ROLE_NOT_FOUND = "Role not found";
     public static final String OPERATION_POINT_OR_STOP_NAME_REQUIRED =
             "Either operationPointId or stopName is required (but not both)";
@@ -59,6 +60,8 @@ public class ErrorConstant {
     public static final String DUPLICATE_DRIVER_BY_EMPLOYEE_CODE = "Driver is already exists by employeeCode %s";
     public static final String ROUTE_SEAT_EXIST = "Route Seat with routeId %s already created";
     public static final String DUPLICATE_ROUTE_ASSIGNMENT = "Route Assignment with routeId %s already exists";
+    public static final String TRIP_NOT_FOUND = "Trip with Id %s not found";
+    public static final String TRIP_ALREADY_EXISTS_FOR_ROUTE = "Trip for routeId %s already exists";
     public static final String RECORD_EXISTS = "Record is already existed";
     public static final String INVALID_START_TIME = "Planned Start Time must be before Planned End Time";
     public static final String INVALID_STOP_ORDER = "operationOrder must be positive & unique";

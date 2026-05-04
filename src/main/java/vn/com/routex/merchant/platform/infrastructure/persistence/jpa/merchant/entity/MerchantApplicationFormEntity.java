@@ -9,10 +9,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormBankInfo;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormContact;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormOwner;
 import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormStatus;
+import vn.com.routex.merchant.platform.domain.merchant.model.ApplicationFormBankInfo;
+import vn.com.routex.merchant.platform.domain.merchant.model.ApplicationFormContact;
+import vn.com.routex.merchant.platform.domain.merchant.model.ApplicationFormOwner;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.AbstractAuditingEntity;
 
 import java.time.OffsetDateTime;

@@ -40,7 +40,7 @@ public class SearchRouteResponse extends BaseResponse<List<SearchRouteResponse.S
     @SuperBuilder
     public static class SearchRoutePoints {
         private String id;
-        private String operationOrder;
+        private int operationOrder;
         private String routeId;
         private String note;
         private String operationPointId;

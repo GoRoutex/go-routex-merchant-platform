@@ -6,9 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.domain.auditing.AbstractAuditingEntity;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormBankInfo;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormContact;
-import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormOwner;
 import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormStatus;
 
 import java.time.OffsetDateTime;

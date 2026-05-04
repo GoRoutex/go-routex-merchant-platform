@@ -1,6 +1,8 @@
 package vn.com.routex.merchant.platform.application.command.route;
 
 import lombok.Builder;
+import vn.com.routex.merchant.platform.domain.route.RouteStatus;
+import vn.com.routex.merchant.platform.domain.trip.TripStatus;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -13,23 +15,7 @@ public record FetchRouteResult(
         String originName,
         String destinationCode,
         String destinationName,
-        String status,
-        Long availableSeats,
-        String vehicleId,
-        String vehiclePlate,
-        Boolean hasFloor,
-        OffsetDateTime assignedAt,
-        AssignmentRecord assignmentRecord,
+        RouteStatus status,
         List<RoutePointResult> routePoints
 ) {
-
-
-    @Builder
-    public record AssignmentRecord(
-            String vehicleId,
-            String vehiclePlate,
-            String vehicleTemplateName,
-            String driverId,
-            String driverName
-    ) {}
 }

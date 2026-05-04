@@ -18,27 +18,21 @@ public class RouteResponseMapper {
                 .destinationCode(item.destinationCode())
                 .destinationName(item.destinationName())
                 .status(item.status())
-                .availableSeats(item.availableSeats())
-                .vehicleId(item.vehicleId())
-                .vehiclePlate(item.vehiclePlate())
-                .hasFloor(item.hasFloor())
-                .assignedAt(item.assignedAt())
-                .assignmentInformation(item.assignmentRecord() != null ? toAssignmentInformation(item.assignmentRecord()) : null)
                 .routePoints(item.routePoints() == null ? null : item.routePoints().stream()
                         .map(this::toSearchRoutePoint)
                         .toList())
                 .build();
     }
-
-    public FetchRouteResponse.AssignmentInformation toAssignmentInformation(FetchRouteResult.AssignmentRecord record) {
-        return FetchRouteResponse.AssignmentInformation.builder()
-                .vehicleId(record.vehicleId())
-                .vehiclePlate(record.vehiclePlate())
-                .vehicleTemplateName(record.vehicleTemplateName())
-                .driverId(record.driverId())
-                .driverName(record.driverName())
-                .build();
-    }
+//
+//    public FetchRouteResponse.AssignmentInformation toAssignmentInformation(FetchRouteResult.AssignmentRecord record) {
+//        return FetchRouteResponse.AssignmentInformation.builder()
+//                .vehicleId(record.vehicleId())
+//                .vehiclePlate(record.vehiclePlate())
+//                .vehicleTemplateName(record.vehicleTemplateName())
+//                .driverId(record.driverId())
+//                .driverName(record.driverName())
+//                .build();
+//    }
 
     public SearchRouteResponse.SearchRoutePoints toSearchRoutePoint(RoutePointResult point) {
         return SearchRouteResponse.SearchRoutePoints.builder()

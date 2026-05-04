@@ -30,12 +30,13 @@ spring:
         max.poll.records: 500
 
     events:
-      route-ready-for-sale: "routex.route.ready-for-sale"
-      route-assigned: "routex.route.assigned"
+      trip-ready-for-sale: "routex.trip.ready-for-sale"
+      trip-assigned: "routex.trip.assigned"
       notification-email: "routex.notification.email"
       notification-sms: "routex.notification.sms"
 
     topics:
+      trips: "trip.management.event"
       routes: "route.management.event"
       booking: "route.bookings.event"
 
