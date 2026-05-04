@@ -17,6 +17,7 @@ public class ErrorConstant {
     public static final String AUTHORITIES_NOT_FOUND = "Authorities not found";
     public static final String ROUTE_NOT_FOUND = "Route with Id %s not found";
     public static final String MERCHANT_NOT_FOUND_BY_ID = "Merchant with Id %s not found";
+    public static final String MERCHANT_APPLICATION_FORM_NOT_FOUND = "Merchant application form with Id %s not found";
     public static final String OPERATION_POINT_NOT_FOUND = "Operation point with Id %s not found";
     public static final String MERCHANT_REVIEW_NOT_FOUND_BY_ID = "Merchant review with Id %s not found";
     public static final String DRIVER_NOT_FOUND_BY_ID = "Driver with Id %s not found";
@@ -54,6 +55,7 @@ public class ErrorConstant {
     public static final String PERMISSION_EXISTS_ERROR = "Authorities with %s already exists";
     public static final String INVALID_PAGE_SIZE = "pageSize must be in [1..100]";
     public static final String INVALID_PAGE_NUMBER = "pageNumber must be >= 1";
+    public static final String INVALID_COMMISSION_RATE = "commissionRate must be in [0..100]";
     public static final String INVALID_SEAT_NO = "seatNos must not be empty";
     public static final String DUPLICATE_VEHICLE = "Vehicle is already exists by %s";
     public static final String DUPLICATE_DRIVER_BY_USER_ID = "Driver is already exists by userId %s";

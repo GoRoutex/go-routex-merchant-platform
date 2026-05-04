@@ -2,9 +2,7 @@ package vn.com.routex.merchant.platform.application.command.route;
 
 import lombok.Builder;
 import vn.com.routex.merchant.platform.domain.route.RouteStatus;
-import vn.com.routex.merchant.platform.domain.trip.TripStatus;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Builder

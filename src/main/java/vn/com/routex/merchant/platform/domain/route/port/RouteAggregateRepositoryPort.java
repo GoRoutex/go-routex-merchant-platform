@@ -3,7 +3,6 @@ package vn.com.routex.merchant.platform.domain.route.port;
 
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.route.model.RouteAggregate;
-import vn.com.routex.merchant.platform.domain.trip.model.TripAggregate;
 
 import java.util.List;
 import java.util.Optional;

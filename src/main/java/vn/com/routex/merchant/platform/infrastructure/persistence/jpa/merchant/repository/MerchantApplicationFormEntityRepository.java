@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.entity.MerchantApplicationFormEntity;
 
 public interface MerchantApplicationFormEntityRepository extends JpaRepository<MerchantApplicationFormEntity, String> {
@@ -16,5 +17,7 @@ public interface MerchantApplicationFormEntityRepository extends JpaRepository<M
     String generateFormCode();
 
     Page<MerchantApplicationFormEntity> findAll(Pageable pageable);
+
+    Page<MerchantApplicationFormEntity> findByStatus(ApplicationFormStatus status, Pageable pageable);
 
 }

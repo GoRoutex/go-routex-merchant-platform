@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormStatus;
 import vn.com.routex.merchant.platform.domain.merchant.model.MerchantApplicationForm;
 import vn.com.routex.merchant.platform.domain.merchant.port.MerchantApplicationFormRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.repository.MerchantApplicationFormEntityRepository;
@@ -48,13 +49,30 @@ public class MerchantApplicationFormRepositoryRepositoryAdapter implements Merch
     public PagedResult<MerchantApplicationForm> fetch(int pageNumber, int pageSize) {
         Page<vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.entity.MerchantApplicationFormEntity> page =
                 merchantApplicationFormEntityRepository.findAll(
-                        PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "submittedAt"))
+                        PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "submittedAt"))
                 );
 
         return PagedResult.<MerchantApplicationForm>builder()
                 .items(page.getContent().stream().map(merchantApplicationFormPersistenceMapper::toDomain).toList())
-                .pageNumber(pageNumber)
-                .pageSize(pageSize)
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public PagedResult<MerchantApplicationForm> fetchByStatus(ApplicationFormStatus status, int pageNumber, int pageSize) {
+        Page<vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.entity.MerchantApplicationFormEntity> page =
+                merchantApplicationFormEntityRepository.findByStatus(
+                        status,
+                        PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "submittedAt"))
+                );
+
+        return PagedResult.<MerchantApplicationForm>builder()
+                .items(page.getContent().stream().map(merchantApplicationFormPersistenceMapper::toDomain).toList())
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
                 .build();

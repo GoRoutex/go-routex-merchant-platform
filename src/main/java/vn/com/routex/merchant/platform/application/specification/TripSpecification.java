@@ -4,12 +4,9 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
-import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.domain.trip.TripStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.entity.MerchantEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.trip.entity.TripEntity;
-
-import java.time.OffsetDateTime;
 
 
 @RequiredArgsConstructor

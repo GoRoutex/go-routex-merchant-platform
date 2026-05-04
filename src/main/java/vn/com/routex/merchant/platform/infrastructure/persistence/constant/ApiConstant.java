@@ -3,6 +3,7 @@ package vn.com.routex.merchant.platform.infrastructure.persistence.constant;
 public class ApiConstant {
     public static final String API_PATH = "/api";
     public static final String API_VERSION = "/v1";
+    public static final String INTERNAL_PATH = "/internal";
     public static final String MERCHANT_SERVICE = "/merchant-service";
     public static final String MAINTENANCE_PATH = "/maintenance";
     public static final String TRIPS_PATH = "/trips";

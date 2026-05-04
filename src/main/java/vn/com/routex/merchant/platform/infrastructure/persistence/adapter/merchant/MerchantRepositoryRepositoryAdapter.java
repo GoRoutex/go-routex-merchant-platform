@@ -1,13 +1,20 @@
 package vn.com.routex.merchant.platform.infrastructure.persistence.adapter.merchant;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.merchant.model.Merchant;
 import vn.com.routex.merchant.platform.domain.merchant.port.MerchantRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.entity.MerchantEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.merchant.repository.MerchantEntityRepository;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
@@ -36,6 +43,74 @@ public class MerchantRepositoryRepositoryAdapter implements MerchantRepositoryPo
     @Override
     public String generateMerchantCode() {
         return merchantEntityRepository.generateMerchantcode();
+    }
+
+    @Override
+    public PagedResult<Merchant> fetch(int pageNumber, int pageSize) {
+        Page<MerchantEntity> page = merchantEntityRepository.findAll(
+                PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"))
+        );
+
+        return toPagedResult(page);
+    }
+
+    @Override
+    public PagedResult<Merchant> fetch(String merchantName, int pageNumber, int pageSize) {
+        if (merchantName == null || merchantName.isBlank()) {
+            return fetch(pageNumber, pageSize);
+        }
+
+        Page<MerchantEntity> page = merchantEntityRepository
+                .findByDisplayNameContainingIgnoreCaseOrLegalNameContainingIgnoreCase(
+                        merchantName.trim(),
+                        merchantName.trim(),
+                        PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"))
+                );
+
+        return toPagedResult(page);
+    }
+
+    @Override
+    public List<Merchant> findByIds(List<String> merchantIds) {
+        if (merchantIds == null || merchantIds.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, Merchant> merchantsById = merchantEntityRepository.findAllById(merchantIds).stream()
+                .map(merchantPersistenceMapper::toDomain)
+                .collect(java.util.stream.Collectors.toMap(Merchant::getId, Function.identity()));
+
+        return merchantIds.stream()
+                .map(merchantsById::get)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+    }
+
+    @Override
+    public List<String> findIdsByMerchantName(String merchantName) {
+        if (merchantName == null || merchantName.isBlank()) {
+            return List.of();
+        }
+
+        return merchantEntityRepository
+                .findByDisplayNameContainingIgnoreCaseOrLegalNameContainingIgnoreCase(merchantName.trim(), merchantName.trim())
+                .stream()
+                .map(MerchantEntity::getId)
+                .toList();
+    }
+
+    private PagedResult<Merchant> toPagedResult(Page<MerchantEntity> page) {
+        List<Merchant> items = page.getContent().stream()
+                .map(merchantPersistenceMapper::toDomain)
+                .toList();
+
+        return PagedResult.<Merchant>builder()
+                .items(items)
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
     }
 
 }
