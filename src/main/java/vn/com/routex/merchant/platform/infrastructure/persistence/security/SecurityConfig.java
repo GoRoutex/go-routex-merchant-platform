@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/actuator/**",
                                 "/error",
-                                "/api/v1/internal/**",
+                                "/api/v1/merchant-service/internal/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"

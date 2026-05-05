@@ -46,6 +46,7 @@ import vn.com.routex.merchant.platform.interfaces.model.trip.UpdateTripRequest;
 import vn.com.routex.merchant.platform.interfaces.model.trip.UpdateTripResponse;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_PATH;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_VERSION;
@@ -73,7 +74,7 @@ public class MerchantTripController {
         webDataBinder.setDisallowedFields("requestId", "requestDateTime", "channel", "data");
     }
 
-    @PostMapping(ASSIGNMENT_PATH)
+    @PostMapping(TRIPS_PATH + ASSIGNMENT_PATH)
     public ResponseEntity<AssignRouteResponse> assignRoute(@Valid @RequestBody AssignRouteRequest request,
                                                            HttpServletRequest servletRequest) {
         sLog.info("[ASSIGN-ROUTE] Assign Route Request: {}", request);
@@ -115,10 +116,10 @@ public class MerchantTripController {
                         .context(HttpUtils.toContext(request, merchantId))
                         .routeId(request.getData().getRouteId())
                         .merchantId(merchantId)
+                        .pickupBranch(request.getData().getPickupBranch())
                         .departureTime(request.getData().getDepartureTime())
                         .rawDepartureDate(request.getData().getRawDepartureDate())
                         .rawDepartureTime(request.getData().getRawDepartureTime())
-                        .durationMinutes(request.getData().getDurationMinutes())
                         .build());
 
         CreateTripResponse response = CreateTripResponse.builder()
@@ -128,9 +129,9 @@ public class MerchantTripController {
                         .routeId(result.routeId())
                         .merchantId(result.merchantId())
                         .departureTime(result.departureTime())
+                        .pickupBranch(result.pickupBranch())
                         .rawDepartureTime(result.rawDepartureTime())
                         .rawDepartureDate(result.rawDepartureDate())
-                        .durationMinutes(result.durationMinutes())
                         .status(result.status())
                         .build())
                 .build();
@@ -151,7 +152,6 @@ public class MerchantTripController {
                 .departureTime(request.getData().getDepartureTime())
                 .rawDepartureTime(request.getData().getRawDepartureTime())
                 .rawDepartureDate(request.getData().getRawDepartureDate())
-                .durationMinutes(request.getData().getDurationMinutes())
                 .build());
 
         UpdateTripResponse response = UpdateTripResponse.builder()
@@ -159,11 +159,11 @@ public class MerchantTripController {
                 .data(UpdateTripResponse.UpdateTripResponseData.builder()
                         .tripId(result.tripId())
                         .routeId(result.routeId())
+                        .pickupBranch(result.pickupBranch())
                         .merchantId(result.merchantId())
                         .departureTime(result.departureTime())
                         .rawDepartureTime(result.rawDepartureTime())
                         .rawDepartureDate(result.rawDepartureDate())
-                        .durationMinutes(result.durationMinutes())
                         .status(result.status())
                         .build())
                 .build();
@@ -215,16 +215,22 @@ public class MerchantTripController {
                 .result(apiResultFactory.buildSuccess())
                 .data(FetchTripDetailResponse.FetchTripDetailResponseData.builder()
                         .tripId(result.tripId())
-                        .routeId(result.routeId())
                         .merchantId(result.merchantId())
+                        .pickupBranch(result.pickupBranch())
                         .tripCode(result.tripCode())
                         .departureTime(result.departureTime())
                         .rawDepartureTime(result.rawDepartureTime())
                         .rawDepartureDate(result.rawDepartureDate())
-                        .durationMinutes(result.durationMinutes())
                         .status(result.status())
+                        .route(FetchTripDetailResponse.FetchTripRouteData.builder()
+                                .routeId(result.route().routeId())
+                                .originName(result.route().originName())
+                                .destinationName(result.route().destinationName())
+                                .duration(result.route().duration())
+                                .build())
                         .build())
                 .build();
+
         return HttpUtils.buildResponse(baseRequest, response);
     }
 
@@ -244,17 +250,23 @@ public class MerchantTripController {
                 .build());
 
         List<FetchTripListResponse.FetchTripListResponseData> items = result.items().stream()
-                .map(item -> new FetchTripListResponse.FetchTripListResponseData(
-                        item.tripId(),
-                        item.routeId(),
-                        item.merchantId(),
-                        item.tripCode(),
-                        item.departureTime(),
-                        item.rawDepartureTime(),
-                        item.rawDepartureDate(),
-                        item.durationMinutes(),
-                        item.status()))
-                .toList();
+                .map(item -> FetchTripListResponse.FetchTripListResponseData.builder()
+                            .tripId(item.tripId())
+                        .merchantId(item.merchantId())
+                        .tripCode(item.tripCode())
+                        .pickupBranch(item.pickupBranch())
+                        .departureTime(item.departureTime())
+                        .rawDepartureDate(item.rawDepartureDate())
+                        .rawDepartureTime(item.rawDepartureTime())
+                        .status(item.status())
+                        .route(FetchTripListResponse.FetchTripListRouteData.builder()
+                                .routeId(item.route().routeId())
+                                .originName(item.route().originName())
+                                .destinationName(item.route().destinationName())
+                                .duration(item.route().duration())
+                                .build())
+                        .build())
+                .collect(Collectors.toList());
 
         FetchTripListResponse response = FetchTripListResponse.builder()
                 .requestId(baseRequest.getRequestId())

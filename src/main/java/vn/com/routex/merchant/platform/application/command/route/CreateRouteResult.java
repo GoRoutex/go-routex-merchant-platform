@@ -14,6 +14,7 @@ public record CreateRouteResult(
         String destinationCode,
         String destinationName,
         RouteStatus status,
+        Long duration,
         List<RoutePointCommand> routePoints
 ) {
 }

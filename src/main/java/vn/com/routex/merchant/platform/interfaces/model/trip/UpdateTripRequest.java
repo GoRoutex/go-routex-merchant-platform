@@ -32,11 +32,10 @@ public class UpdateTripRequest extends BaseRequest {
         @NotNull
         @NotBlank
         private String tripId;
-
         private String routeId;
+        private String pickupBranch;
         private OffsetDateTime departureTime;
         private String rawDepartureTime;
         private String rawDepartureDate;
-        private Long durationMinutes;
     }
 }

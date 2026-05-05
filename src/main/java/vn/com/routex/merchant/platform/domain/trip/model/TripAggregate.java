@@ -19,10 +19,10 @@ public class TripAggregate extends AbstractAuditingEntity {
     private String id;
     private String routeId;
     private String merchantId;
+    private String pickupBranch;
     private String tripCode;
     private OffsetDateTime departureTime;
     private String rawDepartureTime;
     private String rawDepartureDate;
-    private Long durationMinutes;
     private TripStatus status;
 }

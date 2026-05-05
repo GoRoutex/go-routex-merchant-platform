@@ -35,6 +35,7 @@ public class UpdateRouteRequest extends BaseRequest {
         private String originName;
         private String destinationName;
         private RouteStatus status;
+        private Long duration;
         private List<UpdateRoutePointRequest> routePoints;
     }
 

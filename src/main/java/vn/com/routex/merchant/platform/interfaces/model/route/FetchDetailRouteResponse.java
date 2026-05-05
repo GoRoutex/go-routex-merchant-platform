@@ -31,12 +31,8 @@ public class FetchDetailRouteResponse extends BaseResponse<FetchDetailRouteRespo
         private String originName;
         private String destinationCode;
         private String destinationName;
+        private Long duration;
         private RouteStatus status;
-        private Long availableSeats;
-        private String vehicleId;
-        private String vehiclePlate;
-        private Boolean hasFloor;
-        private OffsetDateTime assignedAt;
         private List<SearchRouteResponse.SearchRoutePoints> routePoints;
     }
 }

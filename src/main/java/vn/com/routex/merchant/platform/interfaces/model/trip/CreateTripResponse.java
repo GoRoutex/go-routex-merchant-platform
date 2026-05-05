@@ -25,10 +25,10 @@ public class CreateTripResponse extends BaseResponse<CreateTripResponse.CreateTr
         private String tripId;
         private String routeId;
         private String merchantId;
+        private String pickupBranch;
         private OffsetDateTime departureTime;
         private String rawDepartureTime;
         private String rawDepartureDate;
-        private Long durationMinutes;
         private TripStatus status;
     }
 }

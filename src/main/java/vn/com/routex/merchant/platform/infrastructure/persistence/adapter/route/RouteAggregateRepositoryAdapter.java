@@ -68,4 +68,12 @@ public class RouteAggregateRepositoryAdapter implements RouteAggregateRepository
                 .totalPages(page.getTotalPages())
                 .build();
     }
+
+    @Override
+    public List<RouteAggregate> findByIdIn(List<String> routeIds) {
+        return routeEntityRepository.findByIdIn(routeIds)
+                .stream()
+                .map(routePersistenceMapper::toAggregate)
+                .toList();
+    }
 }

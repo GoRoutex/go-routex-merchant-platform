@@ -30,6 +30,5 @@ public class TripSearchView {
     private OffsetDateTime departureTime;
     private String rawDepartureTime;
     private String rawDepartureDate;
-    private Long durationMinutes;
     private TripStatus status;
 }

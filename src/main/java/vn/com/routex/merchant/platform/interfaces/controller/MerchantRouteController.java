@@ -75,7 +75,6 @@ public class MerchantRouteController {
         webDataBinder.setDisallowedFields("requestId", "requestDateTime", "channel", "data");
     }
 
-
     @GetMapping(FETCH_PATH + DETAIL_PATH)
     public ResponseEntity<FetchDetailRouteResponse> fetchDetailRoute(
             HttpServletRequest servletRequest,
@@ -107,12 +106,8 @@ public class MerchantRouteController {
                         .originName(result.originName())
                         .destinationCode(result.destinationCode())
                         .destinationName(result.destinationName())
+                        .duration(result.duration())
                         .status(result.status())
-                        .availableSeats(result.availableSeats())
-                        .vehicleId(result.vehicleId())
-                        .vehiclePlate(result.vehiclePlate())
-                        .hasFloor(result.hasFloor())
-                        .assignedAt(result.assignedAt())
                         .build())
                 .build();
 
@@ -198,6 +193,7 @@ public class MerchantRouteController {
                 .originName(request.getData().getOriginName())
                 .destinationName(request.getData().getDestinationName())
                 .status(request.getData().getStatus())
+                        .duration(request.getData().getDuration())
                 .routePoints(routePointCommandList)
                 .build());
 
@@ -210,6 +206,7 @@ public class MerchantRouteController {
                         .destinationCode(result.destinationCode())
                         .destinationName(result.destinationName())
                         .status(result.status())
+                        .duration(result.duration())
                         .routePoints(result.routePoints() == null ? null : result.routePoints().stream().map(
                                 point -> UpdateRouteResponse.UpdateRoutePointResponse.builder()
                                         .id(point.id())
@@ -286,6 +283,7 @@ public class MerchantRouteController {
                         .originName(result.originName())
                         .destinationName(result.destinationName())
                         .status(result.status())
+                        .duration(result.duration())
                         .routePoints(routePointResponses)
                         .build())
                 .build();

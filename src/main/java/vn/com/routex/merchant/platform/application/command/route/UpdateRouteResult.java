@@ -14,6 +14,7 @@ public record UpdateRouteResult(
         String originName,
         String destinationCode,
         String destinationName,
+        Long duration,
         RouteStatus status,
         List<UpdateRoutePointResult> routePoints
 ) {

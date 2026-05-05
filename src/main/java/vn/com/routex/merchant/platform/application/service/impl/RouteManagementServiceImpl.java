@@ -18,8 +18,6 @@ import vn.com.routex.merchant.platform.application.command.route.RoutePointResul
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteResult;
 import vn.com.routex.merchant.platform.application.service.RouteManagementService;
-import vn.com.routex.merchant.platform.domain.assignment.model.TripAssignmentRecord;
-import vn.com.routex.merchant.platform.domain.assignment.port.TripAssignmentRepositoryPort;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.operationpoint.port.OperationPointRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.RouteStatus;
@@ -29,11 +27,6 @@ import vn.com.routex.merchant.platform.domain.route.model.RouteStopPlan;
 import vn.com.routex.merchant.platform.domain.route.port.RouteAggregateRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteProvincesLookupPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteStopRepositoryPort;
-import vn.com.routex.merchant.platform.domain.trip.port.TripQueryPort;
-import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleProfile;
-import vn.com.routex.merchant.platform.domain.vehicle.model.VehicleTemplate;
-import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleProfileRepositoryPort;
-import vn.com.routex.merchant.platform.domain.vehicle.port.VehicleTemplateRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
@@ -64,12 +57,8 @@ public class RouteManagementServiceImpl implements RouteManagementService {
 
     private final RouteAggregateRepositoryPort routeAggregateRepositoryPort;
     private final RouteStopRepositoryPort routeStopRepositoryPort;
-    private final TripAssignmentRepositoryPort tripAssignmentRepositoryPort;
-    private final VehicleProfileRepositoryPort vehicleProfileRepositoryPort;
     private final RouteProvincesLookupPort routeProvincesLookupPort;
-    private final TripQueryPort tripQueryPort;
     private final OperationPointRepositoryPort operationPointRepositoryPort;
-    private final VehicleTemplateRepositoryPort vehicleTemplateRepositoryPort;
 
     private final SystemLog sLog = SystemLog.getLogger(this.getClass());
 
@@ -119,13 +108,13 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 destinationCode,
                 originName,
                 destinationName,
+                command.duration(),
                 now,
                 routeStopPlans
         );
 
         routeAggregateRepositoryPort.save(newRoute);
         routeStopRepositoryPort.saveAll(routeStopPlans);
-
 
         return CreateRouteResult.builder()
                 .id(newRoute.getId())
@@ -134,6 +123,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .originName(command.originName())
                 .destinationCode(destinationCode)
                 .status(RouteStatus.ACTIVE)
+                .duration(command.duration())
                 .routePoints(command.routePoints() != null ?
                         command.routePoints() : null)
                 .build();
@@ -168,6 +158,9 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         String destinationCode = codeResult.map(ProvincesInformationPair::destinationCode).orElse(null);
 
 
+        Optional.ofNullable(command.duration())
+                .ifPresent(route::setDuration);
+
         Optional.ofNullable(originCode)
                 .ifPresent(route::setOriginCode);
 
@@ -200,6 +193,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .destinationName(command.destinationName())
                 .status(command.status())
                 .routePoints(routePointResults)
+                .duration(command.duration())
                 .build();
     }
 
@@ -252,17 +246,6 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .orElseThrow(() -> new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(ROUTE_NOT_FOUND, query.routeId()))));
 
-        TripAssignmentRecord tripAssignmentRecord = tripAssignmentRepositoryPort.findByTripIdAndMerchantId(query.routeId(), query.merchantId())
-                .orElse(null);
-
-        VehicleProfile vehicleProfile = null;
-        VehicleTemplate vehicleTemplate = null;
-
-        if(tripAssignmentRecord != null) {
-            vehicleProfile = vehicleProfileRepositoryPort.findById(tripAssignmentRecord.getVehicleId()).orElse(null);
-            vehicleTemplate = vehicleTemplateRepositoryPort.findById(vehicleProfile.getTemplateId()).orElse(null);
-        }
-
         List<RouteStopPlan> routeStopPlans = routeStopRepositoryPort.findByRouteId(query.routeId());
 
         List<RoutePointResult> routePointResults = routeStopPlans.isEmpty() ? null :
@@ -289,11 +272,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .destinationCode(routeAggregate.getDestinationCode())
                 .destinationName(routeAggregate.getDestinationName())
                 .status(routeAggregate.getStatus())
-                .availableSeats(vehicleTemplate != null ? vehicleTemplate.getSeatCapacity() : null)
-                .vehicleId(tripAssignmentRecord != null ? tripAssignmentRecord.getVehicleId() : null)
-                .vehiclePlate(vehicleProfile != null ? vehicleProfile.getVehiclePlate() : null)
-                .hasFloor(vehicleProfile != null ? vehicleProfile.isHasFloor() : null)
-                .assignedAt(tripAssignmentRecord != null ? tripAssignmentRecord.getAssignedAt() : null)
+                .duration(routeAggregate.getDuration())
                 .routePoints(routePointResults)
                 .build();
     }
@@ -307,6 +286,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .originName(aggregate.getOriginName())
                 .destinationCode(aggregate.getDestinationCode())
                 .destinationName(aggregate.getDestinationName())
+                .duration(aggregate.getDuration())
                 .status(aggregate.getStatus())
                 .routePoints(
                         aggregate.getStopPlans().stream()

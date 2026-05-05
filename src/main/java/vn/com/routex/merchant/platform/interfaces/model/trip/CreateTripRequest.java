@@ -31,8 +31,8 @@ public class CreateTripRequest extends BaseRequest {
     public static class CreateTripRequestData {
         private String routeId;
         private OffsetDateTime departureTime;
+        private String pickupBranch;
         private String rawDepartureTime;
         private String rawDepartureDate;
-        private Long durationMinutes;
     }
 }

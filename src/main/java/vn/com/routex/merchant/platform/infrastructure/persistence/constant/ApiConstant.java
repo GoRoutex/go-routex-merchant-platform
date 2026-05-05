@@ -30,4 +30,6 @@ public class ApiConstant {
     public static final String REJECT_PATH = "/reject";
     public static final String APPLICATION_FORM_ID_PATH = "/{applicationFormId}";
     public static final String DETAIL_PATH = "/detail";
+    public static final String BOOKING_CONTEXT_PATH = "/booking-context";
+    public static final String SEAT_BLUEPRINT_PATH = "/seat-blueprint";
 }

@@ -13,7 +13,7 @@ public record CreateTripResult(
         OffsetDateTime departureTime,
         String rawDepartureTime,
         String rawDepartureDate,
-        Long durationMinutes,
+        String pickupBranch,
         TripStatus status
 ) {
 }

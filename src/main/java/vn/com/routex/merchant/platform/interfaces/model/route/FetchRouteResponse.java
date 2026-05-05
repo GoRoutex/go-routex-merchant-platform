@@ -38,6 +38,7 @@ public class FetchRouteResponse extends BaseResponse<FetchRouteResponse.FetchRou
         private String originName;
         private String destinationCode;
         private String destinationName;
+        private Long duration;
         private RouteStatus status;
         private List<SearchRouteResponse.SearchRoutePoints> routePoints;
     }

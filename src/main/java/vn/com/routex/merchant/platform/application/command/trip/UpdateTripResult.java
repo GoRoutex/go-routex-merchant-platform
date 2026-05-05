@@ -11,9 +11,9 @@ public record UpdateTripResult(
         String routeId,
         String merchantId,
         OffsetDateTime departureTime,
+        String pickupBranch,
         String rawDepartureTime,
         String rawDepartureDate,
-        Long durationMinutes,
         TripStatus status
 ) {
 }

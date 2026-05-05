@@ -13,6 +13,7 @@ public record FetchRouteResult(
         String originName,
         String destinationCode,
         String destinationName,
+        Long duration,
         RouteStatus status,
         List<RoutePointResult> routePoints
 ) {

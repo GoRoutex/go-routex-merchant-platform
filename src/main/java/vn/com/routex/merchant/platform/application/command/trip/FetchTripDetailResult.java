@@ -8,13 +8,21 @@ import java.time.OffsetDateTime;
 @Builder
 public record FetchTripDetailResult(
         String tripId,
-        String routeId,
         String merchantId,
         String tripCode,
+        String pickupBranch,
         OffsetDateTime departureTime,
         String rawDepartureTime,
         String rawDepartureDate,
-        Long durationMinutes,
-        TripStatus status
+        TripStatus status,
+        FetchTripDetailRoute route
 ) {
+
+    @Builder
+    public record FetchTripDetailRoute(
+            String routeId,
+            String originName,
+            String destinationName,
+            Long duration
+    ) {}
 }

@@ -4,10 +4,13 @@ package vn.com.routex.merchant.platform.interfaces.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 import vn.com.routex.merchant.platform.application.command.merchant.GetMyMerchantCommand;
 import vn.com.routex.merchant.platform.application.command.merchant.GetMyMerchantResult;
 import vn.com.routex.merchant.platform.application.service.MerchantAccessService;
@@ -29,6 +32,11 @@ public class MerchantAccessController {
 
     private final ApiResultFactory apiResultFactory;
     private final MerchantAccessService merchantAccessService;
+
+    @InitBinder
+    public void initBinder(WebDataBinder webDataBinder, WebRequest webRequest) {
+        webDataBinder.setDisallowedFields("requestId", "requestDateTime", "channel", "data");
+    }
 
     @GetMapping(PROFILE_PATH)
     public ResponseEntity<GetMyMerchantResponse> getMyMerchantInfo(

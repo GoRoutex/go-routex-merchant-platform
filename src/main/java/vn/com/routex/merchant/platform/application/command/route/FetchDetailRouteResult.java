@@ -16,11 +16,7 @@ public record FetchDetailRouteResult(
         String destinationCode,
         String destinationName,
         RouteStatus status,
-        Long availableSeats,
-        String vehicleId,
-        String vehiclePlate,
-        Boolean hasFloor,
-        OffsetDateTime assignedAt,
+        Long duration,
         List<RoutePointResult> routePoints
 ) {
 }

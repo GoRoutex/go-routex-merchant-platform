@@ -17,4 +17,6 @@ public interface RouteAggregateRepositoryPort {
     void save(RouteAggregate aggregate);
 
     PagedResult<RouteAggregate> fetch(String merchantId, int pageNumber, int pageSize);
+
+    List<RouteAggregate> findByIdIn(List<String> routeIds);
 }

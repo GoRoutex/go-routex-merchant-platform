@@ -11,8 +11,8 @@ public record CreateTripCommand(
         String routeId,
         String merchantId,
         OffsetDateTime departureTime,
+        String pickupBranch,
         String rawDepartureTime,
-        String rawDepartureDate,
-        Long durationMinutes
+        String rawDepartureDate
 ) {
 }

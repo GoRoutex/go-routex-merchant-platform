@@ -1,4 +1,4 @@
-package vn.com.routex.merchant.platform.interfaces.controller;
+package vn.com.routex.merchant.platform.interfaces.internal;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(API_PATH + API_VERSION + INTERNAL_PATH + MERCHANT_SERVICE)
+@RequestMapping(API_PATH + API_VERSION + MERCHANT_SERVICE + INTERNAL_PATH)
 public class InternalMerchantAdminController {
 
     private final InternalMerchantAdminService internalMerchantAdminService;

@@ -21,15 +21,26 @@ public class FetchTripDetailResponse extends BaseResponse<FetchTripDetailRespons
     @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
+    public static class FetchTripRouteData {
+        private String routeId;
+        private String originName;
+        private String destinationName;
+        private Long duration;
+    }
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
     public static class FetchTripDetailResponseData {
         private String tripId;
-        private String routeId;
         private String merchantId;
         private String tripCode;
+        private String pickupBranch;
         private OffsetDateTime departureTime;
         private String rawDepartureTime;
         private String rawDepartureDate;
-        private Long durationMinutes;
         private TripStatus status;
+        private FetchTripRouteData route;
     }
 }

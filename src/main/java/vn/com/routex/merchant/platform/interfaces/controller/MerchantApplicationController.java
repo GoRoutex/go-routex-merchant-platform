@@ -4,10 +4,13 @@ package vn.com.routex.merchant.platform.interfaces.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.application.command.merchant.AcceptMerchantApplicationCommand;
 import vn.com.routex.merchant.platform.application.command.merchant.AcceptMerchantApplicationResult;
@@ -46,6 +49,10 @@ public class MerchantApplicationController {
     private final MerchantApplicationFormService merchantApplicationFormService;
     private final SystemLog sLog = SystemLog.getLogger(this.getClass());
 
+    @InitBinder
+    public void initBinder(WebDataBinder webDataBinder, WebRequest webRequest) {
+        webDataBinder.setDisallowedFields("requestId", "requestDateTime", "channel", "data");
+    }
     /*
     * Submit application form for Merchant Registration
     * */

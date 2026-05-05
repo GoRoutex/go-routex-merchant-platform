@@ -30,6 +30,12 @@ public class TripAggregateRepositoryAdapter implements TripAggregateRepositoryPo
     }
 
     @Override
+    public Optional<TripAggregate> findById(String tripId) {
+        return tripEntityRepository.findById(tripId)
+                .map(tripAggregatePersistenceMapper::toDomain);
+    }
+
+    @Override
     public Optional<TripAggregate> findById(String tripId, String merchantId) {
         return tripEntityRepository.findByIdAndMerchantId(tripId, merchantId)
                 .map(tripAggregatePersistenceMapper::toDomain);

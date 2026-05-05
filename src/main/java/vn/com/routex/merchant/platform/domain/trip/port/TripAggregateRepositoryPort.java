@@ -11,6 +11,8 @@ public interface TripAggregateRepositoryPort {
 
     boolean existsByRouteId(String routeId, String merchantId);
 
+    Optional<TripAggregate> findById(String tripId);
+
     Optional<TripAggregate> findById(String tripId, String merchantId);
 
     Optional<TripAggregate> findByRouteId(String routeId, String merchantId);

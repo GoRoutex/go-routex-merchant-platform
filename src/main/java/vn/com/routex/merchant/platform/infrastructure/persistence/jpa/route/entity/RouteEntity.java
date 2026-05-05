@@ -39,6 +39,9 @@ public class RouteEntity extends AbstractAuditingEntity {
     @Column(name = "DESTINATION_NAME")
     private String destinationName;
 
+    @Column(name = "DURATION")
+    private Long duration;
+
     @Column(name = "CREATOR")
     private String creator;
 

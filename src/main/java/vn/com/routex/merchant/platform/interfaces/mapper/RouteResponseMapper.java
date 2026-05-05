@@ -17,6 +17,7 @@ public class RouteResponseMapper {
                 .originName(item.originName())
                 .destinationCode(item.destinationCode())
                 .destinationName(item.destinationName())
+                .duration(item.duration())
                 .status(item.status())
                 .routePoints(item.routePoints() == null ? null : item.routePoints().stream()
                         .map(this::toSearchRoutePoint)

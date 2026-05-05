@@ -77,7 +77,6 @@ public class TripQueryAdapter implements TripQueryPort {
                             .departureTime(trip.getDepartureTime())
                             .rawDepartureDate(trip.getRawDepartureDate())
                             .rawDepartureTime(trip.getRawDepartureTime())
-                            .durationMinutes(trip.getDurationMinutes())
                             .status(trip.getStatus())
                             .build();
                 })

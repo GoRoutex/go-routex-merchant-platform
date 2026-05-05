@@ -35,15 +35,13 @@ public class CreateRouteRequest extends BaseRequest {
         @NotBlank
         @NotNull
         private String creator;
-
         @NotBlank
         @NotNull
         private String originName;
-
         @NotBlank
         @NotNull
         private String destinationName;
-
+        private Long duration;
         private List<RoutePoints> operationPoints;
     }
 

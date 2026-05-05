@@ -5,12 +5,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.application.command.review.CreateMerchantReviewCommand;
 import vn.com.routex.merchant.platform.application.command.review.CreateMerchantReviewResult;
@@ -48,6 +51,10 @@ public class MerchantReviewController {
     private final ApiResultFactory apiResultFactory;
     private final SystemLog sLog = SystemLog.getLogger(this.getClass());
 
+    @InitBinder
+    public void initBinder(WebDataBinder webDataBinder, WebRequest webRequest) {
+        webDataBinder.setDisallowedFields("requestId", "requestDateTime", "channel", "data");
+    }
     @PostMapping(REVIEWS_PATH + CREATE_PATH)
     public ResponseEntity<CreateMerchantReviewResponse> createReview(
             @Valid @RequestBody CreateMerchantReviewRequest request

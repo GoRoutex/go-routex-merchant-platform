@@ -16,11 +16,11 @@ public class TripAggregatePersistenceMapper {
         		.id(aggregate.getId())
         		.routeId(aggregate.getRouteId())
         		.merchantId(aggregate.getMerchantId())
+        		.pickupBranch(aggregate.getPickupBranch())
         		.tripCode(aggregate.getTripCode())
         		.departureTime(aggregate.getDepartureTime())
         		.rawDepartureTime(aggregate.getRawDepartureTime())
         		.rawDepartureDate(aggregate.getRawDepartureDate())
-        		.durationMinutes(aggregate.getDurationMinutes())
         		.status(aggregate.getStatus())
         		.build();
     }
@@ -33,11 +33,11 @@ public class TripAggregatePersistenceMapper {
                 .id(entity.getId())
                 .routeId(entity.getRouteId())
                 .merchantId(entity.getMerchantId())
+                .pickupBranch(entity.getPickupBranch())
                 .tripCode(entity.getTripCode())
                 .departureTime(entity.getDepartureTime())
                 .rawDepartureTime(entity.getRawDepartureTime())
                 .rawDepartureDate(entity.getRawDepartureDate())
-                .durationMinutes(entity.getDurationMinutes())
                 .status(entity.getStatus())
                 .build();
     }
