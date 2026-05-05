@@ -9,7 +9,6 @@ import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseResponse;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Getter
