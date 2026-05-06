@@ -43,7 +43,7 @@ public class SearchRouteResponse extends BaseResponse<List<SearchRouteResponse.S
         private int operationOrder;
         private String routeId;
         private String note;
-        private String operationPointId;
+        private String departmentId;
         private String stopName;
         private String stopAddress;
         private String stopCity;

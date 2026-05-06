@@ -19,7 +19,7 @@ import vn.com.routex.merchant.platform.application.command.route.UpdateRouteComm
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteResult;
 import vn.com.routex.merchant.platform.application.service.RouteManagementService;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
-import vn.com.routex.merchant.platform.domain.operationpoint.port.OperationPointRepositoryPort;
+import vn.com.routex.merchant.platform.domain.department.port.DepartmentRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.domain.route.model.ProvincesInformationPair;
 import vn.com.routex.merchant.platform.domain.route.model.RouteAggregate;
@@ -45,7 +45,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_NUMBER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_SIZE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_STOP_ORDER;
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.OPERATION_POINT_NOT_FOUND;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DEPARTMENT_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_POINT_NOT_FOUND;
@@ -58,7 +58,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
     private final RouteAggregateRepositoryPort routeAggregateRepositoryPort;
     private final RouteStopRepositoryPort routeStopRepositoryPort;
     private final RouteProvincesLookupPort routeProvincesLookupPort;
-    private final OperationPointRepositoryPort operationPointRepositoryPort;
+    private final DepartmentRepositoryPort departmentRepositoryPort;
 
     private final SystemLog sLog = SystemLog.getLogger(this.getClass());
 
@@ -67,6 +67,21 @@ public class RouteManagementServiceImpl implements RouteManagementService {
     public CreateRouteResult createRoute(CreateRouteCommand command) {
         String originName = command.originName().trim();
         String destinationName = command.destinationName().trim();
+
+        String originProvinceId = null;
+        String destinationProvinceId = null;
+
+        if (hasText(command.originDepartmentId())) {
+            originProvinceId = departmentRepositoryPort.findById(command.originDepartmentId(), command.merchantId())
+                    .map(vn.com.routex.merchant.platform.domain.department.model.Department::getProvinceId)
+                    .orElse(null);
+        }
+
+        if (hasText(command.destinationDepartmentId())) {
+            destinationProvinceId = departmentRepositoryPort.findById(command.destinationDepartmentId(), command.merchantId())
+                    .map(vn.com.routex.merchant.platform.domain.department.model.Department::getProvinceId)
+                    .orElse(null);
+        }
 
         ProvincesInformationPair codeResult = routeProvincesLookupPort.getCodes(command.originName(), command.destinationName());
 
@@ -91,7 +106,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                         .createdAt(now)
                         .createdBy(command.creator())
                         .note(point.note())
-                        .operationPointId(point.operationPointId())
+                        .departmentId(point.departmentId())
                         .stopName(point.stopName())
                         .stopAddress(point.stopAddress())
                         .stopCity(point.stopCity())
@@ -106,9 +121,14 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 command.merchantId(),
                 originCode,
                 destinationCode,
+                originProvinceId,
+                destinationProvinceId,
+                command.originDepartmentId(),
+                command.destinationDepartmentId(),
                 originName,
                 destinationName,
                 command.duration(),
+                0L,
                 now,
                 routeStopPlans
         );
@@ -122,6 +142,11 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .originCode(originCode)
                 .originName(command.originName())
                 .destinationCode(destinationCode)
+                .destinationName(destinationName)
+                .originProvinceId(originProvinceId)
+                .destinationProvinceId(destinationProvinceId)
+                .originDepartmentId(command.originDepartmentId())
+                .destinationDepartmentId(command.destinationDepartmentId())
                 .status(RouteStatus.ACTIVE)
                 .duration(command.duration())
                 .routePoints(command.routePoints() != null ?
@@ -254,7 +279,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                                 .id(stop.getId())
                                 .routeId(stop.getRouteId())
                                 .operationOrder(stop.getStopOrder())
-                                .operationPointId(stop.getOperationPointId())
+                                .departmentId(stop.getDepartmentId())
                                 .stopAddress(stop.getStopAddress())
                                 .stopName(stop.getStopName())
                                 .stopCity(stop.getStopCity())
@@ -271,6 +296,10 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .originName(routeAggregate.getOriginName())
                 .destinationCode(routeAggregate.getDestinationCode())
                 .destinationName(routeAggregate.getDestinationName())
+                .originProvinceId(routeAggregate.getOriginProvinceId())
+                .destinationProvinceId(routeAggregate.getDestinationProvinceId())
+                .originDepartmentId(routeAggregate.getOriginDepartmentId())
+                .destinationDepartmentId(routeAggregate.getDestinationDepartmentId())
                 .status(routeAggregate.getStatus())
                 .duration(routeAggregate.getDuration())
                 .routePoints(routePointResults)
@@ -295,7 +324,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                                         .operationOrder(stop.getStopOrder())
                                         .routeId(stop.getRouteId())
                                         .note(stop.getNote())
-                                        .operationPointId(stop.getOperationPointId())
+                                        .departmentId(stop.getDepartmentId())
                                         .stopName(stop.getStopName())
                                         .stopAddress(stop.getStopAddress())
                                         .stopCity(stop.getStopCity())
@@ -335,10 +364,10 @@ public class RouteManagementServiceImpl implements RouteManagementService {
             throwInvalidInput(command, INVALID_STOP_ORDER);
         }
 
-        boolean hasOperationPointId = hasText(point.operationPointId());
+        boolean hasDepartmentId = hasText(point.departmentId());
 
-        if (hasOperationPointId) {
-            validateOperationPoint(command, point.operationPointId().trim());
+        if (hasDepartmentId) {
+            validateDepartment(command, point.departmentId().trim());
             return;
         }
 
@@ -362,15 +391,15 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         }
     }
 
-    private void validateOperationPoint(CreateRouteCommand command, String operationPointId) {
-        operationPointRepositoryPort.findById(operationPointId, command.merchantId())
+    private void validateDepartment(CreateRouteCommand command, String departmentId) {
+        departmentRepositoryPort.findById(departmentId, command.merchantId())
                 .orElseThrow(() -> new BusinessException(
                         command.context().requestId(),
                         command.context().requestDateTime(),
                         command.context().channel(),
                         ExceptionUtils.buildResultResponse(
                                 RECORD_NOT_FOUND,
-                                String.format(OPERATION_POINT_NOT_FOUND, operationPointId))));
+                                String.format(DEPARTMENT_NOT_FOUND, departmentId))));
     }
 
     private void validateCustomStopCoordinates(CreateRouteCommand command, RoutePointCommand point) {

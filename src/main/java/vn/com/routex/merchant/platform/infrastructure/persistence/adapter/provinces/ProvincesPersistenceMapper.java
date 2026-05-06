@@ -18,12 +18,10 @@ public class ProvincesPersistenceMapper {
 
     public ProvincesEntity toEntity(Province province) {
         if (province == null) return null;
-        ProvincesEntity entity = new ProvincesEntity();
-        if (province.getId() != null) entity.setId(province.getId());
-        entity.setName(province.getName());
-        entity.setCode(province.getCode());
-        return entity;
-
+        return ProvincesEntity.builder()
+                .id(province.getId() != null ? province.getId() : 0)
+                .name(province.getName())
+                .code(province.getCode())
+                .build();
     }
 }
-

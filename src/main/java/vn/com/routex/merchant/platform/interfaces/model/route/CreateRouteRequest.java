@@ -41,8 +41,10 @@ public class CreateRouteRequest extends BaseRequest {
         @NotBlank
         @NotNull
         private String destinationName;
+        private String originDepartmentId;
+        private String destinationDepartmentId;
         private Long duration;
-        private List<RoutePoints> operationPoints;
+        private List<RoutePoints> departments;
     }
 
     @Getter
@@ -53,7 +55,7 @@ public class CreateRouteRequest extends BaseRequest {
     public static class RoutePoints {
         private String operationOrder;
         private String note;
-        private String operationPointId;
+        private String departmentId;
         private String stopName;
         private String stopAddress;
         private String stopCity;

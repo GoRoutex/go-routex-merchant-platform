@@ -10,15 +10,15 @@ public class ErrorConstant {
     public static final String RECORD_NOT_FOUND = "1407";
     public static final String TRIP_ASSIGNMENT_NOT_FOUND = "Trip Assignment not found";
     public static final String ROLE_NOT_FOUND = "Role not found";
-    public static final String OPERATION_POINT_OR_STOP_NAME_REQUIRED =
-            "Either operationPointId or stopName is required (but not both)";
+    public static final String DEPARTMENT_OR_STOP_NAME_REQUIRED =
+            "Either departmentId or stopName is required (but not both)";
     public static final String STOP_COORDINATES_MUST_BE_PROVIDED_TOGETHER =
             "stopLatitude and stopLongitude must be provided together";
     public static final String AUTHORITIES_NOT_FOUND = "Authorities not found";
     public static final String ROUTE_NOT_FOUND = "Route with Id %s not found";
     public static final String MERCHANT_NOT_FOUND_BY_ID = "Merchant with Id %s not found";
     public static final String MERCHANT_APPLICATION_FORM_NOT_FOUND = "Merchant application form with Id %s not found";
-    public static final String OPERATION_POINT_NOT_FOUND = "Operation point with Id %s not found";
+    public static final String DEPARTMENT_NOT_FOUND = "Operation point with Id %s not found";
     public static final String MERCHANT_REVIEW_NOT_FOUND_BY_ID = "Merchant review with Id %s not found";
     public static final String DRIVER_NOT_FOUND_BY_ID = "Driver with Id %s not found";
     public static final String DRIVER_NOT_FOUND_BY_USER_ID = "Driver with UserId %s not found";
@@ -48,7 +48,7 @@ public class ErrorConstant {
     public static final String INVALID_INPUT_MESSAGE = "Invalid Input";
     public static final String INVALID_REQUEST_TIMESTAMP = "5186";
     public static final String DUPLICATE_ERROR = "9400";
-    public static final String DUPLICATE_OPERATION_POINT_MESSAGE = "Operation point with this code already exists";
+    public static final String DUPLICATE_DEPARTMENT_MESSAGE = "Operation point with this code already exists";
     public static final String DUPLICATE_PROVINCE = "Province is already exists by %s";
     public static final String DUPLICATE_USER_ROLE_MESSAGE = "User already has this role";
     public static final String ROLE_EXISTS_ERROR = "Role with %s already exists";

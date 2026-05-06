@@ -8,7 +8,7 @@ public record RoutePointResult(
         int operationOrder,
         String routeId,
         String note,
-        String operationPointId,
+        String departmentId,
         String stopName,
         String stopAddress,
         String stopCity,

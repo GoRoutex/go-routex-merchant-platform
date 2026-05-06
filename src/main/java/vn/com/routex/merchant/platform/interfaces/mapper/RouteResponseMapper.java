@@ -41,7 +41,7 @@ public class RouteResponseMapper {
                 .operationOrder(point.operationOrder())
                 .routeId(point.routeId())
                 .note(point.note())
-                .operationPointId(point.operationPointId())
+                .departmentId(point.departmentId())
                 .stopName(point.stopName())
                 .stopAddress(point.stopAddress())
                 .stopCity(point.stopCity())

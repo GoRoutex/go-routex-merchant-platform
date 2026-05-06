@@ -16,7 +16,7 @@ public class ApiConstant {
     public static final String PROVINCES = "/provinces";
     public static final String SEARCH_PATH = "/search";
     public static final String ADMIN_PATH = "/admin";
-    public static final String OPERATION_POINT = "/operation-point";
+    public static final String DEPARTMENT = "/department";
     public static final String FETCH_PATH = "/fetch";
     public static final String REVIEWS_PATH = "/reviews";
     public static final String MASTER_PATH = "/master";

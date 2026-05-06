@@ -35,8 +35,8 @@ public class RouteStopEntity extends AbstractAuditingEntity {
     @Column(name = "NOTE")
     private String note;
 
-    @Column(name = "OPERATION_POINT_ID")
-    private String operationPointId;
+    @Column(name = "DEPARTMENT_ID")
+    private String departmentId;
 
     @Column(name = "STOP_NAME")
     private String stopName;
@@ -52,4 +52,7 @@ public class RouteStopEntity extends AbstractAuditingEntity {
 
     @Column(name = "STOP_LONGITUDE")
     private Double stopLongitude;
+
+    @Column(name = "STAY_DURATION")
+    private Long stayDuration;
 }

@@ -19,12 +19,13 @@ public class RouteStopPlan {
     private String creator;
     private int stopOrder;
     private String note;
-    private String operationPointId;
+    private String departmentId;
     private String stopName;
     private String stopAddress;
     private String stopCity;
     private Double stopLatitude;
     private Double stopLongitude;
+    private Long stayDuration;
     private OffsetDateTime createdAt;
     private String createdBy;
 }

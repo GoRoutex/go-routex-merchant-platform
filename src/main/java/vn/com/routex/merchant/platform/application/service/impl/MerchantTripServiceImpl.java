@@ -255,9 +255,6 @@ public class MerchantTripServiceImpl implements MerchantTripService {
                 vehicleTemplate.getTicketPrice(),
                 assignedAt
         );
-
-        trip.setStatus(TripStatus.ASSIGNED);
-        tripAggregateRepositoryPort.save(trip);
         tripAssignmentRepositoryPort.save(routeAssignment);
 
         sLog.info("[ASSIGN-ROUTE] Trip Assigned successfully with vehicleId: {} driverId: {}", vehicle.getId(), command.driverId());

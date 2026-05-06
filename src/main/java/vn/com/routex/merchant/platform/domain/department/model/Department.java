@@ -1,0 +1,44 @@
+package vn.com.routex.merchant.platform.domain.department.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import vn.com.routex.merchant.platform.domain.auditing.AbstractAuditingEntity;
+import vn.com.routex.merchant.platform.domain.department.DepartmentStatus;
+import vn.com.routex.merchant.platform.domain.department.DepartmentType;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@SuperBuilder
+public class Department extends AbstractAuditingEntity {
+    private String id;
+    private String code;
+    private String name;
+    private String merchantId;
+    private DepartmentType type;
+    private String address;
+    private String wardId;
+    private String wardName;
+    private String districtId;
+    private String districtName;
+    private String provinceId;
+    private String provinceName;
+    private Long timeAtDepartment;
+    private boolean passing;
+    private boolean isShuttleService;
+    private String note;
+    private Integer pointKind;
+    private Integer presentBeforeMinutes;
+    private String openingTime;
+    private String closingTime;
+    private String onlineOpeningTime;
+    private String onlineClosingTime;
+    private Double latitude;
+    private Double longitude;
+    private DepartmentStatus status;
+    private boolean isActive;
+}

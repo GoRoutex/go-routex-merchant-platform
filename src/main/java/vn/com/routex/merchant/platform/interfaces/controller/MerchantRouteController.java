@@ -118,7 +118,7 @@ public class MerchantRouteController {
                             .operationOrder(point.operationOrder())
                             .routeId(point.routeId())
                             .note(point.note())
-                            .operationPointId(point.operationPointId())
+                            .departmentId(point.departmentId())
                             .stopName(point.stopName())
                             .stopAddress(point.stopAddress())
                             .stopCity(point.stopCity())
@@ -227,12 +227,12 @@ public class MerchantRouteController {
         sLog.info("[CREATE-ROUTE] Create Route Request: {}", request);
         String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, request);
         List<RoutePointCommand> routePointCommands = new ArrayList<>();
-        if (request.getData().getOperationPoints() != null) {
-            routePointCommands = request.getData().getOperationPoints().stream()
+        if (request.getData().getDepartments() != null) {
+            routePointCommands = request.getData().getDepartments().stream()
                     .map(point -> RoutePointCommand.builder()
                             .operationOrder(point.getOperationOrder())
                             .note(point.getNote())
-                            .operationPointId(point.getOperationPointId())
+                            .departmentId(point.getDepartmentId())
                             .stopName(point.getStopName())
                             .stopAddress(point.getStopAddress())
                             .stopCity(point.getStopCity())
@@ -259,7 +259,7 @@ public class MerchantRouteController {
                         CreateRouteRequest.RoutePoints rp = new CreateRouteRequest.RoutePoints();
                         rp.setOperationOrder(point.operationOrder());
                         rp.setNote(point.note());
-                        rp.setOperationPointId(point.operationPointId());
+                        rp.setDepartmentId(point.departmentId());
                         rp.setStopName(point.stopName());
                         rp.setStopAddress(point.stopAddress());
                         rp.setStopCity(point.stopCity());

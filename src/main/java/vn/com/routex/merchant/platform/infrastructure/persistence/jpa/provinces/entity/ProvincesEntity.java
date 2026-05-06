@@ -11,12 +11,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.AbstractAuditingEntity;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder
 @Entity
 @Table(name = "PROVINCES")
 public class ProvincesEntity extends AbstractAuditingEntity {

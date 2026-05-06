@@ -25,7 +25,12 @@ public class RouteAggregate extends AbstractAuditingEntity {
     private String destinationName;
     private String originCode;
     private String destinationCode;
+    private String originProvinceId;
+    private String destinationProvinceId;
+    private String originDepartmentId;
+    private String destinationDepartmentId;
     private Long duration;
+    private Long distance;
     private RouteStatus status;
     private List<RouteStopPlan> stopPlans;
 
@@ -35,9 +40,14 @@ public class RouteAggregate extends AbstractAuditingEntity {
             String merchantId,
             String originCode,
             String destinationCode,
+            String originProvinceId,
+            String destinationProvinceId,
+            String originDepartmentId,
+            String destinationDepartmentId,
             String originName,
             String destinationName,
             Long duration,
+            Long distance,
             OffsetDateTime createdAt,
             List<RouteStopPlan> stopPlans
     ) {
@@ -47,9 +57,14 @@ public class RouteAggregate extends AbstractAuditingEntity {
                 .merchantId(merchantId)
                 .originCode(originCode)
                 .destinationCode(destinationCode)
+                .originProvinceId(originProvinceId)
+                .destinationProvinceId(destinationProvinceId)
+                .originDepartmentId(originDepartmentId)
+                .destinationDepartmentId(destinationDepartmentId)
                 .originName(originName)
                 .destinationName(destinationName)
                 .duration(duration)
+                .distance(distance)
                 .status(RouteStatus.ACTIVE)
                 .createdAt(createdAt)
                 .createdBy(creator)

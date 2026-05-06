@@ -12,6 +12,8 @@ public record  CreateRouteCommand(
         String creator,
         String destinationName,
         String originName,
+        String originDepartmentId,
+        String destinationDepartmentId,
         Long duration,
         List<RoutePointCommand> routePoints
 ) {
