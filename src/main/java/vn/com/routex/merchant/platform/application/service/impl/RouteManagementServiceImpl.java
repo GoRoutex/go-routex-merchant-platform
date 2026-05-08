@@ -27,6 +27,9 @@ import vn.com.routex.merchant.platform.domain.route.model.RouteStopPlan;
 import vn.com.routex.merchant.platform.domain.route.port.RouteAggregateRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteProvincesLookupPort;
 import vn.com.routex.merchant.platform.domain.route.port.RouteStopRepositoryPort;
+import vn.com.routex.merchant.platform.domain.trip.TripStatus;
+import vn.com.routex.merchant.platform.domain.trip.model.TripAggregate;
+import vn.com.routex.merchant.platform.domain.trip.port.TripAggregateRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
@@ -37,15 +40,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_PAGE_NUMBER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_PAGE_SIZE;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DEPARTMENT_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_INPUT_ERROR;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_NUMBER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_SIZE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_STOP_ORDER;
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DEPARTMENT_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_POINT_NOT_FOUND;
@@ -61,6 +64,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
     private final DepartmentRepositoryPort departmentRepositoryPort;
 
     private final SystemLog sLog = SystemLog.getLogger(this.getClass());
+    private final TripAggregateRepositoryPort tripAggregateRepositoryPort;
 
     @Override
     @Transactional
@@ -113,7 +117,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                         .stopLatitude(point.stopLatitude())
                         .stopLongitude(point.stopLongitude())
                         .build())
-                .collect(Collectors.toList());
+                .collect(toList());
 
         RouteAggregate newRoute = RouteAggregate.plan(
                 routeId,
@@ -229,7 +233,15 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(ROUTE_NOT_FOUND, command.routeId()))));
 
+
+        Optional<TripAggregate> optTrip = tripAggregateRepositoryPort.findByRouteId(route.getId(), command.merchantId());
         OffsetDateTime now = OffsetDateTime.now();
+        if(optTrip.isPresent()) {
+            TripAggregate trip = optTrip.get();
+            trip.setStatus(TripStatus.CANCELLED);
+            trip.setUpdatedAt(now);
+            tripAggregateRepositoryPort.save(trip);
+        }
         route.cancel(command.creator(), now);
         routeAggregateRepositoryPort.save(route);
 
@@ -250,7 +262,13 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 query.context().requestId(), query.context().requestDateTime(), query.context().channel());
 
         validatePaging(query, pageSize, pageNumber);
-        PagedResult<RouteAggregate> page = routeAggregateRepositoryPort.fetch(query.context().merchantId(), pageNumber - 1, pageSize);
+
+        PagedResult<RouteAggregate> page;
+        if(query.status() != null) {
+            page = routeAggregateRepositoryPort.fetch(query.context().merchantId(), query.status(),pageNumber - 1, pageSize);
+        } else {
+            page = routeAggregateRepositoryPort.fetch(query.context().merchantId(), pageNumber - 1, pageSize);
+        }
         return FetchRoutesResult.builder()
                 .items(page.getItems().stream()
                         .map(this::toFetchDetailResult)
@@ -307,7 +325,6 @@ public class RouteManagementServiceImpl implements RouteManagementService {
     }
 
     private FetchRouteResult toFetchDetailResult(RouteAggregate aggregate) {
-
         return FetchRouteResult.builder()
                 .id(aggregate.getId())
                 .creator(aggregate.getCreator())
@@ -318,7 +335,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .duration(aggregate.getDuration())
                 .status(aggregate.getStatus())
                 .routePoints(
-                        aggregate.getStopPlans().stream()
+                        aggregate.getStopPlans() != null ? aggregate.getStopPlans().stream()
                                 .map(stop -> RoutePointResult.builder()
                                         .id(stop.getId())
                                         .operationOrder(stop.getStopOrder())
@@ -332,7 +349,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                                         .stopLongitude(stop.getStopLongitude())
                                         .build()
                                 )
-                                .toList())
+                                .toList() : null)
                 .build();
     }
     private void validatePaging(FetchRoutesQuery query, int pageSize, int pageNumber) {

@@ -22,12 +22,11 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.entity.Abs
 @Table(name = "WARDS")
 public class WardsEntity extends AbstractAuditingEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private String id;
 
     @Column(name = "NAME", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "DISTRICT_ID", nullable = false)
-    private int districtId;
+    @Column(name = "PROVINCE_ID", nullable = false)
+    private String provinceId;
 }

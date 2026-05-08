@@ -18,17 +18,17 @@ public record FetchDepartmentResult(
     @Builder
     public record FetchDepartmentItemResult(
             String id,
-            String code,
             String name,
             DepartmentType type,
             String address,
             String wardId,
             String wardName,
-            String districtId,
-            String districtName,
             String provinceId,
             String provinceName,
-            boolean isShuttleService,
+            String openingTime,
+            String closingTime,
+            String onlineOpeningTime,
+            String onlineClosingTime,
             Double latitude,
             Double longitude,
             DepartmentStatus status

@@ -29,17 +29,15 @@ public class CreateDepartmentRequest extends BaseRequest {
     @NoArgsConstructor
     @SuperBuilder
     public static class CreateDepartmentRequestData {
-        private String code;
         private String name;
         private DepartmentType type;
         private String address;
         private String wardId;
-        private String districtId;
         private String provinceId;
-        private Long timeAtDepartment;
-        private boolean isShuttleService;
         private String openingTime;
         private String closingTime;
+        private String onlineOpeningTime;
+        private String onlineClosingTime;
         private Double latitude;
         private Double longitude;
         private DepartmentStatus status;

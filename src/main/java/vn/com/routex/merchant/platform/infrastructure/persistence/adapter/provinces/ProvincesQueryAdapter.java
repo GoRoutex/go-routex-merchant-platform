@@ -22,61 +22,34 @@ public class ProvincesQueryAdapter implements ProvincesQueryPort {
     private final ProvincesEntityRepository provincesEntityRepository;
 
     @Override
-    public List<ProvincesSearchItem> search(String merchantId, String keyword, int page, int size) {
+    public List<ProvincesSearchItem> search(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(
                 Math.max(0, page),
                 Math.min(Math.max(size, 1), 50),
                 Sort.by(Sort.Order.asc("name"))
         );
 
-        return provincesEntityRepository.searchByMerchantId(merchantId, keyword == null ? "" : keyword.trim(), pageable)
-                .map(p -> {
-                    ProvincesSearchItem item = new ProvincesSearchItem();
-                    item.setId(p.getId());
-                    item.setName(p.getName());
-                    item.setCode(p.getCode());
-                    return item;
-                })
+        return provincesEntityRepository.searchByKeyword(keyword == null ? "" : keyword.trim(), pageable)
+                .map(p -> ProvincesSearchItem.builder()
+                        .id(p.getId())
+                        .name(p.getName())
+                        .code(p.getCode())
+                        .build())
                 .getContent();
     }
 
     @Override
-    public PagedResult<ProvincesFetchView> fetchRoutes(String merchantId, int pageNumber, int pageSize) {
-
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<ProvincesEntity> page = provincesEntityRepository.fetchByMerchantId(merchantId, pageable);
-
-        List<ProvincesFetchView> items = page.getContent().stream()
-                .map(p -> {
-                    ProvincesFetchView view = new ProvincesFetchView();
-                    view.setId(p.getId());
-                    view.setName(p.getName());
-                    view.setCode(p.getCode());
-                    return view;
-                })
-                .toList();
-
-        return PagedResult.<ProvincesFetchView>builder()
-                .items(items)
-                .pageNumber(page.getNumber())
-                .pageSize(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .build();
-    }
-
-    @Override
-    public PagedResult<ProvincesFetchView> fetchMasterProvinces(int pageNumber, int pageSize) {
+    public PagedResult<ProvincesFetchView> fetchProvinces(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Order.asc("name")));
         Page<ProvincesEntity> page = provincesEntityRepository.findAll(pageable);
 
         List<ProvincesFetchView> items = page.getContent().stream()
                 .map(p -> {
-                    ProvincesFetchView view = new ProvincesFetchView();
-                    view.setId(p.getId());
-                    view.setName(p.getName());
-                    view.setCode(p.getCode());
-                    return view;
+                    return ProvincesFetchView.builder()
+                            .id(p.getId())
+                            .name(p.getName())
+                            .code(p.getCode())
+                            .build();
                 })
                 .toList();
 

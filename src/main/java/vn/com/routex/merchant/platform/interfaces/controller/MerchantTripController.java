@@ -149,6 +149,7 @@ public class MerchantTripController {
                 .tripId(request.getData().getTripId())
                 .routeId(request.getData().getRouteId())
                 .merchantId(merchantId)
+                .pickupBranch(request.getData().getPickupBranch())
                 .departureTime(request.getData().getDepartureTime())
                 .rawDepartureTime(request.getData().getRawDepartureTime())
                 .rawDepartureDate(request.getData().getRawDepartureDate())
@@ -238,6 +239,7 @@ public class MerchantTripController {
     public ResponseEntity<FetchTripListResponse> fetchList(
             @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) TripStatus status,
             HttpServletRequest servletRequest
     ) {
         BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
@@ -245,6 +247,7 @@ public class MerchantTripController {
 
         FetchTripListResult result = merchantTripService.fetchTripList(FetchTripListQuery.builder()
                 .context(HttpUtils.toContext(baseRequest, merchantId))
+                .status(status)
                 .pageNumber(String.valueOf(pageNumber))
                 .pageSize(String.valueOf(pageSize))
                 .build());

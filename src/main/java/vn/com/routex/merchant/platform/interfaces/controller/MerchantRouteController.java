@@ -27,6 +27,7 @@ import vn.com.routex.merchant.platform.application.command.route.RoutePointComma
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteCommand;
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteResult;
 import vn.com.routex.merchant.platform.application.service.RouteManagementService;
+import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.HttpUtils;
 import vn.com.routex.merchant.platform.interfaces.factory.ApiResultFactory;
@@ -62,7 +63,6 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 @RequiredArgsConstructor
 @PreAuthorize("hasAuthority('route:management') or hasRole('ADMIN')")
 public class MerchantRouteController {
-
 
     private final RouteManagementService routeManagementService;
     private final ApiResultFactory apiResultFactory;
@@ -138,6 +138,7 @@ public class MerchantRouteController {
     @GetMapping(FETCH_PATH)
     public ResponseEntity<FetchRouteResponse> fetchRoutes(@RequestParam(defaultValue = "1") int pageNumber,
                                                           @RequestParam(defaultValue = "10") int pageSize,
+                                                          @RequestParam(required = false) RouteStatus status,
                                                           HttpServletRequest servletRequest) {
         BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
         String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, baseRequest);
@@ -145,6 +146,7 @@ public class MerchantRouteController {
         FetchRoutesResult result = routeManagementService.fetchRoutes(FetchRoutesQuery.builder()
                 .context(HttpUtils.toContext(baseRequest, merchantId))
                 .merchantId(merchantId)
+                .status(status)
                 .pageNumber(String.valueOf(pageNumber))
                 .pageSize(String.valueOf(pageSize))
                 .build());

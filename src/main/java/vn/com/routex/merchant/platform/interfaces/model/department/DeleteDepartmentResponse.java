@@ -21,7 +21,6 @@ public class DeleteDepartmentResponse extends BaseResponse<DeleteDepartmentRespo
     @SuperBuilder
     public static class DeleteDepartmentResponseData {
         private String id;
-        private String code;
         private DepartmentStatus status;
     }
 }

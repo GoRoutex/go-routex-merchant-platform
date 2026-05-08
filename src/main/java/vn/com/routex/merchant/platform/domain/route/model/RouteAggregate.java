@@ -73,7 +73,7 @@ public class RouteAggregate extends AbstractAuditingEntity {
     }
 
     public void cancel(String creator, OffsetDateTime now) {
-        this.status = RouteStatus.INACTIVE;
+        this.status = RouteStatus.SUSPENDED;
         this.setUpdatedBy(creator);
         this.setUpdatedAt(now);
     }

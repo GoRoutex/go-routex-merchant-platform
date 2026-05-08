@@ -2,6 +2,7 @@ package vn.com.routex.merchant.platform.domain.route.port;
 
 
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.domain.route.model.RouteAggregate;
 
 import java.util.List;
@@ -17,6 +18,8 @@ public interface RouteAggregateRepositoryPort {
     void save(RouteAggregate aggregate);
 
     PagedResult<RouteAggregate> fetch(String merchantId, int pageNumber, int pageSize);
+
+    PagedResult<RouteAggregate> fetch(String merchantId, RouteStatus status, int pageNumber, int pageSize);
 
     List<RouteAggregate> findByIdIn(List<String> routeIds);
 }

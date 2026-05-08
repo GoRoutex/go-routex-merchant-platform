@@ -7,9 +7,7 @@ import vn.com.routex.merchant.platform.domain.provinces.readmodel.ProvincesSearc
 import java.util.List;
 
 public interface ProvincesQueryPort {
-    List<ProvincesSearchItem> search(String merchantId, String keyword, int page, int size);
+    List<ProvincesSearchItem> search(String keyword, int page, int size);
 
-    PagedResult<ProvincesFetchView> fetchRoutes(String merchantId, int pageNumber, int pageSize);
-
-    PagedResult<ProvincesFetchView> fetchMasterProvinces(int pageNumber, int pageSize);
+    PagedResult<ProvincesFetchView> fetchProvinces(int pageNumber, int pageSize);
 }

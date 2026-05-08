@@ -13,26 +13,18 @@ import vn.com.routex.merchant.platform.domain.department.DepartmentType;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 public class Department extends AbstractAuditingEntity {
     private String id;
-    private String code;
     private String name;
     private String merchantId;
     private DepartmentType type;
     private String address;
     private String wardId;
     private String wardName;
-    private String districtId;
-    private String districtName;
     private String provinceId;
     private String provinceName;
-    private Long timeAtDepartment;
-    private boolean passing;
-    private boolean isShuttleService;
     private String note;
-    private Integer pointKind;
-    private Integer presentBeforeMinutes;
     private String openingTime;
     private String closingTime;
     private String onlineOpeningTime;
@@ -40,5 +32,4 @@ public class Department extends AbstractAuditingEntity {
     private Double latitude;
     private Double longitude;
     private DepartmentStatus status;
-    private boolean isActive;
 }

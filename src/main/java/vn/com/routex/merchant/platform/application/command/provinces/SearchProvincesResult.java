@@ -10,7 +10,7 @@ public record SearchProvincesResult(
 ) {
     @Builder
     public record SearchProvincesItemResult(
-            int id,
+            String id,
             String name,
             String code
     ) {

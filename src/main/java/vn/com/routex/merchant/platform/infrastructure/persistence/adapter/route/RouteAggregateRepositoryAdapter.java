@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.domain.route.model.RouteAggregate;
 import vn.com.routex.merchant.platform.domain.route.model.RouteStopPlan;
 import vn.com.routex.merchant.platform.domain.route.port.RouteAggregateRepositoryPort;
@@ -14,6 +15,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.enti
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.route.repository.RouteEntityRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -23,9 +25,6 @@ public class RouteAggregateRepositoryAdapter implements RouteAggregateRepository
     private final RouteEntityRepository routeEntityRepository;
     private final RoutePersistenceMapper routePersistenceMapper;
     private final RouteStopRepositoryPort routeStopRepositoryPort;
-
-    private final SystemLog sLog = SystemLog.getLogger(this.getClass());
-
     @Override
     public Optional<RouteAggregate> findById(String routeId) {
         return routeEntityRepository.findById(routeId)
@@ -51,13 +50,41 @@ public class RouteAggregateRepositoryAdapter implements RouteAggregateRepository
     }
 
     @Override
+    public PagedResult<RouteAggregate> fetch(String merchantId, RouteStatus status, int pageNumber, int pageSize) {
+        Page<RouteEntity> page = routeEntityRepository.findByMerchantIdAndStatus(merchantId, status, PageRequest.of(pageNumber, pageSize));
+        return toPagedResult(page);
+    }
+
+    @Override
     public PagedResult<RouteAggregate> fetch(String merchantId, int pageNumber, int pageSize) {
         Page<RouteEntity> page = routeEntityRepository.findByMerchantId(merchantId, PageRequest.of(pageNumber, pageSize));
+        return toPagedResult(page);
+    }
+
+    @Override
+    public List<RouteAggregate> findByIdIn(List<String> routeIds) {
+        return routeEntityRepository.findByIdIn(routeIds)
+                .stream()
+                .map(routePersistenceMapper::toAggregate)
+                .toList();
+    }
+
+
+    private PagedResult<RouteAggregate> toPagedResult(Page<RouteEntity> page) {
+
+        List<RouteEntity> routeEntities = page.getContent();
+
+        List<String> routeIds = routeEntities.stream()
+                .map(RouteEntity::getId)
+                .toList();
+
+        Map<String, List<RouteStopPlan>> mapRouteStop = routeStopRepositoryPort.findByRouteIds(routeIds);
+
         return PagedResult.<RouteAggregate>builder()
                 .items(page.getContent().stream()
                         .map(p -> {
                             RouteAggregate routeAggregate = routePersistenceMapper.toAggregate(p);
-                            List<RouteStopPlan> stopPlans = routeStopRepositoryPort.findByRouteId(routeAggregate.getId());
+                            List<RouteStopPlan> stopPlans = mapRouteStop.get(p.getId());
                             routeAggregate.setStopPlans(stopPlans);
                             return routeAggregate;
                         })
@@ -67,13 +94,5 @@ public class RouteAggregateRepositoryAdapter implements RouteAggregateRepository
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
                 .build();
-    }
-
-    @Override
-    public List<RouteAggregate> findByIdIn(List<String> routeIds) {
-        return routeEntityRepository.findByIdIn(routeIds)
-                .stream()
-                .map(routePersistenceMapper::toAggregate)
-                .toList();
     }
 }

@@ -67,8 +67,6 @@ management:
 server:
   port: ${SERVER_PORT:8083}
 
-
-
 locking:
   batch: 100
 

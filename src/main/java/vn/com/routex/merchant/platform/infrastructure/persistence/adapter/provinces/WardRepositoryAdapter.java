@@ -10,22 +10,51 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.provinces.entity.WardsEntity;
+
 @Component
 @RequiredArgsConstructor
 public class WardRepositoryAdapter implements WardRepositoryPort {
 
-    private final WardsEntityRepository repository;
+    private final WardsEntityRepository wardsEntityRepository;
     private final AdministrativePersistenceMapper mapper;
 
     @Override
-    public Optional<Ward> findById(Integer id) {
-        return repository.findById(id).map(mapper::toDomain);
+    public Optional<Ward> findById(String id) {
+        return wardsEntityRepository.findById(id).map(mapper::toDomain);
     }
 
     @Override
-    public List<Ward> findByDistrictId(Integer districtId) {
-        return repository.findByDistrictId(districtId).stream()
+    public List<Ward> findByProvinceId(String provinceId) {
+        return wardsEntityRepository.findByProvinceId(provinceId).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PagedResult<Ward> fetch(String provinceId, int pageNumber, int pageSize) {
+        Page<WardsEntity> page = wardsEntityRepository.fetch(provinceId, PageRequest.of(pageNumber, pageSize));
+        return PagedResult.<Ward>builder()
+                .items(page.getContent().stream().map(mapper::toDomain).collect(Collectors.toList()))
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public PagedResult<Ward> search(String keyword, String provinceId, int page, int size) {
+        Page<WardsEntity> resultPage = wardsEntityRepository.search(keyword, provinceId, PageRequest.of(page, size));
+        return PagedResult.<Ward>builder()
+                .items(resultPage.getContent().stream().map(mapper::toDomain).collect(Collectors.toList()))
+                .pageNumber(resultPage.getNumber())
+                .pageSize(resultPage.getSize())
+                .totalElements(resultPage.getTotalElements())
+                .totalPages(resultPage.getTotalPages())
+                .build();
     }
 }

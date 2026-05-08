@@ -16,12 +16,4 @@ public interface ProvincesManagementService {
     SearchProvincesResult searchProvinces(SearchProvincesQuery query);
 
     FetchProvincesResult fetchProvinces(FetchProvincesQuery query);
-
-    FetchProvincesResult fetchMasterProvinces(FetchProvincesQuery query);
-
-    CreateProvinceResult createProvince(CreateProvinceCommand command);
-
-    UpdateProvinceResult updateProvince(UpdateProvinceCommand command);
-
-    DeleteProvinceResult deleteProvince(DeleteProvinceCommand command);
 }

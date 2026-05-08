@@ -14,6 +14,7 @@ public class ApiConstant {
     public static final String VEHICLE_TEMPLATE_PATH = "/vehicle-templates";
     public static final String MAINTENANCE_PLAN_PATH = "/maintenance-plans";
     public static final String PROVINCES = "/provinces";
+    public static final String WARDS = "/wards";
     public static final String SEARCH_PATH = "/search";
     public static final String ADMIN_PATH = "/admin";
     public static final String DEPARTMENT = "/department";

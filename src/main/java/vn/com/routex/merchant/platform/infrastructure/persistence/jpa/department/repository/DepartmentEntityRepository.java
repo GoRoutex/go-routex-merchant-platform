@@ -20,9 +20,9 @@ public interface DepartmentEntityRepository extends JpaRepository<DepartmentEnti
 
     Optional<DepartmentEntity> findByNameIgnoreCaseAndMerchantId(String name, String merchantId);
 
-    boolean existsByCode(String code);
+    boolean existsByNameIgnoreCase(String name);
 
-    boolean existsByCodeAndMerchantId(String code, String merchantId);
+    boolean existsByNameIgnoreCaseAndMerchantId(String name, String merchantId);
 
     List<DepartmentEntity> findByMerchantId(String merchantId);
 

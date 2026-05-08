@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DepartmentRepositoryPort {
-    Optional<Department> findByCode(String code);
 
-    Optional<Department> findByCode(String code, String merchantId);
 
     Optional<Department> findByName(String name, String merchantId);
 
@@ -18,9 +16,9 @@ public interface DepartmentRepositoryPort {
 
     Optional<Department> findById(String id, String merchantId);
 
-    boolean existsByCode(String code);
+    boolean existsByName(String name);
 
-    boolean existsByCode(String code, String merchantId);
+    boolean existsByName(String name, String merchantId);
 
     List<Department> findByMerchantId(String merchantId);
 

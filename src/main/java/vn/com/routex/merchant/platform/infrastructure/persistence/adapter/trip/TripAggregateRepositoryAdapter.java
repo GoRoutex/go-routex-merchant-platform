@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.trip.TripStatus;
 import vn.com.routex.merchant.platform.domain.trip.model.TripAggregate;
 import vn.com.routex.merchant.platform.domain.trip.port.TripAggregateRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.trip.entity.TripEntity;
@@ -55,6 +56,16 @@ public class TripAggregateRepositoryAdapter implements TripAggregateRepositoryPo
     @Override
     public PagedResult<TripAggregate> fetch(String merchantId, int pageNumber, int pageSize) {
         Page<TripEntity> page = tripEntityRepository.findByMerchantId(merchantId, PageRequest.of(pageNumber, pageSize));
+        return toPagedResult(page);
+    }
+
+    @Override
+    public PagedResult<TripAggregate> fetch(String merchantId, TripStatus status, int pageNumber, int pageSize) {
+        Page<TripEntity> page = tripEntityRepository.findByMerchantIdAndStatus(merchantId, status, PageRequest.of(pageNumber, pageSize));
+        return toPagedResult(page);
+    }
+
+    private PagedResult<TripAggregate> toPagedResult(Page<TripEntity> page) {
         return PagedResult.<TripAggregate>builder()
                 .items(page.getContent().stream()
                         .map(tripAggregatePersistenceMapper::toDomain)

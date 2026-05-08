@@ -27,9 +27,6 @@ public class DepartmentEntity extends AbstractAuditingEntity {
     @Id
     private String id;
 
-    @Column(name = "CODE")
-    private String code;
-
     @Column(name = "NAME")
     private String name;
 
@@ -49,35 +46,14 @@ public class DepartmentEntity extends AbstractAuditingEntity {
     @Column(name = "WARD_NAME")
     private String wardName;
 
-    @Column(name = "DISTRICT_ID")
-    private String districtId;
-
-    @Column(name = "DISTRICT_NAME")
-    private String districtName;
-
     @Column(name = "PROVINCE_ID")
     private String provinceId;
 
     @Column(name = "PROVINCE_NAME")
     private String provinceName;
 
-    @Column(name = "TIME_AT_DEPARTMENT")
-    private Long timeAtDepartment;
-
-    @Column(name = "PASSING")
-    private boolean passing;
-
-    @Column(name = "IS_SHUTTLE_SERVICE")
-    private boolean isShuttleService;
-
     @Column(name = "NOTE")
     private String note;
-
-    @Column(name = "POINT_KIND")
-    private Integer pointKind;
-
-    @Column(name = "PRESENT_BEFORE_MINUTES")
-    private Integer presentBeforeMinutes;
 
     @Column(name = "OPENING_TIME")
     private String openingTime;
@@ -100,7 +76,4 @@ public class DepartmentEntity extends AbstractAuditingEntity {
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)
     private DepartmentStatus status;
-
-    @Column(name = "IS_ACTIVE")
-    private boolean isActive;
 }

@@ -191,8 +191,12 @@ public class MerchantTripServiceImpl implements MerchantTripService {
 
         validatePaging(query, pageSize, pageNumber);
 
-        PagedResult<TripAggregate> page = tripAggregateRepositoryPort.fetch(query.context().merchantId(), pageNumber - 1, pageSize);
-
+        PagedResult<TripAggregate> page;
+        if(query.status() != null) {
+            page = tripAggregateRepositoryPort.fetch(query.context().merchantId(), query.status(), pageNumber - 1, pageSize);
+        } else {
+            page = tripAggregateRepositoryPort.fetch(query.context().merchantId(), pageNumber - 1, pageSize);
+        }
         List<String> routeIds = page.getItems().stream()
                 .map(TripAggregate::getRouteId)
                 .distinct()
@@ -206,6 +210,7 @@ public class MerchantTripServiceImpl implements MerchantTripService {
                         RouteAggregate::getId,
                         route -> route
                 ));
+
         return FetchTripListResult.builder()
                 .items(page.getItems().stream()
                         .map(item -> {

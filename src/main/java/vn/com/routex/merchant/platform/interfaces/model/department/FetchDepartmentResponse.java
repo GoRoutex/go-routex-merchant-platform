@@ -34,17 +34,17 @@ public class FetchDepartmentResponse extends BaseResponse<FetchDepartmentRespons
     @SuperBuilder
     public static class FetchDepartmentResponseData {
         private String id;
-        private String code;
         private String name;
         private DepartmentType type;
         private String address;
         private String wardId;
         private String wardName;
-        private String districtId;
-        private String districtName;
         private String provinceId;
         private String provinceName;
-        private boolean isShuttleService;
+        private String openingTime;
+        private String closingTime;
+        private String onlineOpeningTime;
+        private String onlineClosingTime;
         private Double latitude;
         private Double longitude;
         private DepartmentStatus status;

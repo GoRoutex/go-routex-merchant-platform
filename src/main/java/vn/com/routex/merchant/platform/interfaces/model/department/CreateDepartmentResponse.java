@@ -22,20 +22,17 @@ public class CreateDepartmentResponse extends BaseResponse<CreateDepartmentRespo
     @SuperBuilder
     public static class CreateDepartmentResponseData {
         private String id;
-        private String code;
         private String name;
         private DepartmentType type;
         private String address;
         private String wardId;
         private String wardName;
-        private String districtId;
-        private String districtName;
         private String provinceId;
         private String provinceName;
-        private Long timeAtDepartment;
-        private boolean isShuttleService;
         private String openingTime;
         private String closingTime;
+        private String onlineOpeningTime;
+        private String onlineClosingTime;
         private Double latitude;
         private Double longitude;
         private DepartmentStatus status;

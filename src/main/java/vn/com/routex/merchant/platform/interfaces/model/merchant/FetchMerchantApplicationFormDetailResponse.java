@@ -30,7 +30,6 @@ public class FetchMerchantApplicationFormDetailResponse extends BaseResponse<Fet
         private String businessLicenseUrl;
         private String country;
         private String province;
-        private String district;
         private String city;
         private String postalCode;
         private String description;

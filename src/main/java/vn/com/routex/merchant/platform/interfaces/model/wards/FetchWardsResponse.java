@@ -1,5 +1,4 @@
-package vn.com.routex.merchant.platform.interfaces.model.provinces;
-
+package vn.com.routex.merchant.platform.interfaces.model.wards;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,15 +13,15 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-public class FetchProvincesResponse extends BaseResponse<FetchProvincesResponse.FetchProvincesResponsePage> {
+public class FetchWardsResponse extends BaseResponse<FetchWardsResponse.FetchWardsResponsePage> {
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
-    public static class FetchProvincesResponsePage {
-        private List<FetchProvincesResponseData> items;
+    public static class FetchWardsResponsePage {
+        private List<FetchWardsResponseData> items;
         private Pagination pagination;
     }
 
@@ -31,10 +30,10 @@ public class FetchProvincesResponse extends BaseResponse<FetchProvincesResponse.
     @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
-    public static class FetchProvincesResponseData {
+    public static class FetchWardsResponseData {
         private String id;
         private String name;
-        private String code;
+        private String provinceId;
     }
 
     @Getter

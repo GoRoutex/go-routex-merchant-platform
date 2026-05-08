@@ -2,7 +2,6 @@ package vn.com.routex.merchant.platform.application.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.application.command.department.CreateDepartmentCommand;
 import vn.com.routex.merchant.platform.application.command.department.CreateDepartmentResult;
 import vn.com.routex.merchant.platform.application.command.department.DeleteDepartmentCommand;
@@ -18,7 +17,8 @@ import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.department.DepartmentStatus;
 import vn.com.routex.merchant.platform.domain.department.model.Department;
 import vn.com.routex.merchant.platform.domain.department.port.DepartmentRepositoryPort;
-import vn.com.routex.merchant.platform.domain.provinces.port.DistrictRepositoryPort;
+import vn.com.routex.merchant.platform.domain.provinces.model.Province;
+import vn.com.routex.merchant.platform.domain.provinces.model.Ward;
 import vn.com.routex.merchant.platform.domain.provinces.port.ProvincesRepositoryPort;
 import vn.com.routex.merchant.platform.domain.provinces.port.WardRepositoryPort;
 import vn.com.routex.merchant.platform.infrastructure.persistence.exception.BusinessException;
@@ -26,26 +26,21 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.utils.DateTime
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DEPARTMENT_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DUPLICATE_DEPARTMENT_MESSAGE;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.DUPLICATE_ERROR;
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_INPUT_ERROR;
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_NUMBER;
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_PAGE_SIZE;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.PROVINCE_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
-
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.WARD_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class DepartmentManagementServiceImpl implements DepartmentManagementService {
-
-    private final SystemLog sLog = SystemLog.getLogger(this.getClass());
     private final DepartmentRepositoryPort departmentRepositoryPort;
     private final ProvincesRepositoryPort provincesRepositoryPort;
-    private final DistrictRepositoryPort districtRepositoryPort;
     private final WardRepositoryPort wardRepositoryPort;
 
     private static final int DEFAULT_PAGE_SIZE = 10;
@@ -53,24 +48,31 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
 
     @Override
     public CreateDepartmentResult createDepartment(CreateDepartmentCommand command) {
-        boolean existPoint = departmentRepositoryPort.existsByCode(command.code(), command.merchantId());
-        if(existPoint) {
+        if(departmentRepositoryPort.existsByName(command.name(), command.merchantId())) {
             throw new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                     ExceptionUtils.buildResultResponse(DUPLICATE_ERROR, DUPLICATE_DEPARTMENT_MESSAGE));
         }
+        Ward ward = wardRepositoryPort.findById(command.wardId())
+                .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, WARD_NOT_FOUND)));
+
+        Province province = provincesRepositoryPort.findById(command.provinceId())
+                .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(PROVINCE_NOT_FOUND, command.provinceId()))));
+
         Department department = Department.builder()
                 .id(UUID.randomUUID().toString())
                 .merchantId(command.merchantId())
-                .code(command.code())
                 .name(command.name())
                 .type(command.type())
                 .address(command.address())
                 .wardId(command.wardId())
-                .districtId(command.districtId())
+                .wardName(ward.getName())
                 .provinceId(command.provinceId())
-                .timeAtDepartment(command.timeAtDepartment())
-                .isShuttleService(command.isShuttleService())
+                .provinceName(province.getName())
                 .openingTime(command.openingTime())
+                .onlineOpeningTime(command.onlineOpeningTime())
+                .onlineClosingTime(command.onlineClosingTime())
                 .closingTime(command.closingTime())
                 .latitude(command.latitude())
                 .longitude(command.longitude())
@@ -82,18 +84,15 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
 
         return CreateDepartmentResult.builder()
                 .id(department.getId())
-                .code(department.getCode())
                 .name(department.getName())
                 .type(department.getType())
                 .address(department.getAddress())
                 .wardId(department.getWardId())
                 .wardName(department.getWardName())
-                .districtId(department.getDistrictId())
-                .districtName(department.getDistrictName())
                 .provinceId(department.getProvinceId())
                 .provinceName(department.getProvinceName())
-                .timeAtDepartment(department.getTimeAtDepartment())
-                .isShuttleService(department.isShuttleService())
+                .onlineClosingTime(department.getOnlineClosingTime())
+                .onlineOpeningTime(department.getOnlineOpeningTime())
                 .openingTime(department.getOpeningTime())
                 .closingTime(department.getClosingTime())
                 .latitude(department.getLatitude())
@@ -112,8 +111,8 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(DEPARTMENT_NOT_FOUND, command.id()))
                 ));
 
-        if (command.code() != null && !command.code().isBlank() && !command.code().equals(existing.getCode())) {
-            if (departmentRepositoryPort.existsByCode(command.code(), command.merchantId())) {
+        if (command.name() != null && !command.name().isBlank() && !command.name().equalsIgnoreCase(existing.getName())) {
+            if (departmentRepositoryPort.existsByName(command.name(), command.merchantId())) {
                 throw new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                         ExceptionUtils.buildResultResponse(DUPLICATE_ERROR, DUPLICATE_DEPARTMENT_MESSAGE));
             }
@@ -122,17 +121,15 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
         Department updated = Department.builder()
                 .id(existing.getId())
                 .merchantId(existing.getMerchantId())
-                .code(firstNonBlank(command.code(), existing.getCode()))
                 .name(firstNonBlank(command.name(), existing.getName()))
                 .type(command.type() != null ? command.type() : existing.getType())
                 .address(firstNonBlank(command.address(), existing.getAddress()))
                 .wardId(firstNonBlank(command.wardId(), existing.getWardId()))
-                .districtId(firstNonBlank(command.districtId(), existing.getDistrictId()))
                 .provinceId(firstNonBlank(command.provinceId(), existing.getProvinceId()))
-                .timeAtDepartment(command.timeAtDepartment() != null ? command.timeAtDepartment() : existing.getTimeAtDepartment())
-                .isShuttleService(command.isShuttleService())
                 .openingTime(firstNonBlank(command.openingTime(), existing.getOpeningTime()))
                 .closingTime(firstNonBlank(command.closingTime(), existing.getClosingTime()))
+                .onlineOpeningTime(firstNonBlank(command.onlineOpeningTime(), existing.getOnlineOpeningTime()))
+                .onlineClosingTime(firstNonBlank(command.onlineClosingTime(), existing.getOnlineClosingTime()))
                 .latitude(command.latitude() != null ? command.latitude() : existing.getLatitude())
                 .longitude(command.longitude() != null ? command.longitude() : existing.getLongitude())
                 .status(command.status() != null ? command.status() : existing.getStatus())
@@ -147,20 +144,17 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
 
         return UpdateDepartmentResult.builder()
                 .id(updated.getId())
-                .code(updated.getCode())
                 .name(updated.getName())
                 .type(updated.getType())
                 .address(updated.getAddress())
                 .wardId(updated.getWardId())
                 .wardName(updated.getWardName())
-                .districtId(updated.getDistrictId())
-                .districtName(updated.getDistrictName())
                 .provinceId(updated.getProvinceId())
                 .provinceName(updated.getProvinceName())
-                .timeAtDepartment(updated.getTimeAtDepartment())
-                .isShuttleService(updated.isShuttleService())
                 .openingTime(updated.getOpeningTime())
                 .closingTime(updated.getClosingTime())
+                .onlineOpeningTime(updated.getOnlineOpeningTime())
+                .onlineClosingTime(updated.getOnlineClosingTime())
                 .latitude(updated.getLatitude())
                 .longitude(updated.getLongitude())
                 .status(updated.getStatus())
@@ -170,19 +164,13 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
     private void enrichAdministrativeNames(Department department) {
         if (department.getWardId() != null && !department.getWardId().isBlank()) {
             try {
-                wardRepositoryPort.findById(Integer.parseInt(department.getWardId()))
+                wardRepositoryPort.findById(department.getWardId())
                         .ifPresent(w -> department.setWardName(w.getName()));
-            } catch (NumberFormatException ignored) {}
-        }
-        if (department.getDistrictId() != null && !department.getDistrictId().isBlank()) {
-            try {
-                districtRepositoryPort.findById(Integer.parseInt(department.getDistrictId()))
-                        .ifPresent(d -> department.setDistrictName(d.getName()));
             } catch (NumberFormatException ignored) {}
         }
         if (department.getProvinceId() != null && !department.getProvinceId().isBlank()) {
             try {
-                provincesRepositoryPort.findById(Integer.parseInt(department.getProvinceId()))
+                provincesRepositoryPort.findById(department.getProvinceId())
                         .ifPresent(p -> department.setProvinceName(p.getName()));
             } catch (NumberFormatException ignored) {}
         }
@@ -198,37 +186,14 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(DEPARTMENT_NOT_FOUND, command.id()))
                 ));
 
-        Department closed = Department.builder()
-                .id(existing.getId())
-                .merchantId(existing.getMerchantId())
-                .code(existing.getCode())
-                .name(existing.getName())
-                .type(existing.getType())
-                .address(existing.getAddress())
-                .wardId(existing.getWardId())
-                .wardName(existing.getWardName())
-                .districtId(existing.getDistrictId())
-                .districtName(existing.getDistrictName())
-                .provinceId(existing.getProvinceId())
-                .provinceName(existing.getProvinceName())
-                .timeAtDepartment(existing.getTimeAtDepartment())
-                .isShuttleService(existing.isShuttleService())
-                .openingTime(existing.getOpeningTime())
-                .closingTime(existing.getClosingTime())
-                .latitude(existing.getLatitude())
-                .longitude(existing.getLongitude())
+        Department closed = existing.toBuilder()
                 .status(DepartmentStatus.CLOSED)
-                .createdAt(existing.getCreatedAt())
-                .createdBy(existing.getCreatedBy())
-                .updatedAt(existing.getUpdatedAt())
-                .updatedBy(existing.getUpdatedBy())
                 .build();
 
         departmentRepositoryPort.save(closed);
 
         return DeleteDepartmentResult.builder()
                 .id(closed.getId())
-                .code(closed.getCode())
                 .status(closed.getStatus())
                 .build();
     }
@@ -240,35 +205,26 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
         int pageNumber = parseIntOrDefault(query.pageNumber(), DEFAULT_PAGE_NUMBER, "pageNumber",
                 query.context().requestId(), query.context().requestDateTime(), query.context().channel());
 
-        if (pageSize < 1 || pageSize > 100) {
-            throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
-                    ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_SIZE));
-        }
-        if (pageNumber < 1) {
-            throw new BusinessException(query.context().requestId(), query.context().requestDateTime(), query.context().channel(),
-                    ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, INVALID_PAGE_NUMBER));
-        }
-
         PagedResult<Department> page = departmentRepositoryPort.fetch(query.merchantId(), pageNumber - 1, pageSize);
         List<FetchDepartmentResult.FetchDepartmentItemResult> items = page.getItems().stream()
                 .map(p -> FetchDepartmentResult.FetchDepartmentItemResult.builder()
                         .id(p.getId())
-                        .code(p.getCode())
                         .name(p.getName())
                         .type(p.getType())
                         .address(p.getAddress())
                         .wardId(p.getWardId())
                         .wardName(p.getWardName())
-                        .districtId(p.getDistrictId())
-                        .districtName(p.getDistrictName())
                         .provinceId(p.getProvinceId())
                         .provinceName(p.getProvinceName())
-                        .isShuttleService(p.isShuttleService())
                         .latitude(p.getLatitude())
                         .longitude(p.getLongitude())
+                        .openingTime(p.getOpeningTime())
+                        .closingTime(p.getClosingTime())
+                        .onlineOpeningTime(p.getOnlineOpeningTime())
+                        .onlineClosingTime(p.getOnlineClosingTime())
                         .status(p.getStatus())
                         .build())
-                .toList();
+                .collect(Collectors.toList());
 
         return FetchDepartmentResult.builder()
                 .items(items)
@@ -281,72 +237,39 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
 
     @Override
     public GetDepartmentDetailResult getDepartmentDetail(GetDepartmentDetailQuery query) {
-        Department department = resolveDepartment(query)
+        Department department = departmentRepositoryPort.findById(query.departmentId().trim(), query.merchantId())
                 .orElseThrow(() -> new BusinessException(
                         query.context().requestId(),
                         query.context().requestDateTime(),
                         query.context().channel(),
-                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, buildDepartmentLookupMessage(query))
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(DEPARTMENT_NOT_FOUND, query.departmentId()))
                 ));
 
         return GetDepartmentDetailResult.builder()
                 .id(department.getId())
-                .code(department.getCode())
                 .name(department.getName())
                 .type(department.getType())
                 .address(department.getAddress())
                 .wardId(department.getWardId())
                 .wardName(department.getWardName())
-                .districtId(department.getDistrictId())
-                .districtName(department.getDistrictName())
                 .provinceId(department.getProvinceId())
                 .provinceName(department.getProvinceName())
-                .timeAtDepartment(department.getTimeAtDepartment())
-                .isShuttleService(department.isShuttleService())
                 .openingTime(department.getOpeningTime())
                 .closingTime(department.getClosingTime())
+                .onlineOpeningTime(department.getOnlineOpeningTime())
+                .onlineClosingTime(department.getOnlineClosingTime())
                 .latitude(department.getLatitude())
                 .longitude(department.getLongitude())
                 .status(department.getStatus())
                 .build();
     }
 
-    private Optional<Department> resolveDepartment(GetDepartmentDetailQuery query) {
-        if (hasText(query.departmentId())) {
-            return departmentRepositoryPort.findById(query.departmentId().trim(), query.merchantId());
-        }
-        throw new BusinessException(
-                query.context().requestId(),
-                query.context().requestDateTime(),
-                query.context().channel(),
-                ExceptionUtils.buildResultResponse(INVALID_INPUT_ERROR, "departmentId or code or name is required")
-        );
-    }
-
-    private String buildDepartmentLookupMessage(GetDepartmentDetailQuery query) {
-        if (hasText(query.departmentId())) {
-            return String.format(DEPARTMENT_NOT_FOUND, query.departmentId().trim());
-        }
-        return "Department not found";
-    }
-
-    private static int parseIntOrDefault(
-            String v,
-            int defaultValue,
-            String field,
-            String requestId,
-            String requestDateTime,
-            String channel
-    ) {
+    private static int parseIntOrDefault(String v, int defaultValue, String field, String requestId, String requestDateTime, String channel) {
         if (v == null || v.isBlank()) return defaultValue;
         return DateTimeUtils.parseIntOrThrow(v, field, requestId, requestDateTime, channel);
     }
 
     private static String firstNonBlank(String value, String fallback) {
         return (value == null || value.isBlank()) ? fallback : value;
-    }
-
-    private static boolean hasText(String value) {
-        return value != null && !value.isBlank();
     }
 }

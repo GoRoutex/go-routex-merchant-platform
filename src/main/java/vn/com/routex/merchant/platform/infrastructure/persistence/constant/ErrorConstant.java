@@ -8,6 +8,8 @@ public class ErrorConstant {
     public static final String AUTHORITIES_ERROR = "You are not authorized for this action";
     public static final String TIMEOUT_ERROR_MESSAGE = "Timeout";
     public static final String RECORD_NOT_FOUND = "1407";
+    public static final String WARD_NOT_FOUND = "Ward information not found";
+    public static final String PROVINCE_NOT_FOUND = "Province information not found";
     public static final String TRIP_ASSIGNMENT_NOT_FOUND = "Trip Assignment not found";
     public static final String ROLE_NOT_FOUND = "Role not found";
     public static final String DEPARTMENT_OR_STOP_NAME_REQUIRED =
@@ -23,7 +25,6 @@ public class ErrorConstant {
     public static final String DRIVER_NOT_FOUND_BY_ID = "Driver with Id %s not found";
     public static final String DRIVER_NOT_FOUND_BY_USER_ID = "Driver with UserId %s not found";
     public static final String DRIVER_NOT_FOUND_BY_EMPLOYEE_CODE = "Driver with employeeCode %s not found";
-    public static final String PROVINCE_NOT_FOUND = "Province with Id %s not found";
     public static final String SEAT_NOT_FOUND = "Seats not found";
     public static final String ROUTE_POINT_NOT_FOUND = "Route Point not found";
     public static final String VEHICLE_NOT_FOUND = "Vehicle not found";
@@ -48,7 +49,7 @@ public class ErrorConstant {
     public static final String INVALID_INPUT_MESSAGE = "Invalid Input";
     public static final String INVALID_REQUEST_TIMESTAMP = "5186";
     public static final String DUPLICATE_ERROR = "9400";
-    public static final String DUPLICATE_DEPARTMENT_MESSAGE = "Operation point with this code already exists";
+    public static final String DUPLICATE_DEPARTMENT_MESSAGE = "Operation point with this name already exists";
     public static final String DUPLICATE_PROVINCE = "Province is already exists by %s";
     public static final String DUPLICATE_USER_ROLE_MESSAGE = "User already has this role";
     public static final String ROLE_EXISTS_ERROR = "Role with %s already exists";
