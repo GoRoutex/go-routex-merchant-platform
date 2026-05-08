@@ -12,11 +12,8 @@ import java.util.Optional;
 
 @Repository
 public interface DepartmentEntityRepository extends JpaRepository<DepartmentEntity, String> {
-    Optional<DepartmentEntity> findByCode(String code);
 
     Optional<DepartmentEntity> findByIdAndMerchantId(String id, String merchantId);
-
-    Optional<DepartmentEntity> findByCodeAndMerchantId(String code, String merchantId);
 
     Optional<DepartmentEntity> findByNameIgnoreCaseAndMerchantId(String name, String merchantId);
 
