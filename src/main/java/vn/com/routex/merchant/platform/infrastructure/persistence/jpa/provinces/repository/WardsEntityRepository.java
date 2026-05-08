@@ -1,12 +1,13 @@
 package vn.com.routex.merchant.platform.infrastructure.persistence.jpa.provinces.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.provinces.entity.WardsEntity;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.provinces.entity.WardsEntity;
+
+import java.util.List;
 
 public interface WardsEntityRepository extends JpaRepository<WardsEntity, String> {
     List<WardsEntity> findByProvinceId(String provinceId);

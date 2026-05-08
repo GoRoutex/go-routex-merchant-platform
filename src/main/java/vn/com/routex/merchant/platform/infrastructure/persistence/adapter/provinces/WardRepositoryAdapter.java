@@ -1,19 +1,18 @@
 package vn.com.routex.merchant.platform.infrastructure.persistence.adapter.provinces;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.provinces.model.Ward;
 import vn.com.routex.merchant.platform.domain.provinces.port.WardRepositoryPort;
+import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.provinces.entity.WardsEntity;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.provinces.repository.WardsEntityRepository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import vn.com.routex.merchant.platform.domain.common.PagedResult;
-import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.provinces.entity.WardsEntity;
 
 @Component
 @RequiredArgsConstructor

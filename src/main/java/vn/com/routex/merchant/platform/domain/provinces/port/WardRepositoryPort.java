@@ -1,10 +1,10 @@
 package vn.com.routex.merchant.platform.domain.provinces.port;
 
+import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.provinces.model.Ward;
+
 import java.util.List;
 import java.util.Optional;
-
-import vn.com.routex.merchant.platform.domain.common.PagedResult;
 
 public interface WardRepositoryPort {
     Optional<Ward> findById(String id);
