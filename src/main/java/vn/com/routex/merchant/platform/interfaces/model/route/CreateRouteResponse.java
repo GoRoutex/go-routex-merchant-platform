@@ -25,8 +25,12 @@ public class CreateRouteResponse extends BaseResponse<CreateRouteResponse.Create
         private String creator;
         private String originCode;
         private String originName;
+        private String originDepartmentId;
+        private String originDepartmentName;
         private String destinationCode;
         private String destinationName;
+        private String destinationDepartmentId;
+        private String destinationDepartmentName;
         private Long duration;
         private RouteStatus status;
         private List<CreateRouteRequest.RoutePoints> routePoints;

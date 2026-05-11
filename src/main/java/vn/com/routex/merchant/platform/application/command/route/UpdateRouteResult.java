@@ -12,17 +12,25 @@ public record UpdateRouteResult(
         String creator,
         String originCode,
         String originName,
+        String originDepartmentId,
         String destinationCode,
         String destinationName,
+        String destinationDepartmentId,
         Long duration,
         RouteStatus status,
         List<UpdateRoutePointResult> routePoints
 ) {
     @Builder
     public record UpdateRoutePointResult(
-            String id,
-            String operationOrder,
-            String note
+            int stopOrder,
+            String note,
+            String departmentId,
+            String stopName,
+            String stopAddress,
+            String stopCity,
+            Double stopLatitude,
+            Double stopLongitude,
+            Integer timeAtDepartment
     ) {
 
     }

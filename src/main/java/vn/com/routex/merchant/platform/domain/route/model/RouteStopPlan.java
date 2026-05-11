@@ -26,6 +26,7 @@ public class RouteStopPlan {
     private Double stopLatitude;
     private Double stopLongitude;
     private Long stayDuration;
+    private Integer timeAtDepartment;
     private OffsetDateTime createdAt;
     private String createdBy;
 }

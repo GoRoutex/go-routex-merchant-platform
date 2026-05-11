@@ -28,8 +28,12 @@ public class FetchDetailRouteResponse extends BaseResponse<FetchDetailRouteRespo
         private String creator;
         private String originCode;
         private String originName;
+        private String originDepartmentId;
+        private String originDepartmentName;
         private String destinationCode;
         private String destinationName;
+        private String destinationDepartmentId;
+        private String destinationDepartmentName;
         private Long duration;
         private RouteStatus status;
         private List<SearchRouteResponse.SearchRoutePoints> routePoints;

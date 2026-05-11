@@ -18,5 +18,8 @@ public interface RouteStopEntityRepository extends JpaRepository<RouteStopEntity
 
     Optional<RouteStopEntity> findByRouteIdAndStopOrder(String routeId, String stopOrder);
 
+    boolean existsByRouteIdAndStopOrder(String routeId, String stopOrder);
+
+    List<RouteStopEntity> findByStopNameContainingIgnoreCase(String keyword, org.springframework.data.domain.Pageable pageable);
 }
 

@@ -27,6 +27,8 @@ public class RoutePersistenceMapper {
                 .destinationProvinceId(route.getDestinationProvinceId())
                 .originDepartmentId(route.getOriginDepartmentId())
                 .destinationDepartmentId(route.getDestinationDepartmentId())
+                .originDepartmentName(route.getOriginDepartmentName())
+                .destinationDepartmentName(route.getDestinationDepartmentName())
                 .status(route.getStatus())
                 .duration(route.getDuration())
                 .distance(route.getDistance())
@@ -49,6 +51,8 @@ public class RoutePersistenceMapper {
                 .originProvinceId(aggregate.getOriginProvinceId())
                 .destinationProvinceId(aggregate.getDestinationProvinceId())
                 .originDepartmentId(aggregate.getOriginDepartmentId())
+                .originDepartmentName(aggregate.getOriginDepartmentName())
+                .destinationDepartmentName(aggregate.getDestinationDepartmentName())
                 .destinationDepartmentId(aggregate.getDestinationDepartmentId())
                 .status(aggregate.getStatus())
                 .duration(aggregate.getDuration())
@@ -74,6 +78,7 @@ public class RoutePersistenceMapper {
                 .stopLatitude(routeStop.getStopLatitude())
                 .stopLongitude(routeStop.getStopLongitude())
                 .stayDuration(routeStop.getStayDuration())
+                .timeAtDepartment(routeStop.getTimeAtDepartment())
                 .createdAt(routeStop.getCreatedAt())
                 .createdBy(routeStop.getCreatedBy())
                 .build();
@@ -93,6 +98,7 @@ public class RoutePersistenceMapper {
                 .stopLatitude(stopPlan.getStopLatitude())
                 .stopLongitude(stopPlan.getStopLongitude())
                 .stayDuration(stopPlan.getStayDuration())
+                .timeAtDepartment(stopPlan.getTimeAtDepartment())
                 .createdAt(stopPlan.getCreatedAt())
                 .createdBy(stopPlan.getCreatedBy())
                 .build();

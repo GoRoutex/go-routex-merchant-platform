@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import vn.com.routex.merchant.platform.domain.department.model.Department;
 import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.department.entity.DepartmentEntity;
 
 import java.util.List;
@@ -24,4 +25,10 @@ public interface DepartmentEntityRepository extends JpaRepository<DepartmentEnti
     List<DepartmentEntity> findByMerchantId(String merchantId);
 
     Page<DepartmentEntity> findByMerchantId(String merchantId, Pageable pageable);
+
+    Page<DepartmentEntity> findByMerchantIdAndProvinceId(String merchantId, String provinceId, Pageable pageable);
+
+    List<DepartmentEntity> findByIdIn(List<String> departmentIds);
+
+    Page<DepartmentEntity> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
 }

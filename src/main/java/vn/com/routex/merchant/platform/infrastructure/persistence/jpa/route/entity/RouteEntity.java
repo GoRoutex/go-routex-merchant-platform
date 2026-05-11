@@ -42,6 +42,12 @@ public class RouteEntity extends AbstractAuditingEntity {
     @Column(name = "ORIGIN_DEPARTMENT_ID")
     private String originDepartmentId;
 
+    @Column(name = "ORIGIN_DEPARTMENT_NAME")
+    private String originDepartmentName;
+
+    @Column(name = "DESTINATION_DEPARTMENT_NAME")
+    private String destinationDepartmentName;
+
     @Column(name = "DESTINATION_DEPARTMENT_ID")
     private String destinationDepartmentId;
 

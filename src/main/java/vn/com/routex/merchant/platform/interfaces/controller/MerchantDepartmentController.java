@@ -70,7 +70,7 @@ public class MerchantDepartmentController {
 
     @PostMapping(DEPARTMENT + CREATE_PATH)
     public ResponseEntity<CreateDepartmentResponse> createDepartment(@Valid @RequestBody CreateDepartmentRequest request,
-                                                                             HttpServletRequest servletRequest) {
+                                                                     HttpServletRequest servletRequest) {
 
         sLog.info("[OPERATION-POINT] Create Operation Point Request: {}", request);
         String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, request);
@@ -122,7 +122,7 @@ public class MerchantDepartmentController {
 
     @PostMapping(DEPARTMENT + UPDATE_PATH)
     public ResponseEntity<UpdateDepartmentResponse> updateDepartment(@Valid @RequestBody UpdateDepartmentRequest request,
-                                                                             HttpServletRequest servletRequest) {
+                                                                     HttpServletRequest servletRequest) {
 
         sLog.info("[OPERATION-POINT] Update Operation Point Request: {}", request);
         String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, request);
@@ -175,7 +175,7 @@ public class MerchantDepartmentController {
 
     @PostMapping(DEPARTMENT + DELETE_PATH)
     public ResponseEntity<DeleteDepartmentResponse> deleteDepartment(@Valid @RequestBody DeleteDepartmentRequest request,
-                                                                             HttpServletRequest servletRequest) {
+                                                                     HttpServletRequest servletRequest) {
 
         sLog.info("[OPERATION-POINT] Delete Operation Point Request: {}", request);
         String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, request);
@@ -204,13 +204,15 @@ public class MerchantDepartmentController {
     @GetMapping(DEPARTMENT + FETCH_PATH)
     public ResponseEntity<FetchDepartmentResponse> fetchDepartment(@RequestParam int pageNumber,
                                                                    @RequestParam int pageSize,
-                                                                           HttpServletRequest servletRequest) {
+                                                                   @RequestParam(required = false) String provinceId,
+                                                                   HttpServletRequest servletRequest) {
 
         BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
         String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, baseRequest);
 
         FetchDepartmentResult result = departmentManagementService.fetchDepartment(FetchDepartmentQuery.builder()
                 .context(HttpUtils.toContext(baseRequest, merchantId))
+                .provinceId(provinceId)
                 .pageNumber(String.valueOf(pageNumber))
                 .pageSize(String.valueOf(pageSize))
                 .merchantId(merchantId)
@@ -257,7 +259,7 @@ public class MerchantDepartmentController {
 
     @GetMapping(DEPARTMENT + DETAIL_PATH)
     public ResponseEntity<GetDepartmentDetailResponse> getDepartmentDetail(@RequestParam String departmentId,
-                                                                                   HttpServletRequest servletRequest) {
+                                                                           HttpServletRequest servletRequest) {
         BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
         String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, baseRequest);
 

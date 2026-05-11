@@ -2,17 +2,24 @@ package vn.com.routex.merchant.platform.application.command.route;
 
 import lombok.Builder;
 
+import java.time.OffsetDateTime;
+
 @Builder
 public record RoutePointResult(
         String id,
-        int operationOrder,
         String routeId,
+        String creator,
+        Integer stopOrder,
         String note,
         String departmentId,
         String stopName,
         String stopAddress,
         String stopCity,
         Double stopLatitude,
-        Double stopLongitude
+        Double stopLongitude,
+        Long stayDuration,
+        Integer timeAtDepartment,
+        OffsetDateTime createdAt,
+        String createdBy
 ) {
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.application.service.InternalMerchantAdminService;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.merchant.ApplicationFormStatus;
@@ -41,6 +42,7 @@ public class InternalMerchantAdminController {
 
     private final InternalMerchantAdminService internalMerchantAdminService;
     private final ApiResultFactory apiResultFactory;
+    private final SystemLog sLog = SystemLog.getLogger(this.getClass());
 
     @GetMapping(DETAIL_PATH)
     public ResponseEntity<BaseResponse<InternalMerchantResponses.MerchantData>> fetchMerchantDetail(
@@ -91,6 +93,9 @@ public class InternalMerchantAdminController {
             HttpServletRequest servletRequest,
             @RequestBody InternalFetchMerchantsByIdsRequest request
     ) {
+
+
+        sLog.info("Request: {}", request);
         BaseRequest baseRequest = ApiRequestUtils.getBaseRequestOrDefault(servletRequest);
         List<Merchant> merchants = internalMerchantAdminService.fetchMerchantsByIds(request.getMerchantIds(), HttpUtils.toContext(baseRequest));
 

@@ -66,6 +66,7 @@ public class MerchantProvincesController {
                                 .id(item.id())
                                 .name(item.name())
                                 .code(item.code())
+                                .type(item.type())
                                 .build())
                         .toList())
                 .build();

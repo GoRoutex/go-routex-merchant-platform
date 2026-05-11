@@ -28,7 +28,9 @@ public class RouteAggregate extends AbstractAuditingEntity {
     private String originProvinceId;
     private String destinationProvinceId;
     private String originDepartmentId;
+    private String originDepartmentName;
     private String destinationDepartmentId;
+    private String destinationDepartmentName;
     private Long duration;
     private Long distance;
     private RouteStatus status;
@@ -43,6 +45,8 @@ public class RouteAggregate extends AbstractAuditingEntity {
             String originProvinceId,
             String destinationProvinceId,
             String originDepartmentId,
+            String originDepartmentName,
+            String destinationDepartmentName,
             String destinationDepartmentId,
             String originName,
             String destinationName,
@@ -58,6 +62,8 @@ public class RouteAggregate extends AbstractAuditingEntity {
                 .originCode(originCode)
                 .destinationCode(destinationCode)
                 .originProvinceId(originProvinceId)
+                .originDepartmentName(originDepartmentName)
+                .destinationDepartmentName(destinationDepartmentName)
                 .destinationProvinceId(destinationProvinceId)
                 .originDepartmentId(originDepartmentId)
                 .destinationDepartmentId(destinationDepartmentId)

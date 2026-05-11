@@ -19,6 +19,7 @@ import vn.com.routex.merchant.platform.application.command.route.UpdateRouteComm
 import vn.com.routex.merchant.platform.application.command.route.UpdateRouteResult;
 import vn.com.routex.merchant.platform.application.service.RouteManagementService;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
+import vn.com.routex.merchant.platform.domain.department.model.Department;
 import vn.com.routex.merchant.platform.domain.department.port.DepartmentRepositoryPort;
 import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.domain.route.model.ProvincesInformationPair;
@@ -35,11 +36,17 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiReque
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
 
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApplicationConstant.DEFAULT_PAGE_NUMBER;
@@ -51,7 +58,6 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.INVALID_STOP_ORDER;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.RECORD_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_NOT_FOUND;
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.ROUTE_POINT_NOT_FOUND;
 import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ErrorConstant.STOP_COORDINATES_MUST_BE_PROVIDED_TOGETHER;
 
 @Service
@@ -75,16 +81,27 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         String originProvinceId = null;
         String destinationProvinceId = null;
 
+        String originDepartmentName = null;
+        String destinationDepartmentName = null;
+
         if (hasText(command.originDepartmentId())) {
-            originProvinceId = departmentRepositoryPort.findById(command.originDepartmentId(), command.merchantId())
-                    .map(vn.com.routex.merchant.platform.domain.department.model.Department::getProvinceId)
+            Department originDepartment = departmentRepositoryPort.findById(command.originDepartmentId(), command.merchantId())
                     .orElse(null);
+
+            if(originDepartment != null) {
+                originProvinceId = originDepartment.getProvinceId();
+                originDepartmentName = originDepartment.getName();
+            }
         }
 
         if (hasText(command.destinationDepartmentId())) {
-            destinationProvinceId = departmentRepositoryPort.findById(command.destinationDepartmentId(), command.merchantId())
-                    .map(vn.com.routex.merchant.platform.domain.department.model.Department::getProvinceId)
+            Department destinationDepartment = departmentRepositoryPort.findById(command.destinationDepartmentId(), command.merchantId())
                     .orElse(null);
+
+            if(destinationDepartment != null) {
+                destinationProvinceId = destinationDepartment.getProvinceId();
+                destinationDepartmentName = destinationDepartment.getName();
+            }
         }
 
         ProvincesInformationPair codeResult = routeProvincesLookupPort.getCodes(command.originName(), command.destinationName());
@@ -99,24 +116,41 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         // Validate stop points
         validateRoutePoints(command);
 
+        List<String> departmentIds = routePoints.stream()
+                .map(RoutePointCommand::departmentId)
+                .toList();
+
+
+        List<Department> departmentList = departmentRepositoryPort.findAllByIdIn(departmentIds);
+
+        Map<String, Department> departmentMap = departmentList.stream()
+                .collect(Collectors.toMap(
+                        Department::getId,
+                        Function.identity()
+                ));
+
         OffsetDateTime now = OffsetDateTime.now();
         String routeId = UUID.randomUUID().toString();
         List<RouteStopPlan> routeStopPlans = routePoints.stream()
-                .map(point -> RouteStopPlan.builder()
-                        .id(UUID.randomUUID().toString())
-                        .routeId(routeId)
-                        .stopOrder(Integer.parseInt(point.operationOrder()))
-                        .creator(command.creator())
-                        .createdAt(now)
-                        .createdBy(command.creator())
-                        .note(point.note())
-                        .departmentId(point.departmentId())
-                        .stopName(point.stopName())
-                        .stopAddress(point.stopAddress())
-                        .stopCity(point.stopCity())
-                        .stopLatitude(point.stopLatitude())
-                        .stopLongitude(point.stopLongitude())
-                        .build())
+                .map(point -> {
+                    Department department = departmentMap.get(point.departmentId());
+                    return RouteStopPlan.builder()
+                            .id(UUID.randomUUID().toString())
+                            .routeId(routeId)
+                            .stopOrder(Integer.parseInt(point.operationOrder()))
+                            .creator(command.creator())
+                            .createdAt(now)
+                            .createdBy(command.creator())
+                            .note(department.getNote())
+                            .departmentId(point.departmentId())
+                            .stopName(department.getName())
+                            .stopAddress(department.getAddress())
+                            .stopCity(department.getProvinceName())
+                            .stopLatitude(department.getLatitude())
+                            .stopLongitude(department.getLongitude())
+                            .timeAtDepartment(point.timeAtDepartment())
+                            .build();
+                })
                 .collect(toList());
 
         RouteAggregate newRoute = RouteAggregate.plan(
@@ -126,6 +160,8 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 originCode,
                 destinationCode,
                 originProvinceId,
+                originDepartmentName,
+                destinationDepartmentName,
                 destinationProvinceId,
                 command.originDepartmentId(),
                 command.destinationDepartmentId(),
@@ -150,7 +186,9 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .originProvinceId(originProvinceId)
                 .destinationProvinceId(destinationProvinceId)
                 .originDepartmentId(command.originDepartmentId())
+                .originDepartmentName(originDepartmentName)
                 .destinationDepartmentId(command.destinationDepartmentId())
+                .destinationDepartmentName(destinationDepartmentName)
                 .status(RouteStatus.ACTIVE)
                 .duration(command.duration())
                 .routePoints(command.routePoints() != null ?
@@ -165,27 +203,32 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(ROUTE_NOT_FOUND, command.routeId()))));
 
-        if (command.routePoints() != null) {
-            command.routePoints().forEach(point -> {
-                RouteStopPlan routeStopPlan = routeStopRepositoryPort.findByRouteIdAndStopOrder(command.routeId(), point.operationOrder())
-                        .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
-                                ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, ROUTE_POINT_NOT_FOUND)));
-
-                Optional.ofNullable(point.note())
-                        .ifPresent(routeStopPlan::setNote);
-
-                routeStopRepositoryPort.save(routeStopPlan);
-            });
-        }
-
+        processRoutePoints(command);
 
         Optional<ProvincesInformationPair> codeResult = Optional.ofNullable(command.originName())
-                        .flatMap(origin -> Optional.ofNullable(command.destinationName())
-                                .map(dest -> routeProvincesLookupPort.getCodes(origin, dest)));
+                .flatMap(origin -> Optional.ofNullable(command.destinationName())
+                        .map(dest -> routeProvincesLookupPort.getCodes(origin, dest)));
 
         String originCode = codeResult.map(ProvincesInformationPair::originCode).orElse(null);
         String destinationCode = codeResult.map(ProvincesInformationPair::destinationCode).orElse(null);
 
+
+        Optional.ofNullable(command.originDepartmentId())
+                .ifPresent(route::setOriginDepartmentId);
+
+        if(command.originDepartmentId() != null) {
+            departmentRepositoryPort.findById(command.originDepartmentId())
+                    .ifPresent(originDepartment -> route.setOriginDepartmentName(originDepartment.getName()));
+
+        }
+
+        if(command.destinationDepartmentId() != null) {
+            departmentRepositoryPort.findById(command.destinationDepartmentId())
+                    .ifPresent(destinationDepartment -> route.setDestinationDepartmentName(destinationDepartment.getName()));
+        }
+
+        Optional.ofNullable(command.destinationDepartmentId())
+                .ifPresent(route::setDestinationDepartmentId);
 
         Optional.ofNullable(command.duration())
                 .ifPresent(route::setDuration);
@@ -204,26 +247,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
 
         routeAggregateRepositoryPort.save(route);
 
-        List<UpdateRouteResult.UpdateRoutePointResult> routePointResults = command.routePoints() != null ?
-                command.routePoints().stream()
-                        .map(point -> UpdateRouteResult.UpdateRoutePointResult.builder()
-                                .id(point.id())
-                                .operationOrder(point.id())
-                                .note(point.note())
-                                .build())
-                        .toList() : null;
-
-        return UpdateRouteResult.builder()
-                .routeId(command.routeId())
-                .creator(command.creator())
-                .originCode(originCode)
-                .originName(command.originName())
-                .destinationCode(destinationCode)
-                .destinationName(command.destinationName())
-                .status(command.status())
-                .routePoints(routePointResults)
-                .duration(command.duration())
-                .build();
+        return toUpdateRouteResult(command, originCode, destinationCode);
     }
 
     @Override
@@ -232,7 +256,6 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         RouteAggregate route = routeAggregateRepositoryPort.findById(command.routeId(), command.merchantId())
                 .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(ROUTE_NOT_FOUND, command.routeId()))));
-
 
         Optional<TripAggregate> optTrip = tripAggregateRepositoryPort.findByRouteId(route.getId(), command.merchantId());
         OffsetDateTime now = OffsetDateTime.now();
@@ -269,9 +292,30 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         } else {
             page = routeAggregateRepositoryPort.fetch(query.context().merchantId(), pageNumber - 1, pageSize);
         }
+
+        List<RouteAggregate> listRoutes = page.getItems();
+
+        List<String> departmentIds = listRoutes
+                .stream()
+                .flatMap(route -> Stream.of(
+                        route.getOriginDepartmentId(),
+                        route.getDestinationDepartmentId()
+                ))
+                .filter(Objects::nonNull)
+                .distinct().toList();
+
+        List<Department> departmentList = departmentRepositoryPort.findAllByIdIn(departmentIds);
+
+        Map<String, Department> departmentMap = departmentList
+                .stream()
+                .collect(Collectors.toMap(
+                        Department::getId,
+                        Function.identity()
+                ));
+
         return FetchRoutesResult.builder()
                 .items(page.getItems().stream()
-                        .map(this::toFetchDetailResult)
+                        .map(result -> toFetchDetailResult(result, departmentMap))
                         .toList())
                 .pageNumber(page.getPageNumber() + 1)
                 .pageSize(page.getPageSize())
@@ -293,19 +337,23 @@ public class RouteManagementServiceImpl implements RouteManagementService {
 
         List<RoutePointResult> routePointResults = routeStopPlans.isEmpty() ? null :
                 routeStopPlans.stream()
-                        .map(stop -> RoutePointResult.builder()
-                                .id(stop.getId())
-                                .routeId(stop.getRouteId())
-                                .operationOrder(stop.getStopOrder())
-                                .departmentId(stop.getDepartmentId())
-                                .stopAddress(stop.getStopAddress())
-                                .stopName(stop.getStopName())
-                                .stopCity(stop.getStopCity())
-                                .stopLatitude(stop.getStopLatitude())
-                                .stopLongitude(stop.getStopLongitude())
-                                .note(stop.getNote())
-                                .build())
+                        .map(this::toRoutePointResult)
                         .toList();
+
+        List<String> departmentIds = List.of(routeAggregate.getOriginDepartmentId(), routeAggregate.getDestinationDepartmentId());
+
+        List<Department> departmentList = departmentRepositoryPort.findAllByIdIn(departmentIds);
+
+        Map<String, Department> departmentMap = departmentList
+                .stream()
+                .collect(Collectors.toMap(
+                        Department::getId,
+                        Function.identity()
+                ));
+
+
+        String originDepartmentName = departmentMap.get(routeAggregate.getOriginDepartmentId()).getName();
+        String destinationDepartmentName = departmentMap.get(routeAggregate.getDestinationDepartmentId()).getName();
 
         return FetchDetailRouteResult.builder()
                 .id(routeAggregate.getId())
@@ -317,14 +365,39 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .originProvinceId(routeAggregate.getOriginProvinceId())
                 .destinationProvinceId(routeAggregate.getDestinationProvinceId())
                 .originDepartmentId(routeAggregate.getOriginDepartmentId())
+                .originDepartmentName(originDepartmentName)
                 .destinationDepartmentId(routeAggregate.getDestinationDepartmentId())
+                .destinationDepartmentName(destinationDepartmentName)
                 .status(routeAggregate.getStatus())
                 .duration(routeAggregate.getDuration())
                 .routePoints(routePointResults)
                 .build();
     }
 
-    private FetchRouteResult toFetchDetailResult(RouteAggregate aggregate) {
+    private RoutePointResult toRoutePointResult(RouteStopPlan stop) {
+        return RoutePointResult.builder()
+                .id(stop.getId())
+                .routeId(stop.getRouteId())
+                .creator(stop.getCreator())
+                .stopOrder(stop.getStopOrder())
+                .note(stop.getNote())
+                .departmentId(stop.getDepartmentId())
+                .stopName(stop.getStopName())
+                .stopAddress(stop.getStopAddress())
+                .stopCity(stop.getStopCity())
+                .stopLatitude(stop.getStopLatitude())
+                .stopLongitude(stop.getStopLongitude())
+                .stayDuration(stop.getStayDuration())
+                .timeAtDepartment(stop.getTimeAtDepartment())
+                .createdAt(stop.getCreatedAt())
+                .createdBy(stop.getCreatedBy())
+                .build();
+    }
+    private FetchRouteResult toFetchDetailResult(RouteAggregate aggregate, Map<String, Department> departmentMap) {
+
+        String originDepartmentName = departmentMap.get(aggregate.getOriginDepartmentId()).getName();
+        String destinationDepartmentName = departmentMap.get(aggregate.getDestinationDepartmentId()).getName();
+
         return FetchRouteResult.builder()
                 .id(aggregate.getId())
                 .creator(aggregate.getCreator())
@@ -332,24 +405,47 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 .originName(aggregate.getOriginName())
                 .destinationCode(aggregate.getDestinationCode())
                 .destinationName(aggregate.getDestinationName())
+                .originDepartmentId(aggregate.getOriginDepartmentId())
+                .originDepartmentName(originDepartmentName)
+                .destinationDepartmentId(aggregate.getDestinationDepartmentId())
+                .destinationDepartmentName(destinationDepartmentName)
                 .duration(aggregate.getDuration())
                 .status(aggregate.getStatus())
                 .routePoints(
                         aggregate.getStopPlans() != null ? aggregate.getStopPlans().stream()
-                                .map(stop -> RoutePointResult.builder()
-                                        .id(stop.getId())
-                                        .operationOrder(stop.getStopOrder())
-                                        .routeId(stop.getRouteId())
-                                        .note(stop.getNote())
-                                        .departmentId(stop.getDepartmentId())
-                                        .stopName(stop.getStopName())
-                                        .stopAddress(stop.getStopAddress())
-                                        .stopCity(stop.getStopCity())
-                                        .stopLatitude(stop.getStopLatitude())
-                                        .stopLongitude(stop.getStopLongitude())
-                                        .build()
-                                )
+                                .map(this::toRoutePointResult)
                                 .toList() : null)
+                .build();
+    }
+
+    private UpdateRouteResult toUpdateRouteResult(UpdateRouteCommand command, String originCode, String destinationCode) {
+        List<UpdateRouteResult.UpdateRoutePointResult> routePointResults = command.routePoints() != null ?
+                command.routePoints().stream()
+                        .map(point -> UpdateRouteResult.UpdateRoutePointResult.builder()
+                                .stopOrder(point.stopOrder())
+                                .note(point.note())
+                                .departmentId(point.departmentId())
+                                .stopName(point.stopName())
+                                .stopAddress(point.stopAddress())
+                                .stopCity(point.stopCity())
+                                .stopLatitude(point.stopLatitude())
+                                .stopLongitude(point.stopLongitude())
+                                .timeAtDepartment(point.timeAtDepartment())
+                                .build())
+                        .toList() : null;
+
+        return UpdateRouteResult.builder()
+                .routeId(command.routeId())
+                .creator(command.creator())
+                .originCode(originCode)
+                .originName(command.originName())
+                .originDepartmentId(command.originDepartmentId())
+                .destinationCode(destinationCode)
+                .destinationName(command.destinationName())
+                .destinationDepartmentId(command.destinationDepartmentId())
+                .status(command.status())
+                .routePoints(routePointResults)
+                .duration(command.duration())
                 .build();
     }
     private void validatePaging(FetchRoutesQuery query, int pageSize, int pageNumber) {
@@ -391,6 +487,65 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         validateCustomStopCoordinates(command, point);
     }
 
+
+    private void processRoutePoints(UpdateRouteCommand command) {
+        if (command.routePoints() == null || command.routePoints().isEmpty()) {
+            return;
+        }
+        List<String> departmentIds = command.routePoints()
+                .stream()
+                .map(UpdateRouteCommand.UpdateRoutePointCommand::departmentId)
+                .distinct()
+                .filter(Objects::nonNull)
+                .toList();
+
+        Map<String, Department> departmentMap = departmentIds.isEmpty() ? Collections.emptyMap() :
+                departmentRepositoryPort.findAllByIdIn(departmentIds)
+                        .stream()
+                        .collect(Collectors.toMap(
+                                Department::getId,
+                                dept -> dept
+                        ));
+
+        for(UpdateRouteCommand.UpdateRoutePointCommand point : command.routePoints()) {
+            RouteStopPlan routeStopPlan = routeStopRepositoryPort.findByRouteIdAndStopOrder(command.routeId(), String.valueOf(point.stopOrder()))
+                    .orElse(null);
+
+            if(routeStopPlan != null) {
+                Optional.ofNullable(point.note())
+                        .ifPresent(routeStopPlan::setNote);
+                Optional.ofNullable(point.timeAtDepartment())
+                        .ifPresent(routeStopPlan::setTimeAtDepartment);
+            } else {
+                routeStopPlan = RouteStopPlan.builder()
+                        .id(UUID.randomUUID().toString())
+                        .stopOrder(point.stopOrder())
+                        .creator(command.creator())
+                        .routeId(command.routeId())
+                        .note(point.note())
+                        .departmentId(point.departmentId())
+                        .timeAtDepartment(point.timeAtDepartment())
+                        .build();
+            }
+
+            if(point.departmentId() != null) {
+                Department department = departmentMap.get(point.departmentId());
+
+                if(department == null) {
+                    throw new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
+                            ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(DEPARTMENT_NOT_FOUND, point.departmentId())));
+                }
+
+                routeStopPlan.setDepartmentId(point.departmentId());
+                routeStopPlan.setStopName(department.getName());
+                routeStopPlan.setStopAddress(department.getAddress());
+                routeStopPlan.setStopCity(department.getProvinceName());
+                routeStopPlan.setStopLatitude(department.getLatitude());
+                routeStopPlan.setStopLongitude(department.getLongitude());
+            }
+            routeStopRepositoryPort.save(routeStopPlan);
+        }
+    }
     private Integer validateStopOrder(CreateRouteCommand command, RoutePointCommand point) {
         if (point.operationOrder() == null) {
             throwInvalidInput(command, INVALID_STOP_ORDER);

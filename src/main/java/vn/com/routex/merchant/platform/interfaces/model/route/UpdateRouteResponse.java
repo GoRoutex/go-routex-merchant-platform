@@ -29,6 +29,8 @@ public class UpdateRouteResponse extends BaseResponse<UpdateRouteResponse.Update
         private String originName;
         private String destinationCode;
         private String destinationName;
+        private String originDepartmentId;
+        private String destinationDepartmentId;
         private Long duration;
         private RouteStatus status;
         private List<UpdateRoutePointResponse> routePoints;
@@ -40,8 +42,14 @@ public class UpdateRouteResponse extends BaseResponse<UpdateRouteResponse.Update
     @NoArgsConstructor
     @SuperBuilder
     public static class UpdateRoutePointResponse {
-        private String id;
-        private String operationOrder;
+        private int stopOrder;
         private String note;
+        private String departmentId;
+        private String stopName;
+        private String stopAddress;
+        private String stopCity;
+        private Double stopLatitude;
+        private Double stopLongitude;
+        private Integer timeAtDepartment;
     }
 }

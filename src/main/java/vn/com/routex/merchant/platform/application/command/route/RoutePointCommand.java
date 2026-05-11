@@ -11,6 +11,7 @@ public record RoutePointCommand(
         String stopAddress,
         String stopCity,
         Double stopLatitude,
-        Double stopLongitude
+        Double stopLongitude,
+        Integer timeAtDepartment
 ) {
 }

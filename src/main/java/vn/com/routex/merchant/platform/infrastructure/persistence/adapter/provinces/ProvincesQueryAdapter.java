@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import vn.com.go.routex.identity.security.log.SystemLog;
 import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.provinces.port.ProvincesQueryPort;
 import vn.com.routex.merchant.platform.domain.provinces.readmodel.ProvincesFetchView;
@@ -20,6 +21,7 @@ import java.util.List;
 public class ProvincesQueryAdapter implements ProvincesQueryPort {
 
     private final ProvincesEntityRepository provincesEntityRepository;
+    private final SystemLog sLog = SystemLog.getLogger(this.getClass());
 
     @Override
     public List<ProvincesSearchItem> search(String keyword, int page, int size) {

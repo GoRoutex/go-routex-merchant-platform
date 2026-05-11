@@ -20,7 +20,7 @@ public class ErrorConstant {
     public static final String ROUTE_NOT_FOUND = "Route with Id %s not found";
     public static final String MERCHANT_NOT_FOUND_BY_ID = "Merchant with Id %s not found";
     public static final String MERCHANT_APPLICATION_FORM_NOT_FOUND = "Merchant application form with Id %s not found";
-    public static final String DEPARTMENT_NOT_FOUND = "Operation point with Id %s not found";
+    public static final String DEPARTMENT_NOT_FOUND = "Department with Id %s not found";
     public static final String MERCHANT_REVIEW_NOT_FOUND_BY_ID = "Merchant review with Id %s not found";
     public static final String DRIVER_NOT_FOUND_BY_ID = "Driver with Id %s not found";
     public static final String DRIVER_NOT_FOUND_BY_USER_ID = "Driver with UserId %s not found";

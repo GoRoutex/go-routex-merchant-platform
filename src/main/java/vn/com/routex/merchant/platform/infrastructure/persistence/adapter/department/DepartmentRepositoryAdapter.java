@@ -76,6 +76,28 @@ public class DepartmentRepositoryAdapter implements DepartmentRepositoryPort {
         return toPagedResult(page);
     }
 
+    @Override
+    public PagedResult<Department> fetch(String merchantId, String provinceId, int pageNumber, int pageSize) {
+        Page<DepartmentEntity> page = departmentEntityRepository.findByMerchantIdAndProvinceId(merchantId, provinceId, PageRequest.of(pageNumber, pageSize));
+        return toPagedResult(page);
+    }
+
+    @Override
+    public List<Department> findAllByIdIn(List<String> departmentIds) {
+        return departmentEntityRepository.findAllById(departmentIds)
+                .stream().map(departmentPersistenceMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Department> search(String keyword, int page, int size) {
+        return departmentEntityRepository.findByNameContainingIgnoreCase(keyword, PageRequest.of(page, size))
+                .getContent()
+                .stream()
+                .map(departmentPersistenceMapper::toDomain)
+                .toList();
+    }
+
     private PagedResult<Department> toPagedResult(Page<DepartmentEntity> page) {
         List<Department> items = page.getContent().stream()
                 .map(departmentPersistenceMapper::toDomain)

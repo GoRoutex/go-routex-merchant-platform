@@ -55,4 +55,7 @@ public class RouteStopEntity extends AbstractAuditingEntity {
 
     @Column(name = "STAY_DURATION")
     private Long stayDuration;
+
+    @Column(name = "TIME_AT_DEPARTMENT")
+    private Integer timeAtDepartment;
 }

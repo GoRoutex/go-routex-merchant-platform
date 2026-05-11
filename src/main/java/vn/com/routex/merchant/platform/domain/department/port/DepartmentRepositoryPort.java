@@ -5,6 +5,7 @@ import vn.com.routex.merchant.platform.domain.common.PagedResult;
 import vn.com.routex.merchant.platform.domain.department.model.Department;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface DepartmentRepositoryPort {
@@ -27,4 +28,10 @@ public interface DepartmentRepositoryPort {
     PagedResult<Department> fetch(int pageNumber, int pageSize);
 
     PagedResult<Department> fetch(String merchantId, int pageNumber, int pageSize);
+
+    PagedResult<Department> fetch(String merchantId, String provinceId, int pageNumber, int pageSize);
+
+    List<Department> findAllByIdIn(List<String> departmentIds);
+
+    List<Department> search(String keyword, int page, int size);
 }

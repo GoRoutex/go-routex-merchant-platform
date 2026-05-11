@@ -40,8 +40,9 @@ public class SearchRouteResponse extends BaseResponse<List<SearchRouteResponse.S
     @SuperBuilder
     public static class SearchRoutePoints {
         private String id;
-        private int operationOrder;
         private String routeId;
+        private String creator;
+        private int stopOrder;
         private String note;
         private String departmentId;
         private String stopName;
@@ -49,5 +50,9 @@ public class SearchRouteResponse extends BaseResponse<List<SearchRouteResponse.S
         private String stopCity;
         private Double stopLatitude;
         private Double stopLongitude;
+        private Integer timeAtDepartment;
+        private Long stayDuration;
+        private OffsetDateTime createdAt;
+        private String createdBy;
     }
 }

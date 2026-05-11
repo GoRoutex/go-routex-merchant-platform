@@ -86,10 +86,6 @@ public class MerchantTripServiceImpl implements MerchantTripService {
         RouteAggregate route = findRoute(command.routeId(), command.merchantId(), command.context().requestId(),
                 command.context().requestDateTime(), command.context().channel());
 
-        if (tripAggregateRepositoryPort.existsByRouteId(command.routeId(), command.merchantId())) {
-            throw new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
-                    ExceptionUtils.buildResultResponse(DUPLICATE_ERROR, String.format(TRIP_ALREADY_EXISTS_FOR_ROUTE, command.routeId())));
-        }
         String tripCode = tripAggregateRepositoryPort.generateTripCode(route.getOriginCode(), route.getDestinationCode());
         OffsetDateTime now = OffsetDateTime.now();
         TripAggregate trip = TripAggregate.builder()
@@ -356,19 +352,41 @@ public class MerchantTripServiceImpl implements MerchantTripService {
     private FetchTripDetailResult toFetchDetailResult(TripAggregate trip, RouteAggregate route) {
         return FetchTripDetailResult.builder()
                 .tripId(trip.getId())
-                .merchantId(trip.getMerchantId())
-                .pickupBranch(trip.getPickupBranch())
+                .creator(trip.getCreator())
                 .tripCode(trip.getTripCode())
+                .pickupBranch(trip.getPickupBranch())
                 .departureTime(trip.getDepartureTime())
                 .rawDepartureTime(trip.getRawDepartureTime())
                 .rawDepartureDate(trip.getRawDepartureDate())
+                .rawArrivalTime(calculateArrivalTime(trip.getRawDepartureTime(), route.getDuration()))
                 .status(trip.getStatus())
                 .route(FetchTripDetailResult.FetchTripDetailRoute.builder()
                         .routeId(route.getId())
                         .originName(route.getOriginName())
+                        .originCode(route.getOriginCode())
+                        .originDepartmentId(route.getOriginDepartmentId())
                         .destinationName(route.getDestinationName())
+                        .destinationCode(route.getDestinationCode())
+                        .destinationDepartmentId(route.getDestinationDepartmentId())
                         .duration(route.getDuration())
                         .build())
                 .build();
+    }
+
+    private String calculateArrivalTime(String rawDepartureTime, Long durationMinutes) {
+        if (rawDepartureTime == null || durationMinutes == null) return null;
+        try {
+            String[] parts = rawDepartureTime.split(":");
+            int hours = Integer.parseInt(parts[0]);
+            int minutes = Integer.parseInt(parts[1]);
+
+            int totalMinutes = hours * 60 + minutes + durationMinutes.intValue();
+            int arrivalHours = (totalMinutes / 60) % 24;
+            int arrivalMinutes = totalMinutes % 60;
+
+            return String.format("%02d:%02d", arrivalHours, arrivalMinutes);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

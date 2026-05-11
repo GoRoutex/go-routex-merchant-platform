@@ -17,7 +17,9 @@ public record FetchDetailRouteResult(
         String originProvinceId,
         String destinationProvinceId,
         String originDepartmentId,
+        String originDepartmentName,
         String destinationDepartmentId,
+        String destinationDepartmentName,
         RouteStatus status,
         Long duration,
         List<RoutePointResult> routePoints

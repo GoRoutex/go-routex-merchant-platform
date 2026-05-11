@@ -106,17 +106,22 @@ public class MerchantRouteController {
                         .originName(result.originName())
                         .destinationCode(result.destinationCode())
                         .destinationName(result.destinationName())
+                        .originDepartmentId(result.originDepartmentId())
+                        .originDepartmentName(result.originDepartmentName())
+                        .destinationDepartmentId(result.destinationDepartmentId())
+                        .destinationDepartmentName(result.destinationDepartmentName())
                         .duration(result.duration())
                         .status(result.status())
                         .build())
                 .build();
 
-        if(result.routePoints() != null) {
+        if (result.routePoints() != null) {
             List<SearchRouteResponse.SearchRoutePoints> routePoints = result.routePoints().stream()
                     .map(point -> SearchRouteResponse.SearchRoutePoints.builder()
                             .id(point.id())
-                            .operationOrder(point.operationOrder())
                             .routeId(point.routeId())
+                            .creator(point.creator())
+                            .stopOrder(point.stopOrder())
                             .note(point.note())
                             .departmentId(point.departmentId())
                             .stopName(point.stopName())
@@ -124,6 +129,10 @@ public class MerchantRouteController {
                             .stopCity(point.stopCity())
                             .stopLatitude(point.stopLatitude())
                             .stopLongitude(point.stopLongitude())
+                            .stayDuration(point.stayDuration())
+                            .timeAtDepartment(point.timeAtDepartment())
+                            .createdAt(point.createdAt())
+                            .createdBy(point.createdBy())
                             .build())
                     .collect(Collectors.toList());
 
@@ -181,9 +190,15 @@ public class MerchantRouteController {
         if (request.getData().getRoutePoints() != null) {
             routePointCommandList = request.getData().getRoutePoints().stream().map(
                     point -> UpdateRouteCommand.UpdateRoutePointCommand.builder()
-                            .id(point.getId())
-                            .operationOrder(point.getOperationOrder())
+                            .stopOrder(point.getStopOrder())
                             .note(point.getNote())
+                            .departmentId(point.getDepartmentId())
+                            .stopName(point.getStopName())
+                            .stopAddress(point.getStopAddress())
+                            .stopCity(point.getStopCity())
+                            .stopLatitude(point.getStopLatitude())
+                            .stopLongitude(point.getStopLongitude())
+                            .timeAtDepartment(point.getTimeAtDepartment())
                             .build()
             ).toList();
         }
@@ -193,9 +208,11 @@ public class MerchantRouteController {
                 .routeId(request.getRouteId())
                 .creator(request.getCreator())
                 .originName(request.getData().getOriginName())
+                .originDepartmentId(request.getData().getOriginDepartmentId())
+                .destinationDepartmentId(request.getData().getDestinationDepartmentId())
                 .destinationName(request.getData().getDestinationName())
-                .status(request.getData().getStatus())
-                        .duration(request.getData().getDuration())
+                .status(RouteStatus.valueOf(request.getData().getStatus()))
+                .duration(request.getData().getDuration())
                 .routePoints(routePointCommandList)
                 .build());
 
@@ -207,13 +224,21 @@ public class MerchantRouteController {
                         .originName(result.originName())
                         .destinationCode(result.destinationCode())
                         .destinationName(result.destinationName())
+                        .originDepartmentId(result.originDepartmentId())
+                        .destinationDepartmentId(result.destinationDepartmentId())
                         .status(result.status())
                         .duration(result.duration())
                         .routePoints(result.routePoints() == null ? null : result.routePoints().stream().map(
                                 point -> UpdateRouteResponse.UpdateRoutePointResponse.builder()
-                                        .id(point.id())
-                                        .operationOrder(point.operationOrder())
+                                        .stopOrder(point.stopOrder())
                                         .note(point.note())
+                                        .departmentId(point.departmentId())
+                                        .stopName(point.stopName())
+                                        .stopAddress(point.stopAddress())
+                                        .stopCity(point.stopCity())
+                                        .stopLatitude(point.stopLatitude())
+                                        .stopLongitude(point.stopLongitude())
+                                        .timeAtDepartment(point.timeAtDepartment())
                                         .build()
                         ).collect(Collectors.toList()))
                         .build())
@@ -240,6 +265,7 @@ public class MerchantRouteController {
                             .stopCity(point.getStopCity())
                             .stopLatitude(point.getStopLatitude())
                             .stopLongitude(point.getStopLongitude())
+                            .timeAtDepartment(point.getTimeAtDepartment())
                             .build())
                     .toList();
         }
@@ -250,6 +276,9 @@ public class MerchantRouteController {
                 .creator(request.getData().getCreator())
                 .originName(request.getData().getOriginName())
                 .destinationName(request.getData().getDestinationName())
+                .originDepartmentId(request.getData().getOriginDepartmentId())
+                .destinationDepartmentId(request.getData().getDestinationDepartmentId())
+                .duration(request.getData().getDuration())
                 .routePoints(routePointCommands)
                 .build());
 
@@ -267,6 +296,7 @@ public class MerchantRouteController {
                         rp.setStopCity(point.stopCity());
                         rp.setStopLatitude(point.stopLatitude());
                         rp.setStopLongitude(point.stopLongitude());
+                        rp.setTimeAtDepartment(point.timeAtDepartment());
                         return rp;
                     })
                     .toList();
@@ -280,10 +310,14 @@ public class MerchantRouteController {
                 .data(CreateRouteResponse.CreateRouteResponseData.builder()
                         .id(result.id())
                         .creator(result.creator())
-                        .originCode(result.originCode())
-                        .destinationCode(result.destinationCode())
                         .originName(result.originName())
+                        .originCode(result.originCode())
+                        .originDepartmentId(result.originDepartmentId())
+                        .originDepartmentName(result.originDepartmentName())
+                        .destinationCode(result.destinationCode())
                         .destinationName(result.destinationName())
+                        .destinationDepartmentId(result.destinationDepartmentId())
+                        .destinationDepartmentName(result.destinationDepartmentName())
                         .status(result.status())
                         .duration(result.duration())
                         .routePoints(routePointResponses)

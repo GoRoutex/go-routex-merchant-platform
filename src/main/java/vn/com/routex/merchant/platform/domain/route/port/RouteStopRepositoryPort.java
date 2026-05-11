@@ -17,5 +17,9 @@ public interface RouteStopRepositoryPort {
     Map<String, List<RouteStopPlan>> findByRouteIds(List<String> routeIds);
 
     Optional<RouteStopPlan> findByRouteIdAndStopOrder(String routeId, String stopOrder);
+
+    boolean existsByRouteIdAndStopOrder(String routeId, String stopOrder);
+
+    List<RouteStopPlan> search(String keyword, int page, int size);
 }
 

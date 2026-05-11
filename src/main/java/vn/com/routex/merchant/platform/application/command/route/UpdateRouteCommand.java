@@ -13,6 +13,8 @@ public record UpdateRouteCommand(
         String creator,
         String originName,
         String destinationName,
+        String originDepartmentId,
+        String destinationDepartmentId,
         RouteStatus status,
         Long duration,
         List<UpdateRoutePointCommand> routePoints
@@ -20,9 +22,15 @@ public record UpdateRouteCommand(
 
     @Builder
     public record UpdateRoutePointCommand(
-        String id,
-        String operationOrder,
-        String note
+        int stopOrder,
+        String note,
+        String departmentId,
+        String stopName,
+        String stopAddress,
+        String stopCity,
+        Double stopLatitude,
+        Double stopLongitude,
+        Integer timeAtDepartment
     ) {
     }
 }

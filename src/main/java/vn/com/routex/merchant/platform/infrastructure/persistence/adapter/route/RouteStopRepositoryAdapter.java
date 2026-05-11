@@ -59,5 +59,18 @@ public class RouteStopRepositoryAdapter implements RouteStopRepositoryPort {
         return routeStopEntityRepository.findByRouteIdAndStopOrder(routeId, stopOrder)
                 .map(routePersistenceMapper::toStopPlan);
     }
+
+    @Override
+    public boolean existsByRouteIdAndStopOrder(String routeId, String stopOrder) {
+        return routeStopEntityRepository.existsByRouteIdAndStopOrder(routeId, stopOrder);
+    }
+
+    @Override
+    public List<RouteStopPlan> search(String keyword, int page, int size) {
+        return routeStopEntityRepository.findByStopNameContainingIgnoreCase(keyword, org.springframework.data.domain.PageRequest.of(page, size))
+                .stream()
+                .map(routePersistenceMapper::toStopPlan)
+                .toList();
+    }
 }
 

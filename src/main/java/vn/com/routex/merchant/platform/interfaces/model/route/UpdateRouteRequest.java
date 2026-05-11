@@ -2,13 +2,14 @@ package vn.com.routex.merchant.platform.interfaces.model.route;
 
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import vn.com.routex.merchant.platform.domain.route.RouteStatus;
 import vn.com.routex.merchant.platform.interfaces.model.base.BaseRequest;
 
 import java.util.List;
@@ -32,10 +33,18 @@ public class UpdateRouteRequest extends BaseRequest {
     @NoArgsConstructor
     @SuperBuilder
     public static class UpdateRouteRequestData {
+        @NotBlank
+        @NotNull
         private String originName;
+        @NotBlank
+        @NotNull
         private String destinationName;
-        private RouteStatus status;
+        private String originDepartmentId;
+        private String destinationDepartmentId;
         private Long duration;
+
+        @Pattern(regexp = "^(ACTIVE|SUSPENDED|INACTIVE)$", message = "only allowed for ACTIVE, SUSPENDED and ACTIVE")
+        private String status;
         private List<UpdateRoutePointRequest> routePoints;
     }
 
@@ -45,9 +54,14 @@ public class UpdateRouteRequest extends BaseRequest {
     @SuperBuilder
     @NoArgsConstructor
     public static class UpdateRoutePointRequest {
-        private String id;
-        private String operationOrder;
-        private String routeId;
+        private Integer stopOrder;
         private String note;
+        private String departmentId;
+        private String stopName;
+        private String stopAddress;
+        private String stopCity;
+        private Double stopLatitude;
+        private Double stopLongitude;
+        private Integer timeAtDepartment;
     }
 }

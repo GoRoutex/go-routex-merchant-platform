@@ -25,6 +25,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.exception.Busi
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.DateTimeUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
 
         Province province = provincesRepositoryPort.findById(command.provinceId())
                 .orElseThrow(() -> new BusinessException(command.context().requestId(), command.context().requestDateTime(), command.context().channel(),
-                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, String.format(PROVINCE_NOT_FOUND, command.provinceId()))));
+                        ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, PROVINCE_NOT_FOUND)));
 
         Department department = Department.builder()
                 .id(UUID.randomUUID().toString())
@@ -77,6 +78,7 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
                 .latitude(command.latitude())
                 .longitude(command.longitude())
                 .status(command.status())
+                .createdAt(OffsetDateTime.now())
                 .build();
 
         enrichAdministrativeNames(department);
@@ -205,7 +207,12 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
         int pageNumber = parseIntOrDefault(query.pageNumber(), DEFAULT_PAGE_NUMBER, "pageNumber",
                 query.context().requestId(), query.context().requestDateTime(), query.context().channel());
 
-        PagedResult<Department> page = departmentRepositoryPort.fetch(query.merchantId(), pageNumber - 1, pageSize);
+        PagedResult<Department> page;
+        if(query.provinceId() != null) {
+            page = departmentRepositoryPort.fetch(query.merchantId(), query.provinceId(), pageNumber - 1, pageSize);
+        } else {
+            page = departmentRepositoryPort.fetch(query.merchantId(), pageNumber - 1, pageSize);
+        }
         List<FetchDepartmentResult.FetchDepartmentItemResult> items = page.getItems().stream()
                 .map(p -> FetchDepartmentResult.FetchDepartmentItemResult.builder()
                         .id(p.getId())

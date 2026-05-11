@@ -8,6 +8,7 @@ public record FetchDepartmentQuery(
         String pageSize,
         String pageNumber,
         String merchantId,
+        String provinceId,
         RequestContext context
 ) {
 }

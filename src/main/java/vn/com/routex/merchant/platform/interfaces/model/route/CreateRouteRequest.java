@@ -61,5 +61,6 @@ public class CreateRouteRequest extends BaseRequest {
         private String stopCity;
         private Double stopLatitude;
         private Double stopLongitude;
+        private Integer timeAtDepartment;
     }
 }

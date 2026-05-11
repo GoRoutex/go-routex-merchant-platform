@@ -17,6 +17,10 @@ public class RouteResponseMapper {
                 .originName(item.originName())
                 .destinationCode(item.destinationCode())
                 .destinationName(item.destinationName())
+                .originDepartmentId(item.originDepartmentId())
+                .originDepartmentName(item.originDepartmentName())
+                .destinationDepartmentId(item.destinationDepartmentId())
+                .destinationDepartmentName(item.destinationDepartmentName())
                 .duration(item.duration())
                 .status(item.status())
                 .routePoints(item.routePoints() == null ? null : item.routePoints().stream()
@@ -38,8 +42,9 @@ public class RouteResponseMapper {
     public SearchRouteResponse.SearchRoutePoints toSearchRoutePoint(RoutePointResult point) {
         return SearchRouteResponse.SearchRoutePoints.builder()
                 .id(point.id())
-                .operationOrder(point.operationOrder())
                 .routeId(point.routeId())
+                .creator(point.creator())
+                .stopOrder(point.stopOrder())
                 .note(point.note())
                 .departmentId(point.departmentId())
                 .stopName(point.stopName())
@@ -47,6 +52,10 @@ public class RouteResponseMapper {
                 .stopCity(point.stopCity())
                 .stopLatitude(point.stopLatitude())
                 .stopLongitude(point.stopLongitude())
+                .stayDuration(point.stayDuration())
+                .timeAtDepartment(point.timeAtDepartment())
+                .createdAt(point.createdAt())
+                .createdBy(point.createdBy())
                 .build();
     }
 }

@@ -12,7 +12,8 @@ public record SearchProvincesResult(
     public record SearchProvincesItemResult(
             String id,
             String name,
-            String code
+            String code,
+            String type // PROVINCE, DEPARTMENT, STOP
     ) {
     }
 }
