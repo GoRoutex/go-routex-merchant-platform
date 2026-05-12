@@ -17,6 +17,7 @@ import vn.com.routex.merchant.platform.application.command.trip.FetchTripListQue
 import vn.com.routex.merchant.platform.application.command.trip.FetchTripListResult;
 import vn.com.routex.merchant.platform.application.command.trip.UpdateTripCommand;
 import vn.com.routex.merchant.platform.application.command.trip.UpdateTripResult;
+import vn.com.routex.merchant.platform.application.service.HolidayService;
 import vn.com.routex.merchant.platform.application.service.MerchantTripService;
 import vn.com.routex.merchant.platform.application.service.OutBoxService;
 import vn.com.routex.merchant.platform.domain.assignment.model.TripAssignmentRecord;
@@ -37,6 +38,8 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.exception.Busi
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ApiRequestUtils;
 import vn.com.routex.merchant.platform.infrastructure.persistence.utils.ExceptionUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +71,7 @@ public class MerchantTripServiceImpl implements MerchantTripService {
     private final VehicleProfileRepositoryPort vehicleProfileRepositoryPort;
     private final VehicleTemplateRepositoryPort vehicleTemplateRepositoryPort;
     private final OutBoxService outBoxService;
+    private final HolidayService holidayService;
 
     @Value("${spring.kafka.topics.trips}")
     private String tripTopic;
@@ -246,6 +250,19 @@ public class MerchantTripServiceImpl implements MerchantTripService {
                         ExceptionUtils.buildResultResponse(RECORD_NOT_FOUND, VEHICLE_TEMPLATE_NOT_FOUND)));
 
         OffsetDateTime assignedAt = OffsetDateTime.now();
+        
+        // Dynamic Pricing: Check for Surcharge on Holidays/Peak Days
+        BigDecimal basePrice = vehicleTemplate.getTicketPrice();
+        BigDecimal surchargeRate = holidayService.getSurchargeRate(trip.getDepartureTime().toLocalDate());
+        BigDecimal finalPrice = basePrice;
+        
+        if (surchargeRate.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal surchargeAmount = basePrice.multiply(surchargeRate)
+                    .divide(new BigDecimal("100"), 0, RoundingMode.HALF_UP);
+            finalPrice = basePrice.add(surchargeAmount);
+            sLog.info("[DYNAMIC-PRICING] Surcharge applied: {}% for date: {}. Final Price: {}", surchargeRate, trip.getDepartureTime().toLocalDate(), finalPrice);
+        }
+
         TripAssignmentRecord routeAssignment = TripAssignmentRecord.assign(
                 UUID.randomUUID().toString(),
                 command.tripId(),
@@ -253,7 +270,7 @@ public class MerchantTripServiceImpl implements MerchantTripService {
                 trip.getMerchantId(),
                 vehicle.getId(),
                 command.driverId(),
-                vehicleTemplate.getTicketPrice(),
+                finalPrice,
                 assignedAt
         );
         tripAssignmentRepositoryPort.save(routeAssignment);

@@ -160,10 +160,10 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 originCode,
                 destinationCode,
                 originProvinceId,
-                originDepartmentName,
-                destinationDepartmentName,
                 destinationProvinceId,
                 command.originDepartmentId(),
+                originDepartmentName,
+                destinationDepartmentName,
                 command.destinationDepartmentId(),
                 originName,
                 destinationName,
@@ -312,6 +312,8 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                         Department::getId,
                         Function.identity()
                 ));
+
+        sLog.info("Department Map: {}", departmentMap);
 
         return FetchRoutesResult.builder()
                 .items(page.getItems().stream()

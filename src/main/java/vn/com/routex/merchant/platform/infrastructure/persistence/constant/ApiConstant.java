@@ -33,4 +33,6 @@ public class ApiConstant {
     public static final String DETAIL_PATH = "/detail";
     public static final String BOOKING_CONTEXT_PATH = "/booking-context";
     public static final String SEAT_BLUEPRINT_PATH = "/seat-blueprint";
+    public static final String TICKETS_PATH = "/tickets";
 }
+

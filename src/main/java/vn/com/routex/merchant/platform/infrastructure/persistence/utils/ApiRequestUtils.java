@@ -74,4 +74,12 @@ public class ApiRequestUtils {
     public String firstNonBlank(String value, String fallback) {
         return (value == null || value.isBlank()) ? fallback : value.trim();
     }
+
+    public RequestContext getRequestContext(BaseRequest request) {
+        return RequestContext.builder()
+                .requestId(request.getRequestId())
+                .requestDateTime(request.getRequestDateTime())
+                .channel(request.getChannel())
+                .build();
+    }
 }
