@@ -22,7 +22,7 @@ import static vn.com.routex.merchant.platform.infrastructure.persistence.constan
 @RestController
 @RequestMapping(API_PATH + API_VERSION + MERCHANT_SERVICE + "/dashboard")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('merchant:dashboard') or hasRole('MERCHANT_ADMIN')")
+@PreAuthorize("hasAuthority('merchant:dashboard') or hasRole('MERCHANT_OWNER')")
 public class MerchantDashboardController {
 
     private final DashboardService dashboardService;

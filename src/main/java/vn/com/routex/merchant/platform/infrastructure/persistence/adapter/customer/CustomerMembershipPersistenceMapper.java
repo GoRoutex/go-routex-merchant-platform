@@ -7,7 +7,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.customer.e
 @UtilityClass
 public class CustomerMembershipPersistenceMapper {
 
-    public CustomerMembershipEntity toJpaEntity(CustomerMembership customerMembership) {
+    public CustomerMembershipEntity toEntity(CustomerMembership customerMembership) {
         return CustomerMembershipEntity
                 .builder()
                 .id(customerMembership.getId())

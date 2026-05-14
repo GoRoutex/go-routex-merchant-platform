@@ -44,7 +44,7 @@ public class CreateRouteRequest extends BaseRequest {
         private String originDepartmentId;
         private String destinationDepartmentId;
         private Long duration;
-        private List<RoutePoints> departments;
+        private List<RoutePoints> routePoints;
     }
 
     @Getter
@@ -53,7 +53,7 @@ public class CreateRouteRequest extends BaseRequest {
     @NoArgsConstructor
     @SuperBuilder
     public static class RoutePoints {
-        private String operationOrder;
+        private String stopOrder;
         private String note;
         private String departmentId;
         private String stopName;

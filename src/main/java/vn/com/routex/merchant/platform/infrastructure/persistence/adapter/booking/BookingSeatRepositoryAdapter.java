@@ -19,7 +19,7 @@ public class BookingSeatRepositoryAdapter implements BookingSeatRepositoryPort {
     @Override
     public List<BookingSeat> saveAll(List<BookingSeat> bookingSeats) {
         return bookingSeatJpaRepository.saveAll(bookingSeats.stream()
-                        .map(bookingPersistenceMapper::toJpaEntity)
+                        .map(bookingPersistenceMapper::toEntity)
                         .toList()).stream()
                 .map(bookingPersistenceMapper::toDomain)
                 .toList();
@@ -28,7 +28,7 @@ public class BookingSeatRepositoryAdapter implements BookingSeatRepositoryPort {
     @Override
     public BookingSeat save(BookingSeat bookingSeat) {
         return bookingPersistenceMapper.toDomain(
-                bookingSeatJpaRepository.save(bookingPersistenceMapper.toJpaEntity(bookingSeat))
+                bookingSeatJpaRepository.save(bookingPersistenceMapper.toEntity(bookingSeat))
         );
     }
 

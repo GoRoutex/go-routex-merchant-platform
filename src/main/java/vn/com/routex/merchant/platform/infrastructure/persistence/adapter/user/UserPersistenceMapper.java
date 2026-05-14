@@ -7,7 +7,7 @@ import vn.com.routex.merchant.platform.infrastructure.persistence.jpa.user.entit
 @Component
 public class UserPersistenceMapper {
 
-    public UserEntity toJpaEntity(User user) {
+    public UserEntity toEntity(User user) {
         return UserEntity.builder()
                 .id(user.getId())
                 .passwordHash(user.getPasswordHash())

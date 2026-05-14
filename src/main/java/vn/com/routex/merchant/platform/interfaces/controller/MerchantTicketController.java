@@ -32,7 +32,13 @@ import vn.com.routex.merchant.platform.interfaces.model.ticket.response.UpdateTi
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.*;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.API_VERSION;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.DETAIL_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.FETCH_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.MERCHANT_SERVICE;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.TICKETS_PATH;
+import static vn.com.routex.merchant.platform.infrastructure.persistence.constant.ApiConstant.UPDATE_PATH;
 
 @RestController
 @RequestMapping(API_PATH + API_VERSION + MERCHANT_SERVICE)

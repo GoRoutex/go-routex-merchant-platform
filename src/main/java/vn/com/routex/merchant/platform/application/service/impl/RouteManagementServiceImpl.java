@@ -137,7 +137,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                     return RouteStopPlan.builder()
                             .id(UUID.randomUUID().toString())
                             .routeId(routeId)
-                            .stopOrder(Integer.parseInt(point.operationOrder()))
+                            .stopOrder(Integer.parseInt(point.stopOrder()))
                             .creator(command.creator())
                             .createdAt(now)
                             .createdBy(command.creator())
@@ -172,6 +172,8 @@ public class RouteManagementServiceImpl implements RouteManagementService {
                 now,
                 routeStopPlans
         );
+
+        sLog.info("Route stop plans: {}",  routeStopPlans);
 
         routeAggregateRepositoryPort.save(newRoute);
         routeStopRepositoryPort.saveAll(routeStopPlans);
@@ -549,12 +551,12 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         }
     }
     private Integer validateStopOrder(CreateRouteCommand command, RoutePointCommand point) {
-        if (point.operationOrder() == null) {
+        if (point.stopOrder() == null) {
             throwInvalidInput(command, INVALID_STOP_ORDER);
         }
 
         try {
-            int operationOrder = Integer.parseInt(point.operationOrder());
+            int operationOrder = Integer.parseInt(point.stopOrder());
             if (operationOrder <= 0) {
                 throwInvalidInput(command, INVALID_STOP_ORDER);
             }

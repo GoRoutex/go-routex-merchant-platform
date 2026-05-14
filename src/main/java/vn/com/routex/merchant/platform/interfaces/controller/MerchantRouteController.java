@@ -254,10 +254,10 @@ public class MerchantRouteController {
         sLog.info("[CREATE-ROUTE] Create Route Request: {}", request);
         String merchantId = ApiRequestUtils.requireMerchantId(servletRequest, request);
         List<RoutePointCommand> routePointCommands = new ArrayList<>();
-        if (request.getData().getDepartments() != null) {
-            routePointCommands = request.getData().getDepartments().stream()
+        if (request.getData().getRoutePoints() != null) {
+            routePointCommands = request.getData().getRoutePoints().stream()
                     .map(point -> RoutePointCommand.builder()
-                            .operationOrder(point.getOperationOrder())
+                            .stopOrder(point.getStopOrder())
                             .note(point.getNote())
                             .departmentId(point.getDepartmentId())
                             .stopName(point.getStopName())
@@ -287,19 +287,19 @@ public class MerchantRouteController {
         if (result.routePoints() != null) {
             routePointResponses = result.routePoints().stream()
                     .map(point -> {
-                        CreateRouteRequest.RoutePoints rp = new CreateRouteRequest.RoutePoints();
-                        rp.setOperationOrder(point.operationOrder());
-                        rp.setNote(point.note());
-                        rp.setDepartmentId(point.departmentId());
-                        rp.setStopName(point.stopName());
-                        rp.setStopAddress(point.stopAddress());
-                        rp.setStopCity(point.stopCity());
-                        rp.setStopLatitude(point.stopLatitude());
-                        rp.setStopLongitude(point.stopLongitude());
-                        rp.setTimeAtDepartment(point.timeAtDepartment());
-                        return rp;
+                        return CreateRouteRequest.RoutePoints.builder()
+                                .stopOrder(point.stopOrder())
+                                .note(point.note())
+                                .departmentId(point.departmentId())
+                                .stopName(point.stopName())
+                                .stopAddress(point.stopAddress())
+                                .stopCity(point.stopCity())
+                                .stopLatitude(point.stopLatitude())
+                                .stopLongitude(point.stopLongitude())
+                                .timeAtDepartment(point.timeAtDepartment())
+                                .build();
                     })
-                    .toList();
+                    .collect(Collectors.toList());
         }
 
         CreateRouteResponse response = CreateRouteResponse.builder()

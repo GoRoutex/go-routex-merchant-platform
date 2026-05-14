@@ -53,6 +53,9 @@ public class InternalMerchantAdminController {
         Merchant merchant = internalMerchantAdminService.fetchMerchantDetail(merchantId, HttpUtils.toContext(baseRequest));
 
         BaseResponse<InternalMerchantResponses.MerchantData> response = BaseResponse.<InternalMerchantResponses.MerchantData>builder()
+                .requestId(baseRequest.getRequestId())
+                .requestDateTime(baseRequest.getRequestDateTime())
+                .channel(baseRequest.getChannel())
                 .result(apiResultFactory.buildSuccess())
                 .data(toMerchantData(merchant))
                 .build();
@@ -74,6 +77,9 @@ public class InternalMerchantAdminController {
                 .toList();
 
         BaseResponse<InternalMerchantResponses.MerchantPage> response = BaseResponse.<InternalMerchantResponses.MerchantPage>builder()
+                .requestId(baseRequest.getRequestId())
+                .requestDateTime(baseRequest.getRequestDateTime())
+                .channel(baseRequest.getChannel())
                 .result(apiResultFactory.buildSuccess())
                 .data(InternalMerchantResponses.MerchantPage.builder()
                         .items(items)

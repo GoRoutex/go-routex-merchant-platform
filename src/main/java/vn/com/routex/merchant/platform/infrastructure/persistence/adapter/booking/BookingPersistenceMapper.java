@@ -27,7 +27,7 @@ public class BookingPersistenceMapper {
                 .build();
     }
 
-    public BookingEntity toJpaEntity(Booking booking) {
+    public BookingEntity toEntity(Booking booking) {
         return BookingEntity.builder()
                 .id(booking.getId())
                 .bookingCode(booking.getBookingCode())
@@ -57,7 +57,7 @@ public class BookingPersistenceMapper {
                 .build();
     }
 
-    public BookingSeatEntity toJpaEntity(BookingSeat bookingSeat) {
+    public BookingSeatEntity toEntity(BookingSeat bookingSeat) {
         return BookingSeatEntity.builder()
                 .id(bookingSeat.getId())
                 .bookingId(bookingSeat.getBookingId())
